@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Java</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center; /* 垂直居中 */
+      justify-content: center; /* 水平居中 */
+      /*height: 100vh; /* 使用视口高度作为容器高度 */
+    }
+
+    .container {
+      max-width: 800px;
+      padding: 20px;
+      background-color: #f1f1f1;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="section" id="section1">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap扩容</h2>
+    <p>
+    <p>当HashMap中的元素数量超过其容量与负载因子的乘积时，就会触发扩容操作。负载因子是控制HashMap何时扩容的一个参数，它表示HashMap可以达到的填充程度的比例。在Java中，默认的负载因子是0.75。</p>
+
+    <p>  下面是HashMap的扩容过程的详细描述：</p>
+
+    <ol><li><p>当HashMap中的元素数量超过容量与负载因子的乘积时，将会触发扩容操作。首先，HashMap会计算新的容量大小，它是原容量的两倍。</p></li><li><p>创建一个新的数组，其长度为新容量大小。</p></li><li><p>遍历原数组中的每个元素，重新计算它们的哈希码，并将它们放入新数组的对应位置。这涉及到重新计算元素的哈希码和确定它们在新数组中的索引位置。</p></li><li><p>如果多个元素计算得到的哈希码相同（即发生了哈希冲突），则使用链表或红黑树解决冲突。根据链表长度和HashMap的阈值（8），决定是否将链表转换为红黑树。</p></li><li><p>将解决冲突后的元素按照顺序连接在新数组的相应位置。链表或红黑树的顺序将保持不变。</p></li><li><p>将新数组设置为HashMap的内部数组，并更新容量和阈值信息。</p><p>需要注意的是，扩容操作可能会导致HashMap的性能短暂下降，因为需要重新计算元素的哈希码并重新分配它们在新数组中的位置。但是，扩容操作是为了减少哈希冲突，从而提高HashMap的性能和效率。</p><p>在Java 8之后，HashMap还引入了树化（Treeify）和树退化（Untreeify）的机制，用于优化具有大量哈希冲突的链表。当链表长度超过阈值（8）时，链表将被转换为红黑树，以提高查找、插入和删除操作的效率。如果树的大小变小到一定程度（6），则将树退化为链表，以节省空间。</p><p>总之，HashMap的扩容过程是自动进行的，它允许HashMap在存储大量元素时保持高效性能。</p></li></ol>
+    </p>
+  </div>
+
+  <div class="section" id="section2">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p>
+    <p>HashMap 是 Java 中的一个实现了 Map 接口的类，因此它的添加元素过程与 Map 的添加元素过程是相同的。下面是详细描述 HashMap/Map 添加元素的过程：</p>
+
+    <ol><li><p>计算键的哈希码：当您向 HashMap/Map 中添加一个键值对时，HashMap/Map 会调用键的 <code>hashCode()</code> 方法来计算其哈希码。哈希码用于确定键值对在内部数据结构中的存储位置。</p></li><li><p>确定存储位置：根据哈希码和内部数据结构（如数组、树）的特性，确定键值对在数据结构中的存储位置。通过对哈希码进行位运算或其他算法，将其映射到数据结构的索引位置。</p></li><li><p>处理哈希冲突：由于不同的键可能产生相同的哈希码，可能会发生哈希冲突。在 HashMap/Map 中，通常使用链表或红黑树来解决哈希冲突。如果发生冲突，新的键值对将被添加到链表或树的头部或相应位置。</p></li><li><p>替换现有值或添加新节点：如果键已经存在于 HashMap/Map 中（即哈希码相同且键通过 <code>equals()</code> 方法比较为相等），则新的值将替换旧的值。否则，将创建一个新的节点，包含键值对，并将其添加到链表或树中。</p></li><li><p>更新相关信息：在添加元素后，HashMap/Map 可能会更新一些相关信息，例如存储的元素数量、容量等，以便后续的操作和性能优化。</p><p>需要注意的是，具体的实现细节可能因不同的编程语言和数据结构而有所差异。HashMap 是基于哈希表实现的，而 Map 是一个接口，可以有多种不同的实现方式，如 TreeMap、LinkedHashMap 等，它们的底层数据结构和具体的添加元素过程可能会有所区别。</p><p>总结起来，HashMap/Map 的添加元素过程涉及计算哈希码、确定存储位置、处理哈希冲突、替换现有值或添加新节点，并可能涉及更新相关信息。这些步骤共同确保了 HashMap/Map 能够高效地存储和检索键值对。</p></li></ol>
+    </p>
+  </div>
+
+  <div class="section" id="section3">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>泛型</h2>
+    <p>
+    <p>Java泛型这个特性是从JDK 1.5<strong>才开始加入的</strong>，为了<strong>兼容之前的版本</strong>，Java泛型的实现采取了“<strong>伪泛型</strong>”的策略，即Java在<strong>语法上支持泛型</strong>，但是在编译阶段会进行所谓的“<strong>类型擦除</strong>”（Type Erasure），<strong>将所有的泛型表示（尖括号中的内容）都替换为具体的类型</strong>（其对应的原生态类型），<strong>就像完全没有泛型一样</strong>。</p>
+
+    <p>泛型就是编写模板代码来适应任意类型；通过<strong>使用泛型</strong>，而<strong>不需要为每种具体类型编写重复的代码</strong>。</p>
+
+    <p>泛型的好处是使用时不必对类型进行强制转换，它通过编译器对类型进行检查；</p>
+
+    <p>在<strong>类、接口和方法</strong>中使用泛型。</p>
+
+    <p><strong>类型擦除</strong>（Type erasure）是指在Java和许多其他编程语言中，泛型类型在编译时会被擦除（擦除为它们的原始类型或限定类型），并在运行时<strong>不再保留泛型类型的具体信息</strong>。这是<strong>为了与Java的早期版本和现有的虚拟机（JVM）兼容。</strong></p>
+
+    <p>类型擦除的主要影响是在运行时无法获取泛型类型的具体信息，只能看到被擦除后的原始类型。这是由于泛型类型的类型参数在编译时被替换为它们的边界类型（或者是Object类型，如果没有显式指定边界）。这样做是为了确保泛型代码与非泛型代码的互操作性。</p>
+
+    <p>以下是类型擦除的一些重要特点：</p>
+
+    <ol><li><p>泛型类型参数被擦除为它们的边界类型：例如，一个泛型类<code>List&lt;T&gt;</code>的类型参数<code>T</code>在运行时被擦除为<code>Object</code>类型。</p></li><li><p>泛型方法的类型参数也会被擦除：泛型方法的类型参数在编译时会被擦除为它们的边界类型。</p></li><li><p>泛型类型的实例化：在实例化泛型类型时，编译器会插入必要的转换代码来保持类型安全。</p></li><li><p>无法在运行时获得泛型类型的具体信息：由于类型擦除，无法在运行时检查或操作泛型类型的具体参数类型。</p></li></ol>
+
+    <p>尽管类型擦除导致在运行时丢失了泛型类型的具体信息，但通过反射和一些编译器生成的辅助信息，仍然可以进行某些操作，如获取泛型类型的边界、判断对象是否为泛型类型等。</p>
+
+    <p>类型擦除的优势是它确保了泛型代码与旧版Java代码和现有的JVM的兼容性，同时避免了额外的运行时开销。然而，它也限制了在运行时获取泛型类型信息的能力。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section4">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>String/Buffer/Builder</h2>
+    <p>
+    <p>在Java中，<code>String</code>、<code>StringBuilder</code>和<code>StringBuffer</code>都是用于处理字符串的类，但它们之间有一些区别。</p>
+
+    <ol><li><code>String</code>：<ul><li><code>String</code>是不可变（immutable）的类，一旦创建就不能被修改。</li><li>每次对<code>String</code>进行操作（如拼接、替换等），都会创建一个新的<code>String</code>对象，原始的<code>String</code>对象不会被改变。</li><li><code>String</code>适用于对字符串进行频繁的读取操作，但不适用于频繁的修改操作，因为每次修改都会创建新的对象，导致内存开销。</li></ul></li><li><code>StringBuilder</code>：<ul><li><code>StringBuilder</code>是可变的类，用于在单线程环境下进行字符串操作。</li><li><code>StringBuilder</code>的方法可以直接修改对象本身，而不需要创建新的对象。</li><li><code>StringBuilder</code>适用于需要频繁修改字符串内容的场景，如字符串拼接、替换等操作。</li></ul></li><li><code>StringBuffer</code>：<ul><li><code>StringBuffer</code>与<code>StringBuilder</code>类似，也是可变的类，用于在多线程环境下进行字符串操作。</li><li><code>StringBuffer</code>的方法也可以直接修改对象本身。</li><li><code>StringBuffer</code>相比<code>StringBuilder</code>的性能略低，因为它是线程安全的，通过加锁来保证多线程环境下的数据一致性。</li><li>如果在单线程环境下进行字符串操作，通常更推荐使用<code>StringBuilder</code>，因为它的性能更高。</li></ul></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section5">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>接口和抽象类</h2>
+    <p>
+    <p>接口（Interface）和抽象类（Abstract Class）是Java中用于实现抽象和多态的机制，它们在语法和语义上有一些区别。</p>
+
+    <p>接口（Interface）：</p>
+
+    <ul><li>接口是一种完全抽象的类，它不能被实例化。</li><li>接口定义了一组抽象方法（没有方法体）和常量（默认为<code>public static final</code>）。</li><li>类可以实现（implement）一个或多个接口，通过实现接口的所有抽象方法来达到接口的约束。</li><li>一个类可以同时实现多个接口，从而具备多个接口的行为能力。</li><li>接口通过提供一组统一的方法签名，定义了一种契约，用于实现类来实现具体的行为。</li></ul>
+
+    <p>抽象类（Abstract Class）：</p>
+
+    <ul><li>抽象类是一种部分实现的类，它不能被实例化。</li><li>抽象类可以包含抽象方法（没有方法体）和具体方法（有方法体）。</li><li>类可以继承（extend）一个抽象类，并且必须实现抽象类中的所有抽象方法，或者将自己声明为抽象类。</li><li>抽象类可以包含成员变量、构造方法和非抽象方法，提供了一些共享的实现和状态。</li></ul>
+
+    <p>区别：</p>
+
+    <ul><li>接口只能定义抽象方法和常量，而抽象类可以包含具体方法和成员变量。</li><li>类实现接口时使用<code>implements</code>关键字，类继承抽象类时使用<code>extends</code>关键字。</li><li>类可以同时实现多个接口，但只能继承一个抽象类。</li><li>接口中的方法默认为<code>public</code>，而抽象类中的方法可以有不同的访问修饰符。</li><li>接口用于定义类型和行为的规范，而抽象类用于封装通用的实现和状态。</li></ul>
+
+    <p>选择接口还是抽象类取决于具体的需求和设计目标。接口适用于定义不同类之间的契约和规范，实现类需要遵循接口的约束。抽象类适用于具有共享实现和状态的类层次结构，提供了一些默认的实现和通用的功能。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section6">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>封装继承多态</h2>
+    <p>
+    <p>封装、继承和多态是面向对象编程（OOP）的三大基本特征，它们是Java中面向对象编程的核心概念。</p>
+
+    <ol><li><strong>封装（Encapsulation）</strong>：<ul><li><strong>概念</strong>：封装是将对象的<strong>状态封装成类的成员变量</strong> ，<strong>对象的行为封装成类的方法</strong>，<strong>只提供一些方法供外部访问。</strong></li><li><strong>目的</strong>：<strong>避免直接访问对象的内部数据</strong>，<strong>提高代码的安全性和可维护性</strong>，通过公共方法来控制对象的状态。</li><li><strong>示例</strong>：使用private修饰成员变量，提供public方法（getter和setter）来访问和修改这些变量。</li></ul></li><li><strong>继承（Inheritance）</strong>：<ul><li><strong>概念</strong>：继承是一种机制，允许一个类（子类/派生类）继承另一个类（父类/基类）的属性和方法，以便在子类中重用父类的功能。</li><li><strong>目的</strong>：提高<strong>代码的可重用</strong>性，通过创建<strong>子类来扩展父类的功能</strong>，同时<strong>保留了父类的特性</strong>。</li><li><strong>示例</strong>：<code>extends</code>关键字用于创建子类，子类可以继承父类的非私有成员和方法。</li></ul></li><li><strong>多态（Polymorphism）</strong>：<ul><li><strong>概念</strong>：多态是指<strong>同一种操作或方法</strong>可以<strong>在不同的对象上产生不同的行为</strong>。它包括编译时多态和运行时多态。      例子：动物  狮子吃肉 马吃草</li><li><strong>目的</strong>：提高代码的灵活性，使不同的子类对象能够以统一的方式被处理。</li><li><strong>示例</strong>：方法<strong>重载</strong>（方法名称相同，参数不同）和方法<strong>重写</strong>（子类覆盖父类的方法）是实现多态的方式。</li></ul></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section7">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap/Hashtable</h2>
+    <p>
+    <p><strong>线程是否安全</strong>： HashMap 是非线程安全的，Hashtable 是线程安全的,因为 Hashtable 内部的方法基本都经过synchronized 修饰。（如果你要保证线程安全的话就使用 ConcurrentHashMap 吧！）；</p>
+
+    <p><strong>效率</strong>： 因为线程安全的问题，HashMap 要比 Hashtable 效率高一点。另外，Hashtable 基本被淘汰，不要在代码中使用它；</p>
+
+    <p><strong>对 Null key 和 Null value 的支持</strong>： HashMap 可以存储 null 的 key 和 value，但 null 作为键只能有一个，null 作为值可以有多个；Hashtable 不允许有 null 键和 null 值，否则会抛出 NullPointerException。</p>
+
+    <p><strong>初始容量大小和每次扩充容量大小的不同</strong>： ① 创建时如果不指定容量初始值，<strong>Hashtable 默认的初始大小为 11</strong>，<strong>之后每次扩充，容量变为原来的 2n+1</strong>。<strong>HashMap 默认的初始化大小为 16。之后每次扩充，容量变为原来的 2 倍。</strong>② 创建时如果给定了容量初始值，那么 Hashtable 会直接使用你给定的大小，而 HashMap 会将其扩充为 2 的幂次方大小（HashMap 中的tableSizeFor()方法保证，下面给出了源代码）。也就是说 HashMap 总是使用 2 的幂作为哈希表的大小,后面会介绍到为什么是 2 的幂次方。</p>
+
+    <p><strong>底层数据结构</strong>： JDK1.8 以后的 <strong>HashMap 在解决哈希冲突时有了较大的变化，当链表长度大于阈值（默认为 8）时，将链表转化为红黑树</strong>（将链表转换成红黑树前会判断，如果当前数组的长度小于 64，那么会选择先进行数组扩容，而不是转换为红黑树），以减少搜索时间（后文中我会结合源码对这一过程进行分析）。<strong>Hashtable 没有这样的机制。</strong></p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section8">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>ConcurrentHashMap实现原理</h2>
+    <p>
+    <p><strong>JDK1.8 之前:</strong></p>
+
+    <p>首先将数据分为一段一段（这个“段”就是 Segment）的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据时，其他段的数据也能被其他线程访问。</p>
+
+    <p>ConcurrentHashMap 是由 Segment 数组结构和 HashEntry 数组结构组成。</p>
+
+    <p>Segment 继承了 ReentrantLock,所以 Segment 是一种可重入锁，扮演锁的角色。HashEntry 用于存储键值对数据。</p>
+
+    <p>Segment 数组的长度一旦初始化就不能改变。 Segment 数组的大小默认是 16，也就是说默认可以同时支持 16 个线程并发写。</p>
+
+    <p>当对 HashEntry 数组的数据进行修改时，必须首先获得对应的 Segment 的锁。也就是说，对同一 Segment 的并发写入会被阻塞，不同 Segment 的写入是可以并发执行的。</p>
+
+    <p><strong>JDK1.8后：</strong></p>
+
+    <p>Java 8 重写了 ConcurrentHashMap。</p>
+
+    <p>ConcurrentHashMap <strong>取消了 Segment 分段锁</strong>，采用 <strong>Node + CAS + synchronized</strong> 来<strong>保证并发安全</strong>。数据结构跟 HashMap 1.8 的结构类似，数组+链表/红黑二叉树。Java 8 在链表长度超过一定阈值（8）时将链表（寻址时间复杂度为 O(N)）转换为红黑树（寻址时间复杂度为 O(log(N))）。</p>
+
+    <p>锁粒度更细，synchronized 只锁定当前链表或红黑二叉树的首节点，这样只要 hash 不冲突，就不会产生并发，就不会影响其他 Node 的读写，效率大幅提升。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section9">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap长度2^n</h2>
+    <p>
+    <p>HashMap 的容量选择为 2 的次方<strong>主要是为了优化计算哈希值的过程</strong>。</p>
+
+    <p>HashMap 使用哈希函数将键的哈希码映射到<strong>桶索引</strong>，桶索引的计算通常使用以下操作：<code>**hash &amp; (capacity - 1)**</code>，其中 <code>hash</code> 是键的哈希码，<code>capacity</code> 是 HashMap 的容量。</p>
+
+    <p><strong>当容量为 2 的次方时，<code>capacity - 1</code> 的二进制表示形式为全 1。这意味着对任何哈希码的值进行 <code>hash &amp; (capacity - 1)</code> 的操作都等于取哈希码的低位。</strong>由于哈希码的分布是均匀的，<strong>低位的变化更加随机</strong>，因此在计算桶索引时，<strong>可以更均匀地分布在桶数组中，减少哈希冲突的概率。</strong></p>
+
+    <p>这样的设计有助于提高 HashMap 的性能。在插入、查找和删除等操作中，通过更均匀的分布可以<strong>使得桶的利用率更高，减少链表长度</strong>，降低哈希冲突的发生概率。同时，这也使得哈希表的性能在大多数情况下更为稳定。</p>
+
+    <p>总的来说，HashMap 选择容量为 2 的次方是为了更好地分布哈希码，减少哈希冲突，提高 HashMap 的性能。在实际使用中，这种设计通常能够有效地平衡空间利用率和性能。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section10">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashCode/equals</h2>
+    <p>
+    <p>hashCode()方法和equal()方法的<strong>作用其实一样</strong>，在<a href="https://links.jianshu.com/go?to=http%3A%2F%2Flib.csdn.net%2Fbase%2Fjava">Java</a>里都是用来<strong>对比两个对象是否相等一致</strong>，那么equal()既然已经能实现对比的功能了，为什么还要hashCode()呢？</p>
+
+    <p>​    因为重写的<strong>equal（）里一般比较的比较全面比较复杂，这样效率就比较低，而利用hashCode()进行对比，则只要生成一个hash值进行比较就可以了，效率很高</strong>，那么hashCode()既然效率这么高为什么还要equal()呢？</p>
+
+    <p>​     因为<strong>hashCode()并不是完全可靠</strong>，有时候<strong>不同的对象他们生成的hashcode也会一样</strong>（生成hash值得公式可能存在的问题），所以hashCode()只能说是大部分时候可靠，并不是绝对可靠，所以我们可以得出：</p>
+
+    <p>​    <strong>1.equal()相等的两个对象他们的hashCode()肯定相等</strong>，也就是用equal()对比是绝对可靠的。</p>
+
+    <p>​     <strong>2.hashCode()相等的两个对象他们的equal()不一定相等</strong>，也就是hashCode()不是绝对可靠的。</p>
+
+    <p>​    这种大量的并且快速的对象对比一般使用的hash容器中，比如hashset,hashmap,hashtable等等，比如hashset里要求对象不能重复，则他内部必然要对添加进去的每个对象进行对比，而他的对比规则就是像上面说的那样，先hashCode()，如果hashCode()相同，再用equal()验证，如果hashCode()都不同，则肯定不同，这样对比的效率就很高了。</p>
+
+    <p>​    然而hashCode()和equal()一样都是基本类Object里的方法，而和equal()一样，Object里hashCode()里面只是返回当前对象的地址，如果是这样的话，那么我们相同的一个类，new两个对象，由于他们在内存里的地址不同，则他们的hashCode（）不同，所以这显然不是我们想要的，所以我们必须重写我们类的hashCode()方法，即一个类，在hashCode()里面返回唯一的一个hash值，比如下面：</p>
+
+    <p>自定义一个类 </p>
+
+    <blockquote><p>  class Person{</p><p>​    int num;</p><p>​    String name;</p><p>​    public int hashCode(){</p><p>​       return num*name.hashCode(); }}</p></blockquote>
+
+    <p>​    由于标识这个类的是他的内部的变量num和name,所以我们就根据他们返回一个hash值，作为这个类的唯一hash值。</p>
+
+    <p>​    所以如果我们的对象要想放进hashSet，并且发挥hashSet的特性（即不包含一样的对象），则我们就要重写我们类的hashCode()和equal()方法了。像String,Integer等这种类内部都已经重写了这两个方法。</p>
+
+    <p>​    当然如果我们只是平时想对比两个对象 是否一致，则只重写一个equal()，然后利用equal()去对比也行的。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section11">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>==/equals</h2>
+    <p>
+    <p><strong><code>==</code></strong> 对于基本类型和引用类型的作用效果是不同的：</p>
+
+    <ul><li>对于基本数据类型来说，<code>==</code> 比较的是值。</li><li>对于引用数据类型来说，<code>==</code> 比较的是对象的内存地址。</li></ul>
+
+    <blockquote><p>因为 Java 只有值传递，所以，对于 == 来说，不管是比较基本数据类型，还是引用数据类型的变量，其本质比较的都是值，只是引用类型变量存的值是对象的地址。</p></blockquote>
+
+    <p><strong><code>equals()</code></strong> 不能用于判断基本数据类型的变量，只能用来判断两个对象是否相等。<code>equals()</code>方法存在于<code>Object</code>类中，而<code>Object</code>类是所有类的直接或间接父类，因此所有的类都有<code>equals()</code>方法。</p>
+
+    <p><code>Object</code> 类 <code>equals()</code> 方法：</p>
+
+    <p><code>java
+      public boolean equals(Object obj) {
+      return (this == obj);
+      }
+    </code></p>
+
+    <p><code>equals()</code> 方法存在两种使用情况：</p>
+
+    <ul><li><strong>类没有重写 <code>equals()</code>方法</strong>：通过<code>equals()</code>比较该类的两个对象时，等价于通过“==”比较这两个对象，使用的默认是 <code>Object</code>类<code>equals()</code>方法。</li><li><strong>类重写了 <code>equals()</code>方法</strong>：一般我们都重写 <code>equals()</code>方法来比较两个对象中的属性是否相等；若它们的属性相等，则返回 true(即，认为这两个对象相等)。</li></ul>
+
+    </p>
+  </div>
+
+  <div class="section" id="section12">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>反射</h2>
+    <p>
+    <p>通过<strong>反射</strong>机制是指<strong>在程序运行时动态地获取类的信息并操作类的属性和方法</strong>。通过反射，可以在运行时获取类的结构信息，如类的属性、方法、构造函数等，并且可以在运行时调用类的方法、访问和修改类的成员变量。</p>
+
+    <p>在Java中，<strong>Java源文件经过编译器编译后会生成字节码文件</strong>，<strong>然后JVM将字节码文件加载到内存中</strong>。在加载过程中，<strong>字节码文件被视为一个对象，其类型为Class</strong>。</p>
+
+    <p>获取Class对象有三种基本方式：</p>
+
+    <ol><li>类名.class：<strong>使用类名后加上<code>.class</code>来获取对应的Class对象</strong>，例如<code>Class c = MyClass.class;</code>。</li><li><strong>对象.getClass()方法：通过已经存在的对象调用<code>getClass()</code>方法来获取对应的Class对象</strong>，例如<code>Class c = obj.getClass();</code>。（例如 ：判断一个对象是否实现了某个接口）</li><li>Class.forName()方法：<strong>通过类的全路径名称使用<code>Class.forName()</code>方法加载类</strong>，可以得到对应的Class对象，例如<code>Class c = Class.forName(&quot;com.example.MyClass&quot;);</code>。</li></ol>
+
+    <p><strong>获取到Class对象后，我们就可以</strong>：</p>
+
+    <ol><li>获取Constructor对象：<strong>通过Class对象的getConstructor()获取Constructor对象</strong>、getDeclaredConstructor()等方法获取Constructor对象，用于创建类的实例。</li><li>创建实例：<strong>使用Constructor对象的newInstance()方法创建类的实例。</strong></li><li>获取Method对象：<strong>通过Class对象的getMethod()</strong>、getDeclaredMethod()等<strong>方法获取Method对象，用于调用类的方法。</strong></li><li>调用方法：使用Method对象的invoke()方法调用类的方法。</li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section13">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>String final</h2>
+    <p>
+    <p>在 Java 中，<strong>String 类是被声明为 final</strong> 的，这意味着<strong>它不能被继承</strong>。</p>
+
+    <p>String 类被设计为不可变的（immutable），<strong>这意味着一旦创建了 String 对象，它的值就不能被修改</strong>。这种设计<strong>有助于在多线程环境下提供线程安全性</strong>，并且<strong>字符串的不可变性在字符串拼接</strong>、缓存和<strong>哈希等操作中具有重要的作用。</strong></p>
+
+    <p><strong>如果 String 类可以被继承，那么子类可以重写父类的方法，改变字符串的不可变性，从而可能破坏字符串对象的安全性和一致性。</strong>为了保护 String 类的特性，并确保字符串对象的正确性和稳定性，Java 设计者选择将 String 类声明为 final，不允许其被继承。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section14">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>序列化</h2>
+    <p>
+    <p>序列化（Serialization）是指将<strong>对象转换为字节流</strong>的过程，以便在<strong>网络传输</strong>或存储到文件系统中<strong>进行持久化</strong>。序列化可以使对象在不同平台或应用程序之间进行数据传输或保存状态。</p>
+
+    <p>在 Java 中，<strong>对象的序列化是通过实现 Serializable 接口来实现的。Serializable 接口是一个标记接口，没有定义任何方法，它仅用于标识一个类可以被序列化。</strong>当一个类实现了 Serializable 接口时，它的对象就可以被序列化和反序列化。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section15">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>ConcurrentHashMap null key or value</h2>
+    <p>
+    <p>ConcurrentHashMap 的 key 和 value 不能为 null <strong>主要是为了避免二义性</strong>。<strong>null 是一个特殊的值，表示没有对象或没有引用</strong>。如果你<strong>用 null 作为键</strong>，那么你就<strong>无法区分这个键是否存在于 ConcurrentHashMap 中</strong>，<strong>还是根本没有这个键</strong>。同样，<strong>如果你用 null 作为值，那么你就无法区分这个值是否是真正存储在 ConcurrentHashMap 中的，还是因为找不到对应的键而返回的。</strong></p>
+
+    <p>拿 get 方法取值来说，返回的结果为 null 存在两种情况：</p>
+
+    <p>值没有在集合中 ；</p>
+
+    <p>值本身就是 null。</p>
+
+    <p>这也就是二义性的由来。</p>
+
+    <p><strong>多线程环境下</strong>，<strong>存在一个线程操作 ConcurrentHashMap 时，其他的线程将 ConcurrentHashMap 修改的情况</strong>，所以<strong>无法通过 containsKey(key) 来判断否存在这个键值对，也就没办法解决二义性问题了。</strong></p>
+
+    <p>与此形成对比的是，<strong>HashMap 可以存储 null 的 key 和 value，但 null 作为键只能有一个，null 作为值可以有多个。</strong>如果传入 null 作为参数，就会返回 hash 值为 0 的位置的值。<strong>单线程环境下，不存在一个线程操作该 HashMap 时，其他的线程将该 HashMap 修改的情况，所以可以通过 contains(key)来做判断是否存在这个键值对</strong>，从而做相应的处理，也就不存在二义性问题。</p>
+
+    <p>如果你确实需要在 ConcurrentHashMap 中使用 null 的话，可以使用一个特殊的静态空对象来代替 null。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section16">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap为何使用红黑树</h2>
+    <p>
+    <p>在实际应用中，HashMap 选择使用<strong>红黑树而不是 AVL 树</strong>的原因主要是<strong>基于性能和代价</strong>的考虑。虽然 <strong>AVL 树在查找操作上可能更高效</strong>，但由于 <strong>AVL 树要求严格的平衡</strong>，插入和删除操作可能需要<strong>频繁地进行调整</strong>，这会导致<strong>复杂度和耗时的增加。</strong></p>
+
+    <p><strong>相比之下，红黑树通过牺牲严格的平衡性</strong>，<strong>仅要求近似平衡</strong>，从而<strong>降低了维护的成本</strong>。<strong>红黑树的插入、删除和查找操作的性能都比较稳定</strong>，并且在大多数情况下能够提供较好的性能表现。</p>
+
+    <p>因此，在 HashMap 中选择红黑树作为解决哈希冲突的数据结构，是为了在维护<strong>平衡性和性能之间取得一个良好的平衡点</strong>，以提供高效的插入、删除和查找操作，并降低维护成本。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section17">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p>
+
+
+    </p>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Spring</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center; /* 垂直居中 */
+      justify-content: center; /* 水平居中 */
+      /*height: 100vh; /* 使用视口高度作为容器高度 */
+    }
+
+    .container {
+      max-width: 800px;
+      padding: 20px;
+      background-color: #f1f1f1;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="section" id="section2">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>IoC</h2>
+    <p>
+    <p><strong>介绍：</strong>Ioc—Inversion of Control，即“控制反转”，不是什么技术，而是一种设计思想。Ioc意味着将你设计好的对象交给容器控制，由容器帮我们查找和注入依赖的对象，对象只是被动的接受所依赖的对象。传统的在你的对象内部直接控制，需要哪个对象就在对象内部new一个需要的对象。</p>
+
+    <p><strong>优点：</strong></p>
+
+    <ol><li>IoC这种思想能帮我们如何设计出高内聚、低耦合的程序。因为在类内部主动创建依赖对象，会导致类与类之间高耦合，如果通过容器来注入需要的对象，对象与对象之间低耦合。</li><li>也方便测试，利于功能复用。</li></ol>
+
+    <p><strong>原理：</strong></p>
+
+    <p>Spring框架通过以下方式实现IoC：</p>
+
+    <ol><li>Bean定义：<strong>在Spring中，通过配置文件（如XML文件）或使用注解来定义Bean。</strong>Bean定义包括Bean的标识符（ID或名称）和相关的配置信息，例如类名、作用域、依赖关系等。</li><li>容器：Spring容器负责创建和管理Bean。它根据Bean定义实例化Bean，并自动解析和注入Bean之间的依赖关系。<strong>Spring容器有两种常用的实现：BeanFactory和ApplicationContext。BeanFactory提供了基本的IoC功能，而ApplicationContext是BeanFactory的扩展，提供了更多的企业级特性，例如国际化、事件传播、资源加载等。</strong></li><li>依赖注入（Dependency Injection）：Spring容器使用依赖注入将Bean的依赖关系注入到对象中。<strong>依赖注入有三种常见的方式：构造函数注入、setter方法注入和接口注入。通过依赖注入</strong>，Spring容器会自动解析和注入依赖的对象，从而实现了对象之间的解耦。</li><li>生命周期管理：Spring容器管理Bean的生命周期，包括创建、初始化和销毁。可以通过配置初始化方法和销毁方法来定义Bean的生命周期回调。</li></ol>
+
+    <p>IoC是spring的核心，贯穿始终。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section3">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>DI</h2>
+    <p>
+    <p>依赖注入（Dependency Injection）：通常说依赖注入是IoC的另一种解释，但是我更愿意理解为Spring容器使用依赖注入将Bean的依赖关系注入到对象中。</p>
+
+    <p>依赖注入有三种常见的方式：</p>
+
+    <ol><li>构造函数注入</li><li>setter方法注入</li><li>接口注入</li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section4">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>BeanFactory/ApplicationContext</h2>
+    <p>
+    <p><strong>BeanFactory：</strong>它就是 Spring IoC 容器的真面目。定义了IOC的基本功能，</p>
+
+    <ol><li><strong>有获取实例的getBean方法</strong></li><li><strong>还有判断bean是否存在，是否是单例、原型。</strong></li><li>获取类型、获取别名</li></ol>
+
+    <p><strong>ApplicationContext： </strong>  <strong>ApplicationContext接口继承BeanFactory接口</strong>。提供了更多面向实际应用的功能。在BeanFactory中，很多功能需要以编程的方式实现，而在ApplicationContext中则可以通过配置实现。</p>
+
+    <p>BeanFactorty接口提供了配置框架及基本功能，但是无法支持spring的aop功能</p>
+
+    <p>而ApplicationContext接口<strong>提供BeanFactory所有的功能。而且ApplicationContext还在功能上做了扩展</strong>，相较于BeanFactorty，ApplicationContext还提供了以下的功能： </p>
+
+    <p><strong>国际化支持</strong>：</p>
+
+    <p>Spring的ApplicationContext提供了<strong>国际化支持，使得应用程序可以根据不同的语言和地区，展示相应的文本信息。</strong>这对于开发多语言的应用程序非常有用。</p>
+
+    <p>国际化支持的关键是资源绑定和本地化。Spring通过资源束（ResourceBundle）和MessageSource来实现国际化。资源束是一组本地化的文本资源文件，每个文件对应一个语言和地区。MessageSource是一个接口，定义了获取本地化消息的方法。</p>
+
+    <p>在Spring中，可以通过配置文件或注解来定义资源束和MessageSource，并在应用程序中使用getMessage()方法获取本地化消息。</p>
+
+    <p><strong>事件发布：</strong></p>
+
+    <p>Spring的ApplicationContext提供了事件发布和监听的机制。应用程序可以定义自己的事件，并在适当的时候发布事件，同时可以定义相应的监听器来处理事件。</p>
+
+    <p><strong>AOP集成</strong>：</p>
+
+    <p><strong>Spring的ApplicationContext集成了AOP（面向切面编程）的功能</strong>。AOP允许开发者在不修改原有代码的情况下，通过切入点、切面和通知等概念，实现对系统的横切关注点的统一管理。</p>
+
+    <h3><strong>BeanFactroy和Applicationcontex 区别</strong></h3>
+
+    <ol><li><p>BeanFactroy采用的是延迟加载形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())，才对该Bean进行加载实例化，ApplicationContext则相反，它是在容器启动时，一次性创建了所有的Bean。这样，在容器启动时，我们就可以发现Spring中存在的配置错误。不足是占用内存空间。当应用程序配置Bean较多时，程序启动较慢。</p></li><li><p>beanFactory主要是面对与 spring 框架的基础设施，面对 spring 自己。而 Applicationcontex 主要面对与 spring 使用的开发者。基本都会使用 Applicationcontex 并非 beanFactory 。</p></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section5">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>AOP</h2>
+    <p>
+    <p>AOP称为面向切面编程。我们学Java面向对象的时候，如果代码重复了</p>
+
+    <ol><li><p>：抽取成方法</p></li><li><p>：抽取类</p></li></ol>
+
+    <p>但是即使抽取成类还是会出现重复的代码，因为这些逻辑依附在我们业务类的方法逻辑中！AOP的理念：就是将分散在各个业务逻辑代码中相同的代码通过横向切割的方式抽取到一个独立的模块中！</p>
+
+    <p>没有学Spring AOP之前，我们就可以使用代理来完成。代理可以帮我们增强对象的行为！使用动态代理实质上就是调用时拦截对象方法，对方法进行改造、增强！其实Spring AOP的底层原理就是动态代理！</p>
+
+    <p>JDK动态代理和CGLib动态代理都是Java中常用的实现代理模式的方式。</p>
+
+    <ol><li>JDK动态代理：
+      JDK动态代理是通过Java的<strong>反射机制来实现</strong>的。它要求<strong>被代理的类实现一个接口</strong>，并且代理类和被代理类之间有共同的接口。在运行时，JDK动态代理通过创建一个代理类来包装被代理对象，并且代理类实现了被代理接口。通过代理类，可以拦截对被代理对象的方法调用，并在调用前后执行额外的逻辑。JDK动态代理的一个限制是只能代理接口，无法代理类。</li><li>CGLib动态代理：
+      <strong>CGLib动态代理是通过继承被代理类来实现的，而不是像JDK动态代理那样要求实现接口。</strong>CGLib动态代理通过生成一个被代理类的子类，并重写被代理类的方法来实现代理。通过继承，CGLib动态代理可以代理非接口类。在运行时，对代理类的方法调用会被重定向到代理类中的代理方法，从而可以在调用前后添加额外的逻辑。</li></ol>
+
+    <p>比较：</p>
+
+    <ul><li>JDK动态代理要求被代理类实现接口，而CGLib动态代理可以代理非接口类。</li><li>JDK动态代理使用Java的反射机制，CGLib动态代理使用继承来实现，<strong>因此CGLib动态代理的性能通常比JDK动态代理略差。</strong></li><li><strong>由于CGLib动态代理是通过继承来实现的，所以无法代理被final修饰的类和方法。</strong></li></ul>
+
+    <p>选择使用JDK动态代理还是CGLib动态代理，取决于具体的需求和场景。如果需要代理接口或者已有的非final类，并且性能要求不是特别高，可以选择JDK动态代理。如果需要代理非接口类或者对性能有较高要求，可以选择CGLib动态代理。</p>
+
+    <p><strong>Spring AOP默认是使用JDK动态代理，如果代理的类没有接口则会使用CGLib代理。</strong></p>
+
+    <p>Spring AOP(面向切面编程)了：<strong>将相同逻辑的重复代码横向抽取出来，使用动态代理技术将这些重复代码织入到目标对象方法中，实现和原来一样的功能。</strong></p>
+
+    <p>这样一来，我们就<strong>在写业务时只关心业务代码，而不用关心与业务无关的代码</strong></p>
+
+    <p>AOP除了有Spring AOP实现外，还有著名的AOP实现者：AspectJ</p>
+
+    <p>AspectJ是语言级别的AOP实现，扩展了Java语言，定义了AOP语法，能够在编译期提供横切代码的织入，所以它有专门的编译器用来生成遵守Java字节码规范的Class文件。</p>
+
+    <p>而Spring借鉴了AspectJ很多非常有用的做法，融合了AspectJ实现AOP的功能。但Spring AOP本质上底层还是动态代理，所以Spring AOP是不需要有专门的编辑器的~</p>
+
+    <p>1.4AOP的术语</p>
+
+    <p><strong>连接点(Join point)：</strong></p>
+
+    <p>能够被拦截的地方：Spring AOP是基于动态代理的，所以是方法拦截的。<strong>每个成员方法都可以称之为连接点</strong>~</p>
+
+    <p><strong>切点(Poincut)：</strong></p>
+
+    <p>具体定位的连接点：上面也说了，<strong>每个方法都可以称之为连接点，我们具体定位到某一个方法就成为切点。</strong></p>
+
+    <p><strong>增强/通知(Advice)：</strong></p>
+
+    <p><strong>表示添加到切点的一段逻辑代码</strong>，并定位连接点的方位信息。</p>
+
+    <p>简单来说就定义了是干什么的，具体是在哪干</p>
+
+    <p>Spring AOP提供了5种Advice类型给我们：前置、后置、返回、异常、环绕给我们使用！</p>
+
+    <p><strong>织入(Weaving)：</strong></p>
+
+    <p>将增强/通知添加到目标类的具体连接点上的过程。</p>
+
+    <p><strong>引入/引介(Introduction)：</strong></p>
+
+    <p>引入/引介允许我们向现有的类添加新方法或属性。是一种特殊的增强！</p>
+
+    <p><strong>切面(Aspect)：</strong></p>
+
+    <p>切面由切点和增强/通知组成，它既包括了横切逻辑的定义、也包括了连接点的定义。</p>
+
+    <p>在《Spring 实战 (第4版)》给出的总结是这样子的：</p>
+
+    <p>通知/增强包含了需要用于多个应用对象的横切行为；连接点是程序执行过程中能够应用通知的所有点；切点定义了通知/增强被应用的具体位置。其中关键的是切点定义了哪些连接点会得到通知/增强。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section6">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Spring MVC工作流程</h2>
+    <p>
+    <ol><li><p>客户端（浏览器）发送请求， <code>DispatcherServlet</code>拦截请求。</p></li><li><p><code>DispatcherServlet</code> 根据请求信息调用 <code>HandlerMapping</code> 。<code>HandlerMapping</code> 根据 URL 去匹配查找能处理的 <code>Handler</code>（也就是我们平常说的 <code>Controller</code> 控制器） ，并会将请求涉及到的拦截器和 <code>Handler</code> 一起封装。</p></li><li><code>DispatcherServlet</code> 调用 <code>HandlerAdapter</code>适配器执行 <code>Handler</code> 。</li><li><code>Handler</code> 完成对用户请求的处理后，会返回一个 <code>ModelAndView</code> 对象给<code>DispatcherServlet</code>，<code>ModelAndView</code> 顾名思义，包含了数据模型以及相应的视图的信息。<code>Model</code> 是返回的数据对象，<code>View</code> 是个逻辑上的 <code>View</code>。</li><li>ViewResolver<code> 会根据逻辑 </code>View<code> 查找实际的 </code>View<code>。</code></li><li><code>DispaterServlet</code> 把返回的 <code>Model</code> 传给 <code>View</code>（视图渲染）。</li><li>把 <code>View</code> 返回给请求者（浏览器）</li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section7">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Bean生命周期</h2>
+    <p>
+    <p>在Spring容器中，Bean的生命周期包括<strong>实例化、属性填充、初始化和销毁。</strong></p>
+
+    <ol><li><p>实例化Bean：当容器<strong>接收到对尚未初始化的Bean的请求时</strong>，<strong>容器会通过反射创建Bean的实例</strong>。</p></li><li><p>属性填充：<strong>在Bean实例创建后，容器会进行属性填充，将其他Bean作为依赖注入到当前Bean中。</strong></p></li><li><p>初始化Bean：<strong>初始化阶段</strong>包括以下几个步骤：</p><ul><li><p>执行Aware接口的方法：<strong>Spring会检测Bean是否实现了特定的Aware接口</strong>，通过这些接口可以让Bean获取到Spring容器的相关资源，<strong>实现BeanNameAware接口的Bean可以获取自己在Spring容器中的唯一名称。</strong>这个名称可以在Bean初始化过程中被注入，可以在需要时用于记录日志、生成唯一标识符等操作。</p></li><li><strong>执行BeanPostProcessor的前置处理方法</strong>：执行自定义前置处理逻辑。在初始化之前，Spring会调用BeanPostProcessor的<code>postProcessBeforeInitialization()</code>方法，可以进行一些自定义的前置处理逻辑。</li><li><strong>判断Bean是否实现了InitializingBean接口：如果Bean实现了InitializingBean接口，将会调用其<code>afterPropertiesSet()</code>方法来进行初始化。</strong>（数据处理，资源初始化）</li><li>执行用户自定义的初始化方法：通过配置文件或注解，可以指定Bean的初始化方法，如<code>init-method</code>，在这个阶段会执行这些自定义的初始化方法。</li><li><p>执行BeanPostProcessor的后置处理方法：在初始化完成后，Spring会调用BeanPostProcessor的<code>postProcessAfterInitialization()</code>方法，可以进行一些自定义的后置处理逻辑。</p></li></ul></li><li><p>销毁Bean：<strong>当Bean不再需要时，容器会进行销毁操作</strong>，包括以下几个步骤：</p><p><strong>在这个过程也会判断是否实现了某些接口，执行特定的逻辑。</strong></p><ul><li><p>判断Bean是否实现了DestructionAwareBeanPostProcessor接口：如果实现了该接口，容器会调用其销毁回调方法。</p></li><li>判断Bean是否实现了DisposableBean接口：如果实现了该接口，容器会调用其<code>destroy()</code>方法进行销毁操作。</li><li>判断是否配置了自定义的销毁方法：通过配置文件或注解，可以指定Bean的销毁方法，如<code>destroy-method</code>，在这个阶段会自动调用这些自定义的销毁方法。</li></ul></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section8">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+</div>
+</body>
+</html>

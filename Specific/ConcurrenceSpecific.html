@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Concurrence</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            /*height: 100vh; /* 使用视口高度作为容器高度 */
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="section" id="section1">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>乐观锁/悲观锁</h2>
+        <p>
+        <p>Java中的锁机制包括乐观锁和悲观锁，它们是用于多线程环境下实现线程安全的方式。</p>
+
+        <ol><li>悲观锁（Pessimistic Locking）：
+            悲观锁假设会发生并发冲突，因此在访问共享资源之前会先加锁，确保在一个线程访问时，其他线程无法同时修改该资源。悲观锁的典型应用是使用synchronized关键字或ReentrantLock类进行加锁操作。当一个线程获得了悲观锁后，其他线程必须等待该线程释放锁才能继续访问共享资源。</li></ol>
+
+        <p>示例使用synchronized关键字实现悲观锁：
+            <code>java
+                public synchronized void synchronizedMethod() {
+                // 临界区代码
+                }
+            </code></p>
+
+        <ol><li>乐观锁（Optimistic Locking）：
+            乐观锁假设并发冲突较少发生，因此在访问共享资源时不会立即加锁，而是采用一种乐观的方式进行操作。通常乐观锁使用版本号或时间戳等机制来判断是否发生冲突。当一个线程要修改共享资源时，先获取当前版本号或时间戳，然后执行修改操作，最后尝试将修改结果提交。如果在提交时发现版本号或时间戳已经被其他线程修改过，则说明发生了冲突，需要进行回滚或重试操作。</li></ol>
+
+        <p>在Java中，乐观锁的典型应用是使用CAS（Compare and Swap）操作，例如AtomicInteger类和AtomicReference类。CAS操作是一种原子操作，它通过比较当前值和期望值，如果相等则替换为新值，否则不进行替换。</p>
+
+        <p>示例使用AtomicInteger实现乐观锁：
+            <code></code>`java
+            AtomicInteger counter = new AtomicInteger();</p>
+
+        <p>public void optimisticLockingMethod() {
+            int current;
+            int next;
+            do {
+            current = counter.get();
+            next = current + 1;
+            } while (!counter.compareAndSet(current, next));
+            // 临界区代码
+            }
+            <code></code>`</p>
+
+        <p>乐观锁相对于悲观锁的优势在于避免了线程之间的等待和竞争，适用于并发冲突较少的情况。然而，乐观锁需要额外的逻辑来处理冲突，可能会引入重试和回滚等复杂性。</p>
+
+        <p>选择使用悲观锁还是乐观锁取决于具体的问题场景和并发情况。悲观锁适用于并发冲突较多的情况，可以确保数据的一致性；而乐观锁适用于读多写少的情况，可以提高并发性能。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section2">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>无锁 偏向锁 轻量级锁 重量级锁</h2>
+        <p>
+        <p>这几个概念指的是synchronized的锁状态， 在JDK 1.6后，为了提高锁的效率对synchronized 进行了优化，引入了偏向锁和轻量级锁 ，从此以后锁的状态就有了四种：无锁、偏向锁、轻量级锁、重量级锁。这四种状态会随着竞争的加剧而升级，升级过程不可逆，这四种锁的级别由低到高依次是：无锁、偏向锁，轻量级锁，重量级锁。</p>
+
+        <p><strong>无锁</strong></p>
+
+        <p>无锁是指对资源没有锁定，多个线程可以同时访问一个共享资源，但同时只有一个线程能修改成功。线程会不断的尝试修改共享资源。没有冲突就修改成功，失败就继续尝试。多个线程修改同一个值，会有一个线程能修改成功，其他线程不断重试直到成功。</p>
+
+        <p><strong>偏向锁</strong></p>
+
+        <p>偏向锁从字面意思上来讲“偏向于第一个获得它的线程”的锁。</p>
+
+        <p><strong>首次执行synchronized代码块时，锁对象变成偏向锁（通过CAS修改对象头里的锁标志位），执行完同步代码块后，线程并不会主动释放偏向锁。当第二次到达同步代码块时，线程会判断此时持有锁的线程是否就是自己（持有锁的线程ID也在对象头里），如果是则正常往下执行。因为之前没有释放锁，所以这里也没有重新加锁。如果自始至终使用锁的线程只有一个，偏向锁几乎没有额外开销，性能很高。</strong></p>
+
+        <p>当一个线程访问同步代码块并获取锁时，会在 Mark Word 里存储锁偏向的线程 ID。在线程进入和退出同步块时不再通过 CAS 操作来加锁和解锁，而是检测 Mark Word 里是否存储着指向当前线程的偏向锁。轻量级锁的获取及释放依赖多次 CAS 原子指令，而偏向锁只需要在置换 ThreadID 的时候依赖一次 CAS 原子指令即可。</p>
+
+        <p>偏向锁遇到其他线程竞争偏向锁时，持有偏向锁的线程会释放锁，线程是不会主动释放偏向锁的。关于偏向锁的撤销，需要等待全局安全点，即在某个时间点上没有字节码正在执行时，它会先暂停拥有偏向锁的线程，然后判断锁对象是否处于被锁定状态。如果线程不处于活动状态，则将对象头设置成无锁状态，并撤销偏向锁，恢复到无锁（标志位为01）或轻量级锁（标志位为00）的状态。</p>
+
+        <p><strong>轻量级锁</strong></p>
+
+        <p>轻量级锁是指<strong>当锁是偏向锁的时候，却被另外的线程所访问，此时偏向锁就会升级为轻量级锁</strong>，<strong>没有获取到所得线程会通过自旋的形式尝试获取锁，线程不会阻塞，以此来提高性能。</strong></p>
+
+        <p>轻量级锁的获取主要由两种情况：</p>
+
+        <ol><li>当关闭偏向锁功能时；</li><li>由于多个线程竞争偏向锁导致偏向锁升级为轻量级锁。 一旦有第二个线程加入锁竞争，偏向锁就升级为轻量级锁（自旋锁）。这里要明确一下什么是    <ul><li>锁竞争：如果多个线程轮流获取一个锁，但是每次获取锁的时候都很顺利，没有发生阻塞，那么就不存在锁竞争。只有当某线程尝试获取锁的时候，发现该锁已经被占用，只能等待其释放，这才发生了锁竞争。</li></ul></li></ol>
+
+        <p>在轻量级锁状态下继续锁竞争，没有抢到锁的线程将自旋，即不停地循环判断锁是否能够被成功获取。获取锁的操作，其实就是通过CAS修改对象头里的锁标志位。先比较当前锁标志位是否为“释放”，如果是则将其设置为“锁定”，比较并设置是原子性发生的。这就算抢到锁了，然后线程将当前锁的持有者信息修改为自己。</p>
+
+        <p><strong>长时间的自旋操作是非常消耗资源的，一个线程持有锁，其他线程就只能在原地空耗CPU，不能执行任务</strong>，这种现象叫做忙等（busy-waiting）。</p>
+
+        <p>如果多个线程用一个锁，但是没有发生锁竞争，或者发生了很轻微的锁竞争，那么synchronized就用轻量级锁，允许短时间的忙等现象。这是一种折衷的想法，短时间的忙等，换取线程在用户态和内核态之间切换的开销。</p>
+
+        <p><strong>重量级锁</strong></p>
+
+        <p>重量级锁显然，此忙等是有限度的（有个计数器记录自旋次数，默认允许循环10次，可以通过虚拟机参数更改）。<strong>如果锁竞争情况严重，某个达到最大自旋次数的线程，会将轻量级锁升级为重量级锁（依然是CAS修改锁标志位，但不修改持有锁的线程ID）。当后续线程尝试获取锁时，发现被占用的锁是重量级锁，则直接线程挂起（而不是忙等），等待将来被唤醒。</strong></p>
+
+        <p>重量级锁是指当有一个线程获取锁之后，其余所有等待获取该锁的线程都会处于阻塞状态。简言之，就是所有的控制权都交给了操作系统，由操作系统来负责线程间的调度和线程的状态变更。而这样会出现频繁地对线程运行状态的切换，线程的挂起和唤醒，从而消耗大量的系统资源。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section3">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>自旋锁 适应性自旋锁</h2>
+        <p>
+        <p>自旋锁（Spin Lock）是一种基于忙等待的锁机制，<strong>线程在尝试获取锁时不会立即阻塞，而是通过循环不断地检查锁的状态，直到获取到锁为止。自旋锁适用于临界区很短且并发竞争不激烈的情况，以避免线程阻塞和上下文切换的开销。</strong></p>
+
+        <p>自旋锁的实现依赖于底层硬件的原子操作指令，如CAS（Compare and Swap）。线程尝试获取锁时，会通过CAS操作将锁的状态从未锁定变为锁定状态，如果CAS操作成功，则表示线程成功获取到锁；如果CAS操作失败，则表示锁已经被其他线程占用，线程会继续自旋等待。</p>
+
+        <p>然而，自旋锁<strong>可能导致线程长时间占用CPU资源，对于竞争激烈的情况，自旋锁的性能可能不佳。为了解决这个问题，Java引入了适应性自旋锁</strong>（Adaptive Spinning）。</p>
+
+        <p>适应性自旋锁是一种自旋锁的优化机制，<strong>它会根据线程在过去获取锁的历史情况来决定是否进行自旋等待</strong>。当一个<strong>线程在某个临界区反复获取到锁时，会认为锁的竞争不是那么激烈，此时会将自旋等待时间延长；</strong>而当一个<strong>线程反复尝试获取锁但未成功时，JVM会认为该线程对于这个锁的竞争较弱，此时会将自旋等待时间缩短或直接进入阻塞状态。</strong></p>
+
+        <p>适应性自旋锁可以根据实际的线程竞争情况动态地调整自旋等待时间，从而在不同的场景下平衡线程阻塞和自旋等待的开销，提高并发性能。</p>
+
+        <p>在Java中，适应性自旋锁是通过JVM的线程调度器实现的，开发者无需显式地编写适应性自旋锁的代码，而是通过调整JVM参数来配置自旋等待和阻塞的策略，如自旋等待次数的上限和自旋等待时间的阈值等。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section4">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>可重入锁 非可重入锁</h2>
+        <p>
+        <p>可重入锁（Reentrant Lock）和非可重入锁（Non-reentrant Lock）是两种不同的锁机制，涉及线程在同一个线程内多次获取同一个锁的情况。</p>
+
+        <ol><li>可重入锁：
+            可重入锁是指<strong>同一个线程可以多次获取同一个锁而不会造成死锁</strong>。<strong>当线程第一次获取锁后，锁会记录当前线程为锁的拥有者，并且维护一个计数器。当线程再次获取锁时，计数器会递增，而当线程释放锁时，计数器递减。只有当计数器为0时，锁才会完全释放。</strong></li></ol>
+
+        <p>可重入锁的机制可以防止同一个线程对于同一个锁的重复获取造成死锁，同时允许线程在嵌套的同步代码块中使用同一个锁。Java中的synchronized关键字和ReentrantLock类都是可重入锁的实现。</p>
+
+        <ol><li>非可重入锁：
+            非可重入锁是指同一个线程在获取锁后，如果尝试再次获取同一个锁，会导致线程阻塞。换句话说，<strong>非可重入锁不允许同一个线程多次获取同一个锁，否则会造成死锁。</strong></li></ol>
+
+        <p>非可重入锁的一种常见实现是简单的互斥量，它不会记录锁的拥有者信息，因此无法判断是否是同一个线程再次获取锁。在Java中，非可重入锁的实现相对较少，因为可重入锁的机制更为灵活和安全。</p>
+
+        <p>总结来说，可重入锁允许同一个线程多次获取同一个锁，而非可重入锁不允许同一个线程多次获取同一个锁。可重入锁能够避免死锁情况的发生，并支持线程在嵌套的同步代码块中使用同一个锁。在实际应用中，可重入锁是更常用和推荐的锁机制。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section5">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程和进程</h2>
+        <p>
+        <p><strong>操作系统层面：</strong></p>
+
+        <p>现代操作系统都是支持“多任务”的操作系统。</p>
+
+        <p>我们可以一边用浏览器浏览网页，一边用音乐播放器听歌，一边打开WPS编辑word文档，还有很多任务在系统后台执行，只是桌面上没有显示。</p>
+
+        <p>对于操作系统来说，一个任务就是一个进程（Process），浏览器任务就是一个浏览器进程，打开一个记事本就启动了一个记事本进程，打开两个记事本就启动了两个记事本进程，打开一个Word就启动了一个Word进程。</p>
+
+        <p>对于进程他们还不止干一件事，比如编辑Word文档，可以同时进行打字、拼写检查、云备份，等等。在一个进程内部，要同时干多件事，就需要同时运行多个“子任务”，我们把进程内的这些“子任务”称为线程（Thread）。</p>
+
+        <p>进程是操作系统资源分配的基本单位，而线程是处理器任务调度和执行的基本单位</p>
+
+        <p><strong>JVM：</strong></p>
+
+        <p>线程之间共享进程的堆和方法区，每个线程有自己的程序计数器、虚拟机栈和本地方法栈，系统产生一个线程，或是在各个线程之间切换，消耗的资源要比进程更小，线程也被称为轻量级进程。</p>
+
+        <p><strong>Java：</strong></p>
+
+        <p>启动 main 函数时其实就是启动了一个 JVM 的进程， main 函数所在的线程就是这个进程中的一个线程，也称主线程。</p>
+
+        <p>还有后台线程，垃圾回收线程。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section6">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程创建</h2>
+        <p>
+        <p>1、继承 Thread 类</p>
+
+        <p>通过继承 Thread 类，并重写它的 run 方法，我们就可以创建一个线程。</p>
+
+        <p>首先定义一个类来继承 Thread 类，重写 run 方法。</p>
+
+        <p>然后创建这个子类对象，并调用 start 方法启动线程。</p>
+
+        <p>2、实现 Runnable 接口</p>
+
+        <p>通过实现 Runnable ，并实现 run 方法，也可以创建一个线程。</p>
+
+        <p>首先定义一个类实现 Runnable 接口，并实现 run 方法。</p>
+
+        <p>然后创建 Runnable 实现类对象，并把它作为 target 传入 Thread 的构造函数中</p>
+
+        <p>最后调用 start 方法启动线程。</p>
+
+        <p>3、实现 Callable 接口，并结合 Future 实现</p>
+
+        <p>首先定义一个 Callable 的实现类，并实现 call 方法。call 方法是带返回值的。</p>
+
+        <p>然后通过 FutureTask 的构造方法，把这个 Callable 实现类传进去。</p>
+
+        <p>把 FutureTask 作为 Thread 类的 target ，创建 Thread 线程对象。</p>
+
+        <p>通过 FutureTask 的 get 方法获取线程的执行结果。</p>
+
+        <p>4、通过线程池创建线程</p>
+
+        <p>此处用 JDK 自带的 Executors 来创建线程池对象。</p>
+
+        <p>首先，定一个 Runnable 的实现类，重写 run 方法。</p>
+
+        <p>然后创建一个拥有固定线程数的线程池。</p>
+
+        <p>最后通过 ExecutorService 对象的 execute 方法传入线程对象。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section7">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程池</h2>
+        <p>
+        <p>线程池（Thread Pool）是一种基于池化思想管理线程的工具，通过重用现有的线程而不是创建线程，这样可以在处理多个请求时分摊在线程创建和销毁过程中产生的开销。线程执行任务，回到线程池等待下一个任务。。</p>
+
+        <p>“在线程池中执行任务”比“为每个线程分配一个任务”<strong>好处</strong>：</p>
+
+        <ul><li><strong>降低资源消耗</strong>：通过池化技术重复利用已创建的线程，降低线程创建和销毁造成的损耗。</li><li><strong>提高响应速度</strong>：另一个额外的好处是，当请求到达时，工作线程通常已经存在，因此不会由于等待创建线程而延迟任务的执行，从而提高了响应速度。</li><li><strong>提高线程的可管理性</strong>：线程是稀缺资源，如果无限制创建，会消耗系统资源。</li><li><strong>提供更多更强大的功能</strong>： 比如延时定时线程池ScheduledThreadPoolExecutor，可以实现任务延期执行或定期执行。</li></ul>
+
+        <blockquote><p>池化”（Pooling）思想。池化，是为了最大化收益并最小化风险，而将资源统一在一起管理的一种思想。</p><p>连接池(Connection Pooling)：预先申请数据库连接，提升申请连接的速度，降低系统的开销。</p><p>实例池(Object Pooling)：循环使用对象，减少资源在初始化和释放时的昂贵损耗。</p></blockquote>
+
+        </p>
+    </div>
+
+    <div class="section" id="section8">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程池工作流程</h2>
+        <p>
+        <p>线程的处理流程如下图所示。</p>
+
+        <p>当提交一个新任务到线程池时，线程池的处理流程如下。</p>
+
+        <ol><li><p>创建完线程池后并不会立即创建线程, 而是等到有任务提交时才会创建线程来进行处理。（除非调用prestartCoreThread或prestartAllCoreThreads方法）</p></li><li><p>当线程数小于核心线程数时，每提交一个任务就创建一个线程来执行，即使当前有线程处于空闲状态，直到当前线程数达到核心线程数。</p></li><li><p>当前线程数达到核心线程数时，如果这个时候还提交任务，这些任务会被放到工作队列里，等到线程处理完了手头的任务后，会来工作队列中取任务处理。</p></li><li><p>当前线程数达到核心线程数并且工作队列也满了，如果这个时候还提交任务，则会继续创建线程来处理，直到线程数达到最大线程数。</p></li><li><p>当前线程数达到最大线程数并且队列也满了，如果这个时候还提交任务，则会触发饱和策略。</p></li><li><p>如果某个线程的控线时间超过了keepAliveTime，那么将被标记为可回收的，并且当前线程池的当前大小超过了核心线程数时，这个线程将被终止。</p></li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section9">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>工作队列</h2>
+        <p>
+        <p>如果新请求的到达速率超过了线程池的处理速率，那么新到来的请求将累积起来。在线程池中，这些请求会在一个由Executor管理的Runnable队列中等待，而不会像线程那样去竞争CPU资源。常见的工作队列有以下几种，前三种用的最多。</p>
+
+        <p>线程池工作队列是线程池中用于存储待执行任务的数据结构。当线程池中的线程正在执行任务时，新的任务可以被提交到工作队列中，等待线程池中的线程空闲时执行。</p>
+
+        <p>常用的线程池工作队列实现类有以下几种：</p>
+
+        <ol><li><code>ArrayBlockingQueue</code>：<ul><li><code>ArrayBlockingQueue</code>是一个有界阻塞队列，底层使用数组实现。</li><li>需要指定队列的容量，在创建时固定大小。</li><li>当队列满时，后续的插入操作会被阻塞，直到有空闲位置。</li><li>例如：<code>BlockingQueue&lt;Runnable&gt; queue = new ArrayBlockingQueue&lt;&gt;(capacity);</code></li></ul></li><li><code>LinkedBlockingQueue</code>：<ul><li><code>LinkedBlockingQueue</code>是一个可选有界或无界的阻塞队列，底层使用链表实现。</li><li>在创建时可以选择指定队列的容量，如果未指定，则默认为无界队列，即没有容量限制。</li><li>当队列满时，后续的插入操作会被阻塞，直到有空闲位置。</li><li>例如：<code>BlockingQueue&lt;Runnable&gt; queue = new LinkedBlockingQueue&lt;&gt;();</code></li></ul></li><li><code>SynchronousQueue</code>：<ul><li><code>SynchronousQueue</code>是一个没有存储元素的阻塞队列。</li><li>每个插入操作必须等待一个对应的移除操作，反之亦然。</li><li>当线程尝试插入元素时，插入操作会被阻塞，直到另一个线程尝试移除元素；当线程尝试移除元素时，移除操作会被阻塞，直到另一个线程尝试插入元素。</li><li>例如：<code>BlockingQueue&lt;Runnable&gt; queue = new SynchronousQueue&lt;&gt;();</code></li></ul></li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section10">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程池参数</h2>
+        <p>
+        <p>线程池是一种用于管理和复用线程的机制，通过控制线程的数量和调度执行任务，可以提高应用程序的性能和资源利用率。在创建线程池时，可以设置一些参数来调整线程池的行为和性能。以下是常见的线程池参数：</p>
+
+        <ol><li>核心线程数（Core Pool Size）：<ul><li>核心线程数是线程池中始终保持活动的线程数量。</li><li>在没有任务执行时，核心线程也不会被回收。</li><li>可以使用<code>ThreadPoolExecutor</code>的构造函数或<code>setCorePoolSize()</code>方法设置核心线程数。</li></ul></li><li>最大线程数（Maximum Pool Size）：<ul><li>最大线程数是线程池中允许的最大线程数量，包括核心线程和非核心线程。</li><li>当工作队列已满，且活动线程数小于最大线程数时，会创建新的线程来处理任务。</li><li>可以使用<code>ThreadPoolExecutor</code>的构造函数或<code>setMaximumPoolSize()</code>方法设置最大线程数。</li></ul></li><li>空闲线程存活时间（Keep-Alive Time）：<ul><li>空闲线程存活时间是在没有任务可执行时，额外的线程保持存活的时间。</li><li>超过存活时间后，空闲线程将被回收，直到线程池中的线程数不超过核心线程数。</li><li>可以使用<code>ThreadPoolExecutor</code>的构造函数或<code>setKeepAliveTime()</code>方法设置空闲线程存活时间。</li></ul></li><li>工作队列（Work Queue）：<ul><li>工作队列用于存储待执行任务的队列。</li><li>线程池中的线程从工作队列中获取任务并执行。</li><li>常见的工作队列类型包括有界队列（如<code>ArrayBlockingQueue</code>）和无界队列（如<code>LinkedBlockingQueue</code>）。</li></ul></li><li>拒绝策略（Rejected Execution Policy）：<ul><li>当线程池无法接受新的任务时（例如，线程池已满且工作队列已满），会触发拒绝策略来处理这些任务。</li><li>常见的拒绝策略包括抛出异常、丢弃任务、丢弃最旧的任务、或在调用者线程中执行任务。</li></ul></li></ol>
+
+        <p>这些参数可以根据具体的应用需求进行调整。选择适当的参数可以平衡线程池的并发性能和资源消耗。在使用Java提供的线程池实现（如<code>ThreadPoolExecutor</code>）时，可以通过构造函数或相应的设置方法来配置这些参数。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section11">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>CAS</h2>
+        <p>
+        <p><code>CAS</code>即<code>Compare And Swap</code>的缩写，翻译成中文就是<strong>比较并交换</strong>，其作用是让CPU比较内存中某个值是否和预期的值相同，如果相同则将这个值更新为新值，不相同则不做更新。</p>
+
+        <p>CAS是乐观锁的一种实现，<strong>不需要使用锁来保护共享变量</strong>，因此可以在<strong>多线程环境中提供较高的性能</strong>。</p>
+
+        <p>缺点：</p>
+
+        <ul><li>#### 循环时间长开销大</li></ul>
+
+        <p>如果<code>CAS</code>操作失败，如果<strong>长时间循环重试都不成功</strong>的话，那么会<strong>造成CPU极大的开销</strong>。</p>
+
+        <p><strong>解决方法</strong>： 限制自旋次数，防止进入死循环。</p>
+
+        <ul><li>#### ABA问题</li></ul>
+
+        <p><strong>线程1</strong>经过CAS(Comparent and Swap)将变量的值<strong>从A改为B</strong>，线程1更新完变量的值后，此时恰好有线程3进来了，<strong>线程3</strong>通过CAS(comparent And Swap)将变量的值<strong>由B改为A</strong>，线程3更新完成后，线程2获取时间片继续执行，通过CAS(comparent And Swap)将变量的值由A改为B，而此时的线程2并不知道该变量已经有了A-&gt;B-&gt;A改变的过程。这就是CAS中的ABA问题。</p>
+
+        <p><strong>解决方法</strong>：使用版本号。在变量前面追加上版本号，每次变量更新的时候把版本号加1，那么A-&gt;B-&gt;A就会变成1A-&gt;2B-&gt;3A。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section12">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>AQS</h2>
+        <p>
+        <p>AQS（AbstractQueuedSynchronizer）是 Java 中用于构建同步器（synchronizer）的框架和基础类。<strong>通过继承AQS我们可以实现自定义同步器</strong>，从而满足不同的同步需求。AQS 是 Java 并发包中许多同步类的基础，如 <strong>ReentrantLock</strong>、Semaphore、CountDownLatch 等都是基于 AQS 构建的。</p>
+
+        <p>AQS 的<strong>核心思想是使用一个整数变量（通常称为状态 state）来表示同步状态</strong>，同时<strong>维护一个双向链表</strong>，用于管理等待获取同步资源的线程（<strong>线程等待队列</strong>）。AQS 提供了以下两种操作：</p>
+
+        <ol><li><p><strong>获取同步状态tryAquire（）</strong>：用于<strong>获取同步状态</strong>的操作，通常是尝试获取，<strong>如果获取不到就进入等待队列，等待其他线程释放资源。这个操作通常对应于锁的加锁操作</strong>。</p></li><li><p><strong>释放同步状态tryRelase（）</strong>：用于释放同步状态的操作，通常是在<strong>完成任务后释放同步资源</strong>，唤醒等待队列中的线程。这个操作通常<strong>对应于锁的解锁操作</strong>。</p></li></ol>
+
+        <p>AQS 提供了两个主要的子类：</p>
+
+        <ol><li><p><strong>ReentrantLock</strong>：可重入锁，支持同一个线程多次获取同一个锁，使用 AQS 来实现。</p></li><li><p><strong>Semaphore</strong>：信号量，用于控制同时访问某个资源的线程数量。</p></li></ol>
+
+        <p>AQS 的使用方式通常需要开发者继承 AQS 并实现相关方法，以定义自定义的同步器。AQS 提供了一些模板方法，如 <code>tryAcquire</code> 和 <code>tryRelease</code>，这些方法在获取和释放同步状态时被子类实现。开发者还可以通过 AQS 提供的条件变量（Condition）来实现更复杂的同步逻辑。</p>
+
+        <p>总之，AQS 是 Java 并发包中用于构建同步器的基础类，它提供了一种灵活且强大的机制，允许开发者构建自定义的同步器来满足不同的同步需求。在实际应用中，AQS 的使用使得开发者可以更容易地实现高效且可靠的并发控制机制。</p>
+        </p>
+    </div>
+
+    <div class="section" id="section13">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程池状态</h2>
+        <p>
+        <p>Java 中的线程池有几种状态，主要包括线程池的常见状态和线程的运行状态。这里列举了线程池的常见状态：</p>
+
+        <ol><li><p><strong>RUNNING（运行）：</strong></p><ul><li><p>线程池处于 RUNNING 状态表示可以接受新提交的任务，并且可以处理阻塞队列中的任务或者创建新的线程来执行任务。</p></li></ul></li><li><p><strong>SHUTDOWN（关闭）：</strong></p><ul><li><p>当调用线程池的 <code>shutdown()</code> 方法时，线程池会进入 SHUTDOWN 状态。此时，线程池不再接受新的任务提交，但会继续处理阻塞队列中的任务。</p></li></ul></li><li><p><strong>STOP（停止）：</strong></p><ul><li><p>当调用线程池的 <code>shutdownNow()</code> 方法时，线程池会进入 STOP 状态。并且会中断当前正在执行的任务、放弃任务队列中已有的任务。</p></li></ul></li><li><p><strong>TIDYING（整理）：</strong></p><ul><li><p>当线程池处于 SHUTDOWN 或 STOP 状态时，如果还有任务在阻塞队列中等待执行，那么线程池会先进入 TIDYING 状态。在线程池完成任务的执行和阻塞队列的清空后，会调用线程池的 terminated() 方法，线程池会进入 TERMINATED 状态。</p></li></ul></li><li><p><strong>TERMINATED（终止）：</strong></p><ul><li>当线程池完成关闭过程后，即所有的任务都已经执行完毕、阻塞队列为空，线程池会进入 TERMINATED 状态。</li></ul></li></ol>
+
+        <p>这些状态是通过 <code>ThreadPoolExecutor</code> 类的 <code>ctl</code> 字段的高位来表示的，其中高 3 位表示线程池的状态，低 29 位表示线程的数量。这样设计的目的是为了通过一个整数值来表示线程池的状态和线程的数量，实现高效的状态判断和线程数量的控制。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section14">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>Synchronized</h2>
+        <p>
+        <p>在java中synchronized关键字是同步锁，同步锁是依赖于对象而存在的，而且每一个对象有且仅有一个同步锁。当我们调用某对象的synchronized方法时，就获取了该对象的同步锁。例如，synchronized(obj)就获取了“obj这个对象”的同步锁。</p>
+
+        <h2>synchronized原理</h2>
+
+        <p>Synchronized是通过对象内部的一个叫做监视器锁（monitor）来实现的。但是监视器锁本质又是依赖于底层的操作系统的互斥锁（Mutex Lock）来实现的。而操作系统实现线程之间的切换这就需要从用户态转换到核心态，这个成本非常高，状态之间的转换需要相对比较长的时间，这就是为什么Synchronized效率低的原因。这种依赖于操作系统互斥锁（Mutex Lock）所实现的锁我们称之为“重量级锁”。</p>
+
+        <h3>1. monitor锁定过程</h3>
+
+        <p>当monitor被占用时就会处于锁定状态，线程执行monitorenter指令时尝试获取monitor的所有权，过程如下：</p>
+
+        <p>a、如果monitor的进入数为0，则该线程进入monitor，然后将进入数设置为1，该线程即为monitor的所有者。</p>
+
+        <p>b、如果线程已经占有该monitor，只是重新进入，则进入monitor的进入数加1.</p>
+
+        <p>c、如果其他线程已经占用了monitor，则该线程进入阻塞状态，直到monitor的进入数为0，再重新尝试获取monitor的所有权。</p>
+
+        <h3>2. synchronized锁</h3>
+
+        <p>Java SE1.6对Synchronized进行了各种优化之后，它并不那么重了。在不同的场景中引入不同的锁优化。</p>
+
+        <p>1.偏向锁：适用于锁没有竞争的情况，假设共享变量只有一个线程访问。如果有其他线程竞争锁，锁则会膨胀成为轻量级锁。</p>
+
+        <p>2.轻量级锁：适用于锁有多个线程竞争，但是在一个同步方法块周期中锁不存在竞争，如果在同步周期内有其他线程竞争锁，锁会膨胀为重量级锁。</p>
+
+        <p>3.重量级锁：竞争激烈的情况下使用重量级锁。</p>
+
+        <p>偏向锁和轻量级锁之所以会在性能上比重量级锁是因为好，本质上是因为偏向锁和轻量级锁仅仅使用了CAS。</p>
+
+        <h2>synchronized用法</h2>
+
+        <h3>1. 给一个代码块上锁</h3>
+
+        <p>synchronized可以上锁、解锁。但是它本身并不是锁，它使用的锁来自于一个对象：任何对象实例都有一把内部锁，只有一把。synchronized不仅仅可以对整个method上锁，还可以对method内的某个代码块上锁。</p>
+
+        <p>\1. “synchronized方法”是用synchronized修饰方法，而 “synchronized代码块”则是用synchronized修饰代码块。
+            \2. synchronized代码块中的this是指当前对象。也可以将this替换成其他对象，例如将this替换成obj，则foo2()在执行synchronized(obj)时就获取的是obj的同步锁。
+            \3. synchronized代码块可以更精确的控制冲突限制访问区域，有时候表现更高效率。</p>
+
+        <h2>总结</h2>
+
+        <p>\1. 无论synchronized关键字加在方法上还是对象上，如果它作用的对象是非静态的，则它取得的锁是对象；如果synchronized作用的对象是一个静态方法或一个类，则它取得的锁是对类，该类所有的对象同一把锁。
+            \2. 每个对象只有一个锁（lock）与之相关联，谁拿到这个锁谁就可以运行它所控制的那段代码。
+            \3. 实现同步是要很大的系统开销作为代价的，甚至可能造成死锁，所以尽量避免无谓的同步控制。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section15">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>停止线程</h2>
+        <p>
+        <p>在Java中，可以使用以下几种方式停止一个线程：</p>
+
+        <ol><li>使用标志位控制停止：<strong>可以在线程内部定义一个<code>boolean</code>类型的标志位变量，用于控制线程是否继续执行。</strong>在线程的执行逻辑中，通过检查标志位的状态来决定是否停止线程。在外部需要停止线程时，设置标志位为<code>true</code>，线程会在下次检查标志位时退出执行。</li></ol>
+
+        <p><code></code>`
+            public class MyThread extends Thread {
+            private volatile boolean running = true;</p>
+
+        <pre><code>public void stopThread() {
+    running = false;
+}
+
+@Override
+public void run() {
+    while (running) {
+        // 线程执行的逻辑
+    }
+}</code></pre>
+
+        <p>}
+            <code></code>`</p>
+
+        <ol><li>使用Thread.interrupt()方法：<strong>可以调用线程的<code>interrupt()</code>方法来请求线程停止。在线程的执行逻辑中，通过检查线程的中断状态（使用<code>Thread.currentThread().isInterrupted()</code>方法）来决定是否停止线程。</strong>在外部需要停止线程时，调用线程的<code>interrupt()</code>方法，线程会在下次检查中断状态时退出执行。</li></ol>
+
+        <p>使用Thread.interrupt()方法的优点：</p>
+
+        <ol><li>内置的中断机制：Thread类提供了interrupt()方法来支持线程的中断操作，可以更方便地请求线程停止。</li><li>支持抛出InterruptedException异常：<strong>在执行阻塞操作（如sleep()、wait()、join()等）时，如果线程被中断，会抛出InterruptedException异常</strong>，可以在异常处理的地方进行线程停止的逻辑处理。</li></ol>
+
+        <p><code>
+            public class MyThread extends Thread {
+            @Override
+            public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+            // 线程执行的逻辑
+            }
+            }
+            }
+        </code></p>
+
+        <ol><li>使用Thread.stop()方法（已过时）：可以调用线程的<code>stop()</code>方法来强制停止线程，但该方法已被标记为过时，不推荐使用。因为该方法可能会导致线程在一个不确定的状态下停止，可能引发数据不一致或资源泄露等问题，因此不建议使用。</li></ol>
+
+        <p>需要注意的是，以上方法都是通过协作方式停止线程，即在线程内部通过检查标志位或中断状态来决定是否停止。这种方式相对安全可控，能够在合适的时机进行清理和资源释放。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section16">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>volatile</h2>
+        <p>
+        <p><code>volatile</code> 是 Java 中的一个<strong>关键字</strong>，用于<strong>修饰变量</strong>。在多线程编程中，<strong><code>volatile</code> 关键字具有两个主要的作用</strong>：</p>
+
+        <ol><li><p>可见性：<strong>当一个变量被 <code>volatile</code> 关键字修饰时，对变量的修改会立即被其他线程看见</strong>。这意味着<strong>当一个线程修改了 <code>volatile</code> 变量的值，其他线程将立即看到最新的值，而不会使用缓存中的旧值。</strong></p></li><li><p>禁止指令重排序：<strong><code>volatile</code> 关键字还可以防止指令重排序优化</strong>。在多线程环境下，<strong>为了提高性能，编译器和处理器可能会对指令进行重排序。但是对于一个被 <code>volatile</code> 修饰的变量</strong>，<strong>编译器和处理器会禁止重排序</strong>，<strong>使程序按照正常的顺序执行</strong>。从而确保变量的读写操作按照程序的顺序执行。</p></li></ol>
+
+        <p>需要注意的是，<strong><code>volatile</code> 关键字不能保证原子性</strong>。</p>
+
+        <p><strong>举例子：</strong></p>
+
+        <p><code></code>`
+            volatile int count = 0;</p>
+
+        <p>void increment() {
+            count++;
+            }
+            <code></code>`</p>
+
+        <p>在这个例子中，<strong>多个线程同时调用方法来增加 <code>count</code> 变量的值。虽然 <code>count</code> 是一个 <code>volatile</code> 变量，每个线程都能看到最新的值，但是由于 <code>count++</code> 操作并非原子性的，它包含了读取变量值、加一和写回变量的过程</strong>，并且这些操作之间可能被其他线程打断。</p>
+
+        <p>在并发情况下，<strong>多个线程可能同时读取到相同的 <code>count</code> 值，然后各自进行加一操作，最后写回变量。</strong>这样就可能导致<strong>最终的结果不符合预期</strong>，存在数据竞争和不一致的可能性。</p>
+
+        <p>要实现原子性的操作，可以使用其他同步机制，如 <code>synchronized</code> 关键字或者 <code>java.util.concurrent.atomic</code> 包提供的原子类。例如，可以使用 <code>AtomicInteger</code> 来保证 <code>count</code> 变量的原子性操作</p>
+
+        <p>使用 <code>volatile</code> 关键字的一些常见场景包括：</p>
+
+        <ul><li>控制变量的可见性，确保一个线程对变量的修改对其他线程立即可见。</li><li>标识状态标志，如线程的启停标志。</li><li>在双重检查锁定等场景中保证线程安全性。</li></ul>
+
+        </p>
+    </div>
+
+    <div class="section" id="section17">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>ThreadLocal</h2>
+        <p>
+        <p><strong>ThreadLocal可以理解为线程本地变量，他会在每个线程都创建一个副本，那么在线程之间访问内部副本变量就行了，做到了线程之间互相隔离，相比于synchronized的做法是用空间来换时间。</strong></p>
+
+        <p>ThreadLocal 的值获取原理如下：</p>
+
+        <ol><li>当一个线程<strong>调用 ThreadLocal 的 <code>get()</code> 方法时，它会首先获取当前线程的 Thread 对象。</strong></li><li><strong>在 Thread 对象中</strong>，有一个名为 <code>threadLocals</code> 的属性，它是<strong>有一个 ThreadLocalMap 对象，用于存储线程的局部变量。</strong></li><li>ThreadLocalMap 是线程私有的，<strong>每个线程都有自己独立的 ThreadLocalMap</strong>。它是一个哈希表结构，用于实现线程局部变量的存储和访问。</li><li><strong>在 Map 中</strong>，<strong>ThreadLocal 对象被用作key</strong>，而对应的线程<strong>局部变量</strong>则是该键<strong>对应的value值</strong>。</li><li><strong>key和value被封装成一个Entry类，ThreadLocalMap维护这个Entry数组。</strong></li><li><strong>通过key的哈希值映射到具体的value。</strong></li></ol>
+
+        <p><strong>为了防止内存泄露，把key设置为弱引用</strong>，因为如果是<strong>强引用</strong>那么ThreadLocal对象<strong>除非线程结束否则始终无法被回收</strong>，<strong>弱引用则会在下一次GC的时候被回收。</strong></p>
+
+        <p>假设我们创建了一个ThreadLocal，使用完之后没有用了，我们希望能够让它被JVM回收，</p>
+
+        <p>// 创建ThreadLocal对象</p>
+
+        <p>ThreadLocal tl = new ThreadLocal();</p>
+
+        <p>// 使用完成，希望被JVM回收，于是执行以下操作，解除强引用</p>
+
+        <p>tl = null;</p>
+
+        <p>我们虽然在此处释放了对它的强引用，但是它还有其它强引用，那就是Thread对象的ThreadLocalMap的key。我们之前反复说过，ThreadLocalMap的key就是ThreadLocal对象的引用，若这个引用是一个强引用，那么<strong>在当前线程执行完毕，被回收前，ThreadLocalMap不会被回收</strong>，而ThreadLocalMap不会被回收，它的<strong>key引用的ThreadLocal也就不会回收</strong>，这就是问题的所在。而<strong>使用弱引用就可以保证，在其他对ThreadLocal的强引用解除后，ThreadLocalMap对它的引用不会影响JVM对它进行垃圾回收。</strong></p>
+
+        <p>但是这样还是会存在<strong>内存泄露</strong>的问题，假如key和ThreadLocal对象被回收之后，entry中就存在<strong>key为null，但是value有值的entry对象</strong>，但是<strong>永远没办法被访问到，同样除非线程结束运行。</strong></p>
+
+        <p><strong>在使用完之后调用remove方法删除Entry对象</strong>，实际上是不会出现这个问题的。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section18">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>ReentrantLock</h2>
+        <p>
+        <p>ReentrantLock 具备以下特点：</p>
+
+        <ol><li>可重入性（Reentrancy）：<strong>与 synchronized 类似，ReentrantLock 允许同一个线程多次获取锁，而不会发生死锁。</strong>线程可以重复获取已经持有的锁，避免了自己持有的锁所造成的阻塞。</li><li>公平性（Fairness）：ReentrantLock 提供了公平性选择，即可以选择公平锁和非公平锁。公平锁按照线程请求的顺序来获取锁，而非公平锁则不保证线程获取锁的顺序。<strong>默认情况下，ReentrantLock 是非公平锁。</strong></li><li>可中断性（Interruptibility）：通过使用 ReentrantLock 的 lockInterruptibly() 方法，线程可以在等待锁的过程中响应中断信号。这与 synchronized 不同，synchronized 一旦获得锁，就无法对中断进行响应。</li><li>条件变量（Condition）：ReentrantLock 支持通过 Condition 对象实现线程间的等待和唤醒机制。Condition 可以方便地实现更复杂的线程间通信和协作。</li><li>可定时性（Timed Waiting）：ReentrantLock 提供了 tryLock(long time, TimeUnit unit) 方法，可以在指定的时间内尝试获取锁。如果在指定时间内未能获取到锁，则返回 false，而不会一直等待。</li><li>锁的获取与释放控制：ReentrantLock 提供了灵活的锁的获取和释放控制方法。可以通过 lock() 方法获取锁，并通过 unlock() 方法释放锁。这使得锁的获取和释放可以在不同的代码块或方法中进行，提供了更细粒度的控制。</li></ol>
+
+        <p><strong>与 synchronized 相比，ReentrantLock 需要显式地获取和释放锁</strong></p>
+
+        <p>ReentrantLock 使用同步器 AbstractQueuedSynchronizer（AQS）实现。</p>
+
+        <p>AQS 是一个基于队列的同步器，它维护了一个等待队列，用于管理获取锁的线程和等待锁的线程。</p>
+
+        <p>ReentrantLock 的主要原理如下：</p>
+
+        <ol><li><p>线程获取锁：当一个线程调用 ReentrantLock 的 lock() 方法时，它会尝试获取锁。如果当前锁没有被其他线程持有，则该线程成功获取锁，进入临界区。如果锁已经被其他线程持有，则线程会被阻塞，并加入到等待队列中。</p></li><li><p>锁的重入：如果同一个线程再次调用 lock() 方法，它可以再次获取到锁，而不会被阻塞。ReentrantLock 使用一个计数器来记录线程对锁的获取次数，每次成功获取锁，计数器加一。每次释放锁，计数器减一。只有当计数器为零时，锁才会完全释放，其他线程才能获取到锁。</p></li><li><p>等待队列和同步状态：AQS 中的等待队列用于管理等待锁的线程。当一个线程不能获取锁时，它会被包装成一个节点（Node）并加入到等待队列中。等待队列是一个双向链表，节点按照获取锁的顺序排列。</p></li><li><p>锁的释放：当一个线程调用 unlock() 方法释放锁时，它会释放当前线程对锁的持有，并尝试唤醒等待队列中的下一个节点，使其能够获得锁。</p></li><li><p>公平性：ReentrantLock 可以选择公平锁和非公平锁。对于公平锁，等待队列中的线程按照获取锁的顺序获得锁。对于非公平锁，线程可以在任意时刻竞争获取锁，不保证顺序。</p></li></ol>
+
+        <p>ReentrantLock 的实现利用了 AQS 的状态控制和等待队列的机制，通过独占模式的同步器来实现锁的获取和释放。它提供了更灵活的特性，如可中断获取锁、公平性选择、可定时获取锁等，使得 ReentrantLock 成为一种强大而灵活的同步机制。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section19">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>sleep</h2>
+        <p>
+        <p>sleep方法会使<strong>当前线程暂停执行一段时间</strong>，<strong>交出cpu的时间片，直到等待时间结束恢复到就绪状态，是否执行还要看操作系统的调度。</strong></p>
+
+        <ol><li><code>sleep()</code> 方法会抛出 <code>InterruptedException</code> 异常，因为线程在<strong>休眠期间可能被其他线程中断。当线程被中断时，<code>sleep()</code> 方法会立即抛出 <code>InterruptedException</code></strong>，并清除线程的中断状态。</li><li>在 <code>sleep()</code> 方法调用期间，线程<strong>不会释放它所持有的任何锁</strong>。<strong>其他线程仍然无法获得该线程持有的锁</strong>。</li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section20">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>wait/notify</h2>
+        <p>
+        <p><code>wait()</code> 方法是 <strong><code>Object</code> 类中定义的一个实例方法</strong>，用于<strong>使当前线程进入等待状态，直到其他线程调用相同对象上的 <code>notify()</code> 或 <code>notifyAll()</code> 方法来唤醒它。</strong></p>
+
+        <p><code>wait()</code> 方法有以下几种形式：</p>
+
+        <ol><li><p><code>public final void wait() throws InterruptedException</code></p><p>使当前线程进入等待状态，直到其他线程调用相同对象上的 <code>notify()</code> 或 <code>notifyAll()</code> 方法来唤醒它。线程将一直等待，直到被唤醒或被中断，或者发生虚假唤醒。</p></li><li><p><code>public final void wait(long timeout) throws InterruptedException</code></p><p>使当前线程进入等待状态，<strong>最多等待指定的时间</strong>（以毫秒为单位），或者直到其他线程调用相同对象上的 <code>notify()</code> 或 <code>notifyAll()</code> 方法来唤醒它。</p></li><li><p><code>public final native void wait(long timeout, int nanos) throws InterruptedException</code></p><p>使当前线程进入等待状态，最多等待指定的时间（以毫秒和纳秒为单位），或者直到其他线程调用相同对象上的 <code>notify()</code> 或 <code>notifyAll()</code> 方法来唤醒它。</p></li></ol>
+
+        <p>在<strong>调用 <code>wait()</code> 方法后</strong>，当前<strong>线程会释放它所持有的锁</strong>，并<strong>进入对象的等待队列中</strong>。线程将一直等待，直到以下事件发生之一：</p>
+
+        <ul><li>其他线程调用相同对象上的 <code>notify()</code> 方法，唤醒当前线程。</li><li>其他线程调用相同对象上的 <code>notifyAll()</code> 方法，唤醒所有等待的线程。</li><li>其他线程中断当前线程。</li><li>等待时间超过指定的时间。</li></ul>
+
+        <p>以下是一个简单的示例，演示了如何使用 <code>wait()</code> 和 <code>notify()</code> 方法进行<strong>线程间的通信</strong>：</p>
+
+        <p><code></code>`java
+            public class WaitNotifyExample {
+            public static void main(String[] args) {
+            final Object lock = new Object();
+            final int MAX_COUNT = 10;</p>
+
+        <pre><code>    Thread producer = new Thread(() -&gt; {
+        synchronized (lock) {
+            try {
+                for (int i = 1; i &lt;= MAX_COUNT; i++) {
+                    System.out.println(&quot;Producing item: &quot; + i);
+                    Thread.sleep(1000);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            lock.notify();  // 唤醒等待的消费者线程
+        }
+    });
+
+    Thread consumer = new Thread(() -&gt; {
+        synchronized (lock) {
+            try {
+                lock.wait();  // 等待生产者线程的通知
+                System.out.println(&quot;Consuming items...&quot;);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+
+    producer.start();
+    consumer.start();
+}</code></pre>
+
+        <p>}
+            <code></code>`</p>
+
+        <p>在上述示例中，我们创建了一个生产者线程和一个消费者线程。它们共享一个对象 <code>lock</code> 作为同步锁。</p>
+
+        <p>生产者线程使用 <code>synchronized</code> 块来获取 <code>lock</code> 对象的锁，并在循环中生产一些项目。每生产一个项目后，它调用 <code>Thread.sleep(1000)</code> 方法使线程休眠1秒钟。</p>
+
+        <p>消费者线程也使用 <code>synchronized</code> 块来获取 <code>lock</code> 对象的锁，并调用 <code>lock.wait()</code> 方法进入等待状态，等待生产者线程的通知。</p>
+
+        <p>当生产者线程完成生产后，它调用 <code>lock.notify()</code> 方法来唤醒消费者线程。消费者线程被唤醒后，输出 &quot;Consuming items...&quot;。</p>
+
+        <p>这个例子展示了如何使用 <code>wait()</code> 和 <code>notify()</code> 方法实现线程间的通信。通过 <code>wait()</code> 方法和 <code>notify()</code> 方法的配合使用，可以实现线程的协调与同步。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section21">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>yield</h2>
+        <p>
+        <p><code>yield()</code> 方法是一个<strong>静态方法</strong>，属于 <strong><code>Thread</code> 类</strong>的一部分。它用于提示线程调度器当前线程愿意放弃其CPU时间片，以便其他具有相同或更高优先级的线程有机会执行。</p>
+
+        <p>通过让出CPU时间片来促进线程之间的公平竞争</p>
+
+        <p>当线程<strong>调用 <code>yield()</code> 方法</strong>时，它会<strong>进入就绪状态</strong>，允许其他具有<strong>相同或更高优先级的线程获得运行机会</strong>。然而，并不能保证调用 <code>yield()</code> 方法后其他线程就会立即获得执行，因为调度器的行为是不确定的。</p>
+
+        <p>以下是关于 <code>yield()</code> 方法的一些要点：</p>
+
+        <ol><li><code>yield()</code> 方法会使当前线程由运行状态转变为就绪状态，等待调度器重新分配CPU时间。</li><li>调用 <code>yield()</code> 方法并<strong>不保证当前线程会立即被其他线程取代执行</strong>。调度器<strong>可能仍然选择继续执行当前线程</strong>。</li><li>如果<strong>没有其他具有相同或更高优先级的线程处于就绪状态</strong>，<strong>仍然会执行当前线程</strong>。</li></ol>
+
+        <p>需要注意的是，<code>yield()</code> 方法的使用应该谨慎。在大多数情况下，线程调度器能够根据优先级和其他因素来合理分配CPU时间，而不需要显式调用 <code>yield()</code> 方法。使用 <code>yield()</code> 方法过于频繁可能会导致性能下降，因为线程频繁地切换可能会带来一些开销。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section22">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>join</h2>
+        <p>
+        <p><code>join()</code> 方法是 <strong><code>Thread</code> 类中定义的一个实例方法</strong>，用于等待调用该方法的线程完成执行。</p>
+
+        <p><code>join()</code> 方法有以下几种形式：</p>
+
+        <ol><li><p><code>public final void join() throws InterruptedException</code></p><p>等待调用该方法的线程完成执行。</p></li><li><p><code>public final void join(long millis) throws InterruptedException</code></p><p>等待调用该方法的线程完成执行，但最多等待指定的时间（以毫秒为单位）。</p></li><li><p><code>public final void join(long millis, int nanos) throws InterruptedException</code></p><p>等待调用该方法的线程完成执行，但最多等待指定的时间（以毫秒和纳秒为单位）。</p></li></ol>
+
+        <p><strong>当一个线程调用另一个线程的 <code>join()</code> 方法时，它会暂停自己的执行，直到被等待的线程完成执行为止。</strong>换句话说，<code>join()</code> 方法会使当前线程进入阻塞状态，直到目标线程完成。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section23">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>线程状态</h2>
+        <p>
+        <p>新建、运行、阻塞、等待、超时等待、消亡</p>
+
+        <h2>一、新建状态(NEW)</h2>
+
+        <p>即用<strong>new关键字</strong>新建一个线程，这个线程就处于<strong>新建状态</strong>。</p>
+
+        <h2>二、运行状态(RUNNABLE)</h2>
+
+        <p>操作系统中的就绪和运行两种状态，在Java中统称为RUNNABLE。</p>
+
+        <h3>就绪状态（READY)</h3>
+
+        <p>当线程对象调用了<code>start()</code>方法之后，线程处于<strong>就绪状态</strong>，就绪意味着该线程<strong>可以执行</strong>，但具体啥时候执行将取决于JVM里线程调度器的调度。</p>
+
+        <blockquote><p>It is never legal to start a thread more than once. In particular, a thread may not be restarted once it has completed execution.</p></blockquote>
+
+        <ul><li>不允许对一个线程多次使用start。</li><li>线程执行完成之后，不能试图用start将其唤醒。</li></ul>
+
+        <h4>其他状态 -&gt;就绪</h4>
+
+        <ul><li>线程调用start()，新建状态转化为就绪状态。</li><li>线程sleep(long)时间到，等待状态转化为就绪状态。</li><li>阻塞式IO操作结果返回，线程变为就绪状态。</li><li>其他线程调用join()方法，结束之后转化为就绪状态。</li><li>线程对象拿到对象锁之后，也会进入就绪状态。</li></ul>
+
+        <h3>运行状态(RUNNING)</h3>
+
+        <p>处于就绪状态的线程获得了CPU之后，<strong>真正开始执行run()方法的线程执行体时</strong>，意味着该线程就已经处于<strong>运行状态</strong>。需要注意的是，<strong>对于单处理器，一个时刻只能有一个线程处于运行状态。</strong>
+            对于抢占式策略的系统来说，系统会给每个线程一小段时间处理各自的任务。时间用完之后，系统负责夺回线程占用的资源。下一段时间里，系统会根据一定规则，再次进行调度。</p>
+
+        <p><strong>运行状态转变为就绪状态</strong>的情形：</p>
+
+        <ul><li>线程失去处理器资源。<strong>线程不一定完整执行的，执行到一半，说不定就被别的线程抢走了。</strong></li><li>调用<strong>yield()静态方法，暂时暂停当前线程</strong>，让系统的线程调度器重新调度一次，它自己完全有可能再次运行。</li></ul>
+
+        <p>yield方法的官方解释：</p>
+
+        <blockquote><p>A hint to the scheduler that the current thread is willing to yield its current use of a processor. The scheduler is free to ignore this hint.</p></blockquote>
+
+        <p>提示调度程序，当前线程愿意放弃当前对处理器的使用。这时，<strong>当前线程将会被置为就绪状态</strong>，和其他线程一样等待调度，这时候根据不同<strong>优先级</strong>决定的<strong>概率</strong>，当前线程完全有可能再次抢到处理器资源。</p>
+
+        <h2>三、阻塞状态(BLOCKED)</h2>
+
+        <p>阻塞状态表示线程<strong>正等待监视器锁</strong>，而陷入的状态。</p>
+
+        <p>以下场景线程将会阻塞：</p>
+
+        <ul><li>线程等待进入synchronized同步方法。</li><li>线程等待进入synchronized同步代码块。</li></ul>
+
+        <p>线程取得锁，就会从阻塞状态转变为就绪状态。</p>
+
+        <h2>四、等待状态(WAITING)</h2>
+
+        <p>进入该状态表示<strong>当前线程需要等待其他线程做出一些的特定的动作</strong>（通知或中断）。</p>
+
+        <h3>运行-&gt;等待</h3>
+
+        <ul><li>当前线程运行过程中，其他线程调用<code>join</code>方法，当前线程将会进入等待状态。</li><li>当前线程对象调用<code>wait()</code>方法。
+            -<code>LockSupport.park()</code>：出于线程调度的目的<strong>禁用当前线程</strong>。</li></ul>
+
+        <h3>等待-&gt;就绪</h3>
+
+        <ul><li>等待的线程<strong>被其他线程对象唤醒</strong>，<code>notify()</code>和<code>notifyAll()</code>。</li><li><code>LockSupport.unpark(Thread)</code>，与上面park方法对应，给出许可证，<strong>解除等待状态</strong>。</li></ul>
+
+        <h2>五、超时等待状态(TIMED_WAITING)</h2>
+
+        <p>区别于<code>WAITING</code>，它可以在<strong>指定的时间</strong>自行返回。</p>
+
+        <h3>运行-&gt;超时等待</h3>
+
+        <ul><li>调用静态方法，<code>Thread.sleep(long)</code></li><li>线程对象调用<code>wait(long)</code>方法</li><li>其他线程调用指定时间的<code>join(long)</code>。</li><li><code>LockSupport.parkNanos()</code>。</li><li><code>LockSupport.parkUntil()</code>。</li></ul>
+
+        <p>补充：
+            sleep和yield的不同之处：</p>
+
+        <ul><li>sleep(long)方法会<strong>使线程转入超时等待状态</strong>，时间到了之后才会转入就绪状态。而yield()方法不会将线程转入等待，而是强制线程进入就绪状态。</li><li>使用sleep(long)方法<strong>需要处理异常</strong>，而yield()不用。</li></ul>
+
+        <h3>超时等待-&gt;就绪</h3>
+
+        <ul><li>同样的，等待的线程被其他线程对象唤醒，<code>notify()</code>和<code>notifyAll()</code>。</li><li><code>LockSupport.unpark(Thread)</code>。</li></ul>
+
+        <h2>六、消亡状态</h2>
+
+        <p>即<strong>线程的终止</strong>，表示线程已经执行完毕。前面已经说了，已经消亡的线程不能通过start再次唤醒。</p>
+
+        <ul><li>run()和call()线程执行体中顺利执行完毕，<strong>线程正常终止</strong>。</li><li>线程抛出一个没有捕获的Exception或Error。</li></ul>
+
+        <p>需要注意的是：主线成和子线程互不影响，子线程并不会因为主线程结束就结束。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section24">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>sleep</h2>
+        <p>
+
+
+        </p>
+    </div>
+</div>
+</body>
+</html>

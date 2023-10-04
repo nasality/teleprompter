@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HR</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            /*height: 100vh; /* 使用视口高度作为容器高度 */
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="section" id="section1">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>开发中遇到的难题</h2>
+        <p>
+        <p><strong>场景：</strong>在做一个删除操作时，被删除的数据关联了许多其他表的数据，要删除的话需要和这些数据解绑，解绑之后才能删除。</p>
+
+        <p>很平常的一个操作，开发环境没问题、测试环境也没问题、但是在线上环境就有问题。A用户正在删除、正在解绑，此时B用户为这个数据绑定了其他的业务数据，这时候就会出现并发问题。</p>
+
+        <p><strong>解决：</strong></p>
+
+        <p>给数据加一个字段，比如停用状态、使用状态，A用户在删除时不直接删除，把状态改为停用状态，B用户在绑定时先查询状态，如果是停用状态就不允许绑定了。后来又代码做了一些优化，线上环境没有那么多的并发量，考虑使用for update悲观锁的形式，A用户对数据进行删除还没有完全删除的转态，B用户对数据进行绑定，B用户就可以for update对数据加上一个行锁，其他用户就不能对这个数据进行删除操作了</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section2">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>薪资</h2>
+        <p>
+            基于我的技术能力和目前整体的水平，我的月薪应该在13K
+
+        </p>
+    </div>
+
+    <div class="section" id="section3">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>你希望与怎样的上司共事</h2>
+        <p>
+        <p>我觉得，面对自己无法决定的事情时，只有<strong>靠自己去适应</strong>。<strong>人无完人</strong>，<strong>既然他可以做我的上司</strong>，那么<strong>必然有他的过人之处。与别人的优点共事，这样自己可以更快的进步和成长。</strong></p>
+        </p>
+    </div>
+
+    <div class="section" id="section4">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>加班</h2>
+        <p>
+            我会在工作时间高效的完成工作任务，如果不能完成，我会利用接下来的时间继续完成，因为完成一个作品带来的成就感，很诱人。
+
+        </p>
+    </div>
+
+    <div class="section" id="section5">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>你认为我司有何不足之处</h2>
+        <p>
+        <p>通过对公司网站和社交媒体的言论了解，我认为咱们公司拥有优越的<strong>企业文化</strong>和完善的<strong>管理体系</strong>，我<strong>对公司的发展前景很有信心</strong>，<strong>暂时还没有发现什么不足之处</strong>。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section6">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>你喜欢独立or集体工作</h2>
+        <p>
+            我喜欢独立工作来得出自己的观点，然后跟集体一起讨论并找出最佳的方案解决问题，让团队一起成长。
+
+        </p>
+    </div>
+
+    <div class="section" id="section7">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>如何看待困难</h2>
+        <p>
+
+            工作学习中，挑战和机遇并存，遇到问题解决问题才会让自己成长的更快。我相信方法总比困难多，我有信心克服和解决工作中的困难。永远相信美好的事情即将发生。
+        </p>
+    </div>
+
+    <div class="section" id="section8">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>你有哪些特点适合这个岗位</h2>
+        <p>
+        <ol><li>计算机科班，系统培养</li><li>长期独立学习软件开发知识，具备一定的学习能力</li><li>有软件开发实习经历，具有在软件开发的实战经验</li><li>技术栈面，符合岗位要求</li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section9">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>最大的优点</h2>
+        <p>
+        <p>我认为我最大的优点是我的学习能力和适应能力。我对新技术和工具保持着强烈的兴趣，并且喜欢持续学习和跟进行业的发展。
+            <strong>学习能力</strong>：在实习期间我们需要学习公司里的技术框架，在同期实习生和新入职的应届毕业生中，我是学习速度最快的一个，提早进入了正式的项目开发阶段。</p>
+
+        <p><strong>适应能力：</strong>我觉得我的方向感极强，来到一个新的环境很快就能知道去不同的地方的路径。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section10">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>最大的缺点</h2>
+        <p>
+        <p>在没有明确的目标驱动下容易懈怠，没有足够的挑战容易失去兴趣。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section11">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>软件开发中最难的事情</h2>
+        <p>
+
+        <p>在软件开发中，<strong>初始架构设计</strong>被认为是最具挑战性的部分，原因如下：</p>
+
+        <ol><li>复杂性管理：在一个大型软件项目中，需要<strong>考虑许多不同的组件、模块和功能</strong>。初始架构设计需要解决如何有效管理和组织这些复杂性的问题。这包括<strong>确定模块之间的关系</strong>、数据流和通信方式，以及如何<strong>划分功能和责任。</strong></li><li>长期影响：<strong>初始架构设计对整个软件项目的发展和演进具有长期影响</strong>。一个良好的架构设计能够支持软件的可扩展性、可维护性和可靠性，而一个糟糕的架构设计可能导致后续开发过程中的困难和问题。因此，<strong>需要在设计阶段就考虑到未来的需求和变化</strong>，但是鱼与熊掌不可选择，这需要一个开发人员有很强的业务能力。</li></ol>
+
+        <p><strong>一个好的架构设计能够为软件项目的成功打下坚实的基础，经济基础决定上层建筑。</strong></p>
+        </p>
+    </div>
+
+    <div class="section" id="section12">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>职业规划</h2>
+        <p>
+        <p>我的职业规划是在Java后端开发领域不断深耕，成为一位技术专家并在项目和团队中发挥重要作用。具体来说，我计划在以下几个方面努力：</p>
+
+        <ol><li><strong>技术深度：</strong> 我将持续学习和掌握Java后端开发领域的新技术和最佳实践。通过<strong>深入了解底层原理</strong>和<strong>不断提升自己</strong>，我希望在技术上保持领先地位。</li><li><strong>项目经验：</strong> 我计划参与多样性的项目，包括大型系统的设计和实施，以及<strong>解决具有挑战性的技术问题</strong>。这将帮助我积累更丰富的项目经验，<strong>提高解决问题的能力。</strong></li><li><strong>团队协作：</strong> 我理解在现代软件开发中团队协作的重要性。我计划通过与其他团队成员密切合作，分享知识，培养良好的沟通技巧，使团队更加高效。</li><li><strong>领导力发展：</strong> 长期来看，<strong>我希望能够在团队中发挥更多的领导作用</strong>。我将寻找机会担任项目领导或团队负责人，通过领导小组和项目，<strong>推动团队向前发展</strong>。</li><li><strong>终身学习：</strong> <strong>技术领域一直在不断变化</strong>，<strong>我会保持对新技术和趋势的敏感性</strong>，并<strong>不断进行终身学习</strong>。这包括参与培训、行业研讨会和分享会等。</li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>加班</h2>
+        <p>
+
+
+        </p>
+    </div>
+</div>
+</body>
+</html>

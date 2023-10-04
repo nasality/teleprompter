@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Linux</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            /*height: 100vh; /* 使用视口高度作为容器高度 */
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="section" id="section1">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>文件操作</h2>
+        <p>
+        <p>以下是一些常见的Linux文件操作相关命令：</p>
+
+        <p>ls：列出当前目录下的文件和子目录。</p>
+
+        <p>cd：切换当前工作目录。</p>
+
+        <p>pwd：显示当前工作目录的绝对路径。</p>
+
+        <p>mkdir：创建一个新的目录。</p>
+
+        <p>rm：删除文件或目录。</p>
+
+        <p>cp：复制文件或目录。</p>
+
+        <p>mv：移动文件或目录，也可用于重命名文件或目录。</p>
+
+        <p>cat：显示文件内容。</p>
+
+        <p>less：分页显示文件内容，适用于大文件。</p>
+
+        <p>head：显示文件的前几行。</p>
+
+        <p>tail：显示文件的最后几行。</p>
+
+        <p>touch：创建一个空文件或更新文件的访问和修改时间。</p>
+
+        <p>chmod：修改文件或目录的权限。</p>
+
+        <p>chown：修改文件或目录的所有者。</p>
+
+        <p>chgrp：修改文件或目录的所属组。</p>
+
+        <p>ln：创建硬链接或符号链接。</p>
+
+        <p>find：在指定目录下查找文件。</p>
+
+        <p>grep：在文件中搜索匹配指定模式的文本。</p>
+
+        <p>wc：统计文件中的行数、字数和字符数。</p>
+
+        <p>tar：打包和解压缩文件。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section2">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>系统状态</h2>
+        <p>
+        <p>top：实时显示系统中运行的进程和其资源占用情况，包括CPU使用率、内存占用、进程信息等。</p>
+
+        <p>htop：类似于top命令，但提供了更友好的交互式界面和更多的功能。</p>
+
+        <p>uptime：显示系统的运行时间和平均负载。</p>
+
+        <p>free：显示系统内存的使用情况，包括空闲内存、已使用内存、缓存和交换区信息。</p>
+
+        <p>vmstat：提供系统的虚拟内存、进程、CPU、IO等性能统计信息。</p>
+
+        <p>iostat：显示系统的磁盘IO统计信息，包括磁盘使用率、传输速率、等待时间等。</p>
+
+        <p>netstat：显示网络连接、路由表、网络接口统计等网络相关信息。</p>
+
+        <p>ifconfig：显示和配置网络接口的信息，包括IP地址、子网掩码、MAC地址等。</p>
+
+        <p>df：显示文件系统的磁盘空间使用情况。</p>
+
+        <p>du：显示指定目录或文件的磁盘使用情况。</p>
+
+        <p>ps：显示当前运行的进程信息，包括进程ID、CPU使用率、内存占用等。</p>
+
+        <p>lsof：列出当前打开的文件和进程信息。</p>
+
+        <p>sar：系统性能分析工具，提供系统各种资源的历史数据。</p>
+
+        <p>nmon：综合性能监控工具，以交互式方式显示系统的CPU、内存、磁盘、网络等信息。</p>
+
+        <p>uptime：显示系统的负载情况和运行时间。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section3">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>网络通信</h2>
+        <p>
+        <p>ping：测试与目标主机之间的连通性，并测量往返时间（Round-Trip Time）。</p>
+
+        <p>traceroute：跟踪数据包从本地主机到目标主机的路径，显示数据包经过的路由器。</p>
+
+        <p>netstat：显示网络连接、路由表、网络接口统计等网络相关信息。</p>
+
+        <p>ifconfig（或ip）：显示和配置网络接口的信息，包括IP地址、子网掩码、MAC地址等。</p>
+
+        <p>iwconfig：显示和配置无线网络接口的信息，包括SSID、信号强度等。</p>
+
+        <p>ssh：通过安全的Shell协议远程登录到其他主机。</p>
+
+        <p>scp：安全地从本地主机复制文件到远程主机，或从远程主机复制文件到本地主机。</p>
+
+        <p>ftp：使用文件传输协议（FTP）与远程主机进行文件传输。</p>
+
+        <p>telnet：使用Telnet协议远程登录到其他主机。</p>
+
+        <p>wget：从指定的URL下载文件。</p>
+
+        <p>curl：用于发送HTTP请求、获取和修改远程资源。</p>
+
+        <p>nslookup（或dig）：查询域名对应的IP地址或执行DNS相关操作。</p>
+
+        <p>nc（或netcat）：用于网络连接、端口扫描、发送和接收数据等。</p>
+
+        <p>iptables（或ufw）：用于配置Linux系统的防火墙规则。</p>
+
+        <p>tcpdump：抓包工具，用于捕获和分析网络数据包。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section4">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>HashMap添加元素</h2>
+        <p></p>
+    </div>
+</div>
+</body>
+</html>

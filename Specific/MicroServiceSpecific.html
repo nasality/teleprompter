@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>分布式/微服务</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center; /* 垂直居中 */
+      justify-content: center; /* 水平居中 */
+      /*height: 100vh; /* 使用视口高度作为容器高度 */
+    }
+
+    .container {
+      max-width: 800px;
+      padding: 20px;
+      background-color: #f1f1f1;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="section" id="section1">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>微服务架构优缺点</h2>
+    <p>
+    <p>微服务优点：</p>
+
+    <p>单体应用过度膨胀会带来一些问题：</p>
+
+    <p>微服务架构和单体架构都有各自的优缺点。下面是相比于微服务架构，单体架构可能存在的一些缺点：</p>
+
+    <ol><li><strong>复杂性：</strong> 单体架构通常是一个大型的、紧密耦合的应用程序，其中<strong>所有的功能模块都集中在一起</strong>。随着业务的增长，代码规模可能会急剧增加，导致<strong>复杂性和维护成本的上升</strong>。这使得理解和修改单体应用变得更加困难。</li><li><strong>可伸缩性受限：</strong> 单体应用的可伸缩性通常受限于硬件资源的限制。如果需要<strong>增加某个特定功能的处理能力</strong>，<strong>必须要对整个应用进行复制或扩展，而不仅仅是扩展特定功能模块。</strong></li><li><strong>部署风险：</strong> 由于单体应用中所有组件紧密耦合在一起，当进行更新或者修复时，可能会导致整个应用出现故障。这样的风险会使得部署变得更加困难和棘手。</li><li><strong>可靠性：</strong> <strong>单体应用的可靠性可能会受到威胁。一旦应用中的一个组件出现故障，整个应用可能会崩溃或变得不可用。</strong></li><li><strong>灵活性和快速迭代：</strong> <strong>在单体架构中，一个小的变更可能需要重新构建整个应用并进行完整的测试</strong>。这可能导致开发周期的延长，从而降低了快速迭代和发布的能力。</li></ol>
+
+    <p>值得注意的是，单体架构在某些情况下仍然是一个合理的选择，尤其是在项目起初规模较小、功能简单、团队较小且资源有限的情况下。但随着业务的增长和复杂性的提升，许多组织选择将应用迁移到微服务架构，以解决上述问题并获得更多的灵活性和可扩展性。</p>
+
+
+    <ol><li>开发团队变小，容易开发、管理（依赖管理，代码版本控制）</li><li>不重要的微服务宕机不会影响整体</li><li>数据库拆分，并发提升</li><li>对于压力大的服务可以部署集群，其他的不受影响</li></ol>
+
+    <p>微服务缺点：</p>
+
+    <ol><li>需要引入分布式事务，因为跨系统的接口调用，Spring不能管理</li><li>运维人员需要维护更多的系统</li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section2">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Spring Cloud/Spring Cloud Alibaba</h2>
+    <p>
+    <p><strong>Spring Cloud是什么： </strong>  <strong>官方给的解释大概意思是：它可以让开发者快速构建分布式应用</strong>，这些服务可以很好的工作在任何分布式环境下。</p>
+
+    <p>微服务开发过程中需要解决哪些问题？</p>
+
+    <ol><li><p>服务注册发现</p></li><li><p>远程服务调用</p></li><li><p>负载均衡</p></li><li>配置中心</li></ol>
+
+    <p>spring cloud提供了一些解决这类问题的工具，比如服务注册有Eureka、负载均衡有Ribbon</p>
+
+    <p>但是刚才所说到的组件并不是spring提供的啊，是netflix开源的，和spring似乎没有关系</p>
+
+    <p>因为spring团队很少重复早轮子，而是他们利用别人造好的轮子来进行封装</p>
+
+    <p>对于spring cloud，它并不是一个框架，因为Spring Cloud的核心没有实现服务注册、熔断、配置中心等功能，它提供了一个标准规范。而Spring Cloud alibaba才是spring Cloud规范的一种实现。</p>
+
+    <p>spring cloud生态下，目前有两类的比较或的实现，一个是基于netflix、另一个是基于alibaba。</p>
+
+    <p>目前Spring Cloud Alibaba这个生态中，已经有相对成熟的体系：</p>
+
+    <ol><li><p>Dubbo 用于实现高性能Java RPC 通信</p></li><li><p>Nacos 服务注册发现、配置管理、服务管理</p></li><li><p>Sentinel 流量控制、熔断降级、系统负载保护</p></li><li><p>RocketMQ 分布式消息系统，提供低延时的、高可靠的消息发布与订阅服务</p></li><li><p>Seata 高性能微服务分布式事务解决方案</p></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section3">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Dubbo工作原理</h2>
+    <p>
+    <p>Dubbo 是一种用于构建分布式服务的开源 RPC（Remote Procedure Call）框架，它提供了远程方法调用、负载均衡、服务注册与发现、容错处理等功能。Dubbo 架构的运行原理主要包括以下几个关键组件和步骤：</p>
+
+    <ol><li><p><strong>服务提供者</strong>：服务提供者是实际提供服务的应用程序。它将服务实现类发布为一个可供远程调用的服务。服务提供者通过 Dubbo 框架将服务注册到注册中心，并监听来自消费者的远程调用请求。</p></li><li><p><strong>服务消费者</strong>：服务消费者是调用远程服务的应用程序。它通过 Dubbo 框架发现注册中心中的可用服务提供者，并通过远程调用请求来访问服务。</p></li><li><p><strong>注册中心</strong>：注册中心是用于服务的注册和发现的中央存储和管理设施。Dubbo 支持多种注册中心，包括 ZooKeeper、Consul、Etcd 等。服务提供者在启动时会将自己的服务信息注册到注册中心，而服务消费者可以从注册中心获取可用的服务提供者列表。</p></li><li><p><strong>通信协议</strong>：Dubbo 使用多种通信协议来支持不同的传输方式，包括 Dubbo 协议、HTTP 协议、Hessian 协议等。通信协议负责在服务提供者和消费者之间传输数据。</p></li><li><p><strong>序列化</strong>：Dubbo 使用序列化技术将数据从对象转换为字节流，以便在网络中传输。Dubbo 支持多种序列化协议，如 Java 原生序列化、Hessian、Protobuf 等。</p></li></ol>
+
+    <p>Dubbo 的运行原理如下：</p>
+
+    <ul><li><p><strong>服务提供者在启动时</strong>，将自己的<strong>服务信息注册到注册中心</strong>，包括服务接口、IP 地址、端口号等。</p></li><li><p><strong>服务消费者在启动时</strong>，从<strong>注册中心获取可用的服务提供者列表</strong>。</p></li><li><p><strong>服务消费者</strong>根据负载均衡策略选择一个<strong>服务提供者</strong>，并通过通信协议发起远程<strong>服务调用请求</strong>。</p></li><li><p><strong>服务提供者接收远程调用请求</strong>，<strong>调用本地的</strong>服务<strong>实现类</strong>，并将结果通过序列化后的<strong>数据返回给服务消费者</strong>。</p></li><li><p><strong>服务消费者接收到响应数据</strong>，进行反序列化，并将结果返回给调用方。</p></li><li><p>在整个过程中，Dubbo 还支持容错处理、超时设置、重试机制等，以保证分布式服务的稳定性和可靠性。</p></li></ul>
+
+    <p>总之，Dubbo 架构的运行原理涉及到服务提供者、服务消费者、注册中心、通信协议、序列化等多个关键组件，它们共同协作，使得分布式服务的调用变得更加简单和高效。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section4">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Nacos介绍</h2>
+    <p>
+    <p>Nacos（发音：na-cos）是一个开源的<strong>动态服务发现、配置管理和服务管理</strong>平台，它的主要作用是用于帮助构建微服务架构中的服务注册、发现、配置和管理。以下是Nacos的主要作用：</p>
+
+    <ol><li><p><strong>服务发现与注册</strong>：Nacos充当了微服务架构中的服务注册中心，<strong>服务提供者可以将自己的服务注册到Nacos中，而服务消费者可以从Nacos中发现可用的服务</strong>。这有助于实现服务之间的动态发现和通信。</p></li><li><p><strong>动态配置管理</strong>：Nacos可以用于集中<strong>管理配置信息</strong>，包括应用程序的配置。它支持<strong>配置信息动态更新</strong>，<strong>当配置发生变化时，Nacos可以通知订阅了这个配置的服务，以便它们能够重新加载配置</strong>，而无需重启。</p></li><li><p><strong>服务健康检查</strong>：Nacos提供了对服务实例的健康检查功能。它能够定期<strong>检查服务</strong>实例的<strong>健康状态</strong>，<strong>对于不健康的服务，会将它在注册表中移除</strong>，<strong>确保连接到健康的服务。</strong></p></li><li><p>动态路由和负载均衡：Nacos可以与微服务网关（如Spring Cloud Gateway或Nginx）集成，实现动态路由和负载均衡，以便将请求路由到不同的服务实例。</p></li><li><p>分布式系统管理：Nacos还提供了一些管理功能，包括服务集群管理、配置管理的权限控制、监控和告警等。</p></li></ol>
+
+    <p>总之，Nacos是一个多功能的平台，用于管理和协调微服务架构中的服务注册、发现、配置和健康检查等任务。它是构建云原生应用和微服务架构的重要组件，有助于提高应用程序的可伸缩性、可维护性和弹性。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section5">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>OpenFeign介绍</h2>
+    <p>
+    <p>OpenFeign 它是 由Spring 推出的一种服务调用与负载均衡组件</p>
+
+    <p>OpenFeign 是对 Feign 的二次封装，它具有 Feign 的所有功能，并在 Feign 的基础上增加了对 Spring MVC 注解的支持，例如 @RequestMapping、@GetMapping 和 @PostMapping 等。它的出现就是为了<strong>替代进入停更维护状态的 Feign。</strong></p>
+
+    <p>OpenFeign 集成了 Ribbon ，其服务调用以及负载均衡在底层都是依靠 Ribbon 实现的。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section6">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+</div>
+</body>
+</html>

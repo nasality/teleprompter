@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MySQL</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            /*height: 100vh; /* 使用视口高度作为容器高度 */
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="section" id="section1">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>索引类型</h2>
+        <p>
+        <p><ol><li><strong>Primary Key（聚集索引）</strong>：InnoDB存储引擎的表会存在主键（唯一非null），如果建表的时候没有指定主键，则会使用第一非空的唯一索引作为聚集索引，否则InnoDB会自动帮你创建一个不可见的、长度为6字节的row_id用来作为聚集索引。</li><li><strong>单列索引</strong>：单列索引即一个索引只包含单个列</li><li><strong>组合索引</strong>：组合索引指在表的多个字段组合上创建的索引，只有在查询条件中使用了这些字段的左边字段时，索引才会被使用。使用组合索引时<strong>遵循最左前缀集合</strong></li><li><strong>Unique（唯一索引）</strong>：索引列的值必须唯一，但允许有空值。若是组合索引，则列值的组合必须唯一。主键索引是一种特殊的唯一索引，不允许有空值</li><li><strong>Key（普通索引）</strong>：是MySQL中的基本索引类型，允许在定义索引的列中插入重复值和空值</li><li><strong>FULLTEXT（全文索引）</strong>：全文索引类型为FULLTEXT，在定义索引的列上支持值的全文查找，允许在这些索引列中插入重复值和空值。全文索引可以在CHAR、VARCHAR或者TEXT类型的列上创建</li><li><strong>SPATIAL（空间索引）</strong>：空间索引是对空间数据类型的字段建立的索引，MySQL中的空间数据类型有4种，分别是GEOMETRY、POINT、LINESTRING和POLYGON。MySQL使用SPATIAL关键字进行扩展，使得能够用于创建正规索引类似的语法创建空间索引。创建空间索引的列必须声明为NOT NULL</li></ol>
+        </p>
+    </div>
+
+    <div class="section" id="section2">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>索引创建规则</h2>
+        <p>
+        <ol><li>索引并非越多越好，一个表中如果有大量的索引，不仅占用磁盘空间，而且会影响INSERT、DELETE、UPDATE等语句的性能，因为在表中的数据更改的同时，索引也会进行调整和更新</li><li>避免对经常更新的表进行过多的索引，并且索引中的列尽可能少。而对经常用于查询的字段应该创建索引，但要避免添加不必要的字段。</li><li>数据量小的表最好不要使用索引，由于数据较少，查询花费的时间可能比遍历索引的时间还要短，索引可能不会产生优化效果。</li><li>在条件表达式中经常用到的不同值较多的列上建立索引，在不同值很少的列上不要建立索引。比如在学生表的“性别”字段上只有“男”与“女”两个不同值，因此就无须建立索引。如果建立索引，不但不会提高查询效率，反而会严重降低数据更新速度。</li><li>当唯一性是某种数据本身的特征时，指定唯一索引。使用唯一索引需能确保定义的列的数据完整性，以提高查询速度。</li><li>在频繁进行排序或分组（即进行group by或order by操作）的列上建立索引，如果待排序的列有多个，可以在这些列上建立组合索引。</li><li>搜索的索引列，不一定是所要选择的列。换句话说，最适合索引的列是出现在WHERE子句中的列，或连接子句中指定的列，而不是出现在SELECT关键字后的选择列表中的列。</li><li>使用短索引。如果对字符串列进行索引，应该指定一个前缀长度，只要有可能就应该这样做。例如，有一个CHAR(200)列，如果在前10个或20个字符内，多数值是唯一的，那么就不要对整个列进行索引。对前10个或20个字符进行索引能够节省大量索引空间，也可能会使查询更快。较小的索引涉及的磁盘 IO 较少，较短的值比较起来更快。更为重要的是，对于较短的键值，索引高速缓存中的块能容纳更多的键值，因此，MySQL 也可以在内存中容纳更多的值。这样就增加了找到行而不用读取索引中较多块的可能性。</li><li>利用最左前缀。在创建一个n列的索引时，实际是创建了MySQL可利用的n个索引。多列索引可起几个索引的作用，因为可利用索引中最左边的列集来匹配行。这样的列集称为最左前缀。</li><li>对于InnoDB存储引擎的表，记录默认会按照一定的顺序保存，如果有明确定义的主键，则按照主键顺序保存。如果没有主键，但是有唯一索引，那么就是按照唯一索引的顺序保存。如果既没有主键又没有唯一索引，那么表中会自动生成一个内部列，按照这个列的顺序保存。按照主键或者内部列进行的访问是最快的，所以InnoDB表尽量自己指定主键，当表中同时有几个列都是唯一的，都可以作为主键的时候，要选择最常作为访问条件的列作为主键，提高查询的效率。另外，还需要注意，InnoDB 表的普通索引都会保存主键的键值，所以主键要尽可能选择较短的数据类型，可以有效地减少索引的磁盘占用，提高索引的缓存效果</li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section3">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>索引失效</h2>
+        <p>
+        <p>一、避免不走索引的场景
+            1. 尽量避免在字段开头模糊查询，会导致数据库引擎放弃索引进行全表扫描。如下：</p>
+
+        <p>SELECT * FROM t WHERE username LIKE &#39;%陈%&#39;
+            优化方式：尽量在字段后面使用模糊查询。如下：</p>
+
+        <p>SELECT * FROM t WHERE username LIKE &#39;陈%&#39;
+            如果需求是要在前面使用模糊查询，</p>
+
+        <p>使用MySQL内置函数INSTR(str,substr) 来匹配，作用类似于java中的indexOf()，查询字符串出现的角标位置
+            使用FullText全文索引，用match against 检索
+            数据量较大的情况，建议引用ElasticSearch、solr，亿级数据量检索速度秒级
+            当表数据量较少（几千条儿那种），别整花里胡哨的，直接用like &#39;%xx%&#39;。
+            2. 尽量避免使用in 和not in，会导致引擎走全表扫描。如下：</p>
+
+        <p>SELECT * FROM t WHERE id IN (2,3)`
+            优化方式：如果是连续数值，可以用between代替。如下：</p>
+
+        <p>SELECT * FROM t WHERE id BETWEEN 2 AND 3
+            如果是子查询，可以用exists代替。如下：</p>
+
+        <p>-- 不走索引
+            select <em> from A where A.id in (select id from B);
+                -- 走索引
+                select </em> from A where exists (select * from B where B.id = A.id);
+            3. 尽量避免使用 or，会导致数据库引擎放弃索引进行全表扫描。如下：</p>
+
+        <p>SELECT * FROM t WHERE id = 1 OR id = 3
+            优化方式：可以用union代替or。如下：</p>
+
+        <p>SELECT <em> FROM t WHERE id = 1
+            UNION
+            SELECT </em> FROM t WHERE id = 3
+            4. 尽量避免进行null值的判断，会导致数据库引擎放弃索引进行全表扫描。如下：</p>
+
+        <p>SELECT * FROM t WHERE score IS NULL
+            优化方式：可以给字段添加默认值0，对0值进行判断。如下：</p>
+
+        <p>SELECT * FROM t WHERE score = 0`
+            5.尽量避免在where条件中等号的左侧进行表达式、函数操作，会导致数据库引擎放弃索引进行全表扫描。</p>
+
+        <p>可以将表达式、函数操作移动到等号右侧。如下：</p>
+
+        <p>-- 全表扫描
+            SELECT <em> FROM T WHERE score/10 = 9
+                -- 走索引
+                SELECT </em> FROM T WHERE score = 10*9`
+            6. 当数据量大时，避免使用where 1=1的条件。通常为了方便拼装查询条件，我们会默认使用该条件，数据库引擎会放弃索引进行全表扫描。如下：</p>
+
+        <p>SELECT username, age, sex FROM T WHERE 1=1
+            优化方式：用代码拼装sql时进行判断，没 where 条件就去掉 where，有where条件就加 and。</p>
+
+        <ol><li>查询条件不能用 &lt;&gt; 或者 !=</li></ol>
+
+        <p>使用索引列作为条件进行查询时，需要避免使用&lt;&gt;或者!=等判断条件。如确实业务需要，使用到不等于符号，需要在重新评估索引建立，避免在此字段上建立索引，改由查询条件中其他索引字段代替。</p>
+
+        <ol><li>where条件仅包含复合索引非前置列</li></ol>
+
+        <p>如下：复合（联合）索引包含key<em>part1，key</em>part2，key<em>part3三列，但SQL语句没有包含索引前置列&quot;key</em>part1&quot;，按照MySQL联合索引的最左匹配原则，不会走联合索引。</p>
+
+        <p>select col1 from table where key<em>part2=1 and key</em>part3=2
+            9. 隐式类型转换造成不使用索引</p>
+
+        <p>如下SQL语句由于索引对列类型为varchar，但给定的值为数值，涉及隐式类型转换，造成不能正确走索引。</p>
+
+        <p>select col1 from table where col_varchar=123;
+            10. order by 条件要与where中条件一致，否则order by不会利用索引进行排序</p>
+
+        <p>-- 不走age索引
+            SELECT * FROM t order by age;</p>
+
+        <p>-- 走age索引
+            SELECT * FROM t where age &gt; 0 order by age;
+            对于上面的语句，数据库的处理顺序是：</p>
+
+        <p>第一步：根据where条件和统计信息生成执行计划，得到数据。
+            第二步：将得到的数据排序。当执行处理数据（order by）时，数据库会先查看第一步的执行计划，看order by 的字段是否在执行计划中利用了索引。如果是，则可以利用索引顺序而直接取得已经排好序的数据。如果不是，则重新进行排序操作。
+            第三步：返回排序后的数据。
+            当order by 中的字段出现在where条件中时，才会利用索引而不再二次排序，更准确的说，order by 中的字段在执行计划中利用了索引时，不用排序操作。</p>
+
+        <p>这个结论不仅对order by有效，对其他需要排序的操作也有效。比如group by 、union 、distinct等。</p>
+
+        <ol><li>正确使用hint优化语句</li></ol>
+
+        <p>MySQL中可以使用hint指定优化器在执行时选择或忽略特定的索引。一般而言，处于版本变更带来的表结构索引变化，更建议避免使用hint，而是通过Analyze table多收集统计信息。但在特定场合下，指定hint可以排除其他索引干扰而指定更优的执行计划。</p>
+
+        <p>USE INDEX 在你查询语句中表名的后面，添加 USE INDEX 来提供希望 MySQL 去参考的索引列表，就可以让 MySQL 不再考虑其他可用的索引。例子: SELECT col1 FROM table USE INDEX (mod<em>time, name)...
+            IGNORE INDEX 如果只是单纯的想让 MySQL 忽略一个或者多个索引，可以使用 IGNORE INDEX 作为 Hint。例子: SELECT col1 FROM table IGNORE INDEX (priority) ...
+            FORCE INDEX 为强制 MySQL 使用一个特定的索引，可在查询中使用FORCE INDEX 作为Hint。例子: SELECT col1 FROM table FORCE INDEX (mod</em>time) ...
+            在查询的时候，数据库系统会自动分析查询语句，并选择一个最合适的索引。但是很多时候，数据库系统的查询优化器并不一定总是能使用最优索引。如果我们知道如何选择索引，可以使用FORCE INDEX强制查询使用指定的索引。</p>
+
+        <p>例如：</p>
+
+        <p>SELECT * FROM students FORCE INDEX (idx<em>class</em>id) WHERE class_id = 1 ORDER BY id DESC;</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section4">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>SQL优化</h2>
+        <p>
+        <p>二、SELECT语句其他优化
+            1. 避免出现select *</p>
+
+        <p>首先，select * 操作在任何类型数据库中都不是一个好的SQL编写习惯。</p>
+
+        <p>使用select * 取出全部列，会让优化器无法完成索引覆盖扫描这类优化，会影响优化器对执行计划的选择，也会增加网络带宽消耗，更会带来额外的I/O,内存和CPU消耗。</p>
+
+        <p>建议提出业务实际需要的列数，将指定列名以取代select *。</p>
+
+        <ol><li>避免出现不确定结果的函数</li></ol>
+
+        <p>特定针对主从复制这类业务场景。由于原理上从库复制的是主库执行的语句，使用如now()、rand()、sysdate()、current_user()等不确定结果的函数很容易导致主库与从库相应的数据不一致。另外不确定值的函数,产生的SQL语句无法利用query cache。</p>
+
+        <p>3.多表关联查询时，小表在前，大表在后。</p>
+
+        <p>在MySQL中，执行 from 后的表关联查询是从左往右执行的（Oracle相反），第一张表会涉及到全表扫描，所以将小表放在前面，先扫小表，扫描快效率较高，在扫描后面的大表，或许只扫描大表的前100行就符合返回条件并return了。</p>
+
+        <p>例如：表1有50条数据，表2有30亿条数据；如果全表扫描表2，你品，那就先去吃个饭再说吧是吧。</p>
+
+        <ol><li>使用表的别名</li></ol>
+
+        <p>当在SQL语句中连接多个表时，请使用表的别名并把别名前缀于每个列名上。这样就可以减少解析的时间并减少哪些友列名歧义引起的语法错误。</p>
+
+        <ol><li>用where字句替换HAVING字句</li></ol>
+
+        <p>避免使用HAVING字句，因为HAVING只会在检索出所有记录之后才对结果集进行过滤，而where则是在聚合前刷选记录，如果能通过where字句限制记录的数目，那就能减少这方面的开销。HAVING中的条件一般用于聚合函数的过滤，除此之外，应该将条件写在where字句中。</p>
+
+        <p>where和having的区别：where后面不能使用组函数</p>
+
+        <p>6.调整Where字句中的连接顺序</p>
+
+        <p>MySQL采用从左往右，自上而下的顺序解析where子句。根据这个原理，应将过滤数据多的条件往前放，最快速度缩小结果集。</p>
+
+        <p>三、增删改 DML 语句优化
+            1. 大批量插入数据</p>
+
+        <p>如果同时执行大量的插入，建议使用多个值的INSERT语句(方法二)。这比使用分开INSERT语句快（方法一），一般情况下批量插入效率有几倍的差别。</p>
+
+        <p>方法一：</p>
+
+        <p>insert into T values(1,2); </p>
+
+        <p>insert into T values(1,3); </p>
+
+        <p>insert into T values(1,4);
+            方法二：</p>
+
+        <p>Insert into T values(1,2),(1,3),(1,4);
+            选择后一种方法的原因有三。</p>
+
+        <p>减少SQL语句解析的操作，MySQL没有类似Oracle的share pool，采用方法二，只需要解析一次就能进行数据的插入操作；
+            在特定场景可以减少对DB连接次数
+            SQL语句较短，可以减少网络传输的IO。
+            2. 适当使用commit</p>
+
+        <p>适当使用commit可以释放事务占用的资源而减少消耗，commit后能释放的资源如下：</p>
+
+        <p>事务占用的undo数据块；
+            事务在redo log中记录的数据块；
+            释放事务施加的，减少锁争用影响性能。特别是在需要使用delete删除大量数据的时候，必须分解删除量并定期commit。
+            3. 避免重复查询更新的数据</p>
+
+        <p>针对业务中经常出现的更新行同时又希望获得改行信息的需求，MySQL并不支持PostgreSQL那样的UPDATE RETURNING语法，在MySQL中可以通过变量实现。</p>
+
+        <p>例如，更新一行记录的时间戳，同时希望查询当前记录中存放的时间戳是什么，简单方法实现：</p>
+
+        <p>Update t1 set time=now() where col1=1; </p>
+
+        <p>Select time from t1 where id =1;
+            使用变量，可以重写为以下方式：</p>
+
+        <p>Update t1 set time=now () where col1=1 and @now: = now (); </p>
+
+        <p>Select @now;
+            前后二者都需要两次网络来回，但使用变量避免了再次访问数据表，特别是当t1表数据量较大时，后者比前者快很多。</p>
+
+        <p>4.查询优先还是更新（insert、update、delete）优先</p>
+
+        <p>MySQL 还允许改变语句调度的优先级，它可以使来自多个客户端的查询更好地协作，这样单个客户端就不会由于锁定而等待很长时间。改变优先级还可以确保特定类型的查询被处理得更快。我们首先应该确定应用的类型，判断应用是以查询为主还是以更新为主的，是确保查询效率还是确保更新的效率，决定是查询优先还是更新优先。</p>
+
+        <p>下面我们提到的改变调度策略的方法主要是针对只存在表锁的存储引擎，比如 MyISAM 、MEMROY、MERGE，对于Innodb 存储引擎，语句的执行是由获得行锁的顺序决定的。MySQL 的默认的调度策略可用总结如下：</p>
+
+        <p>1）写入操作优先于读取操作。</p>
+
+        <p>2）对某张数据表的写入操作某一时刻只能发生一次，写入请求按照它们到达的次序来处理。</p>
+
+        <p>3）对某张数据表的多个读取操作可以同时地进行。MySQL 提供了几个语句调节符，允许你修改它的调度策略：</p>
+
+        <p>LOW<em>PRIORITY关键字应用于DELETE、INSERT、LOAD DATA、REPLACE和UPDATE；
+            HIGH</em>PRIORITY关键字应用于SELECT和INSERT语句；
+            DELAYED关键字应用于INSERT和REPLACE语句。
+            如果写入操作是一个 LOW<em>PRIORITY（低优先级）请求，那么系统就不会认为它的优先级高于读取操作。在这种情况下，如果写入者在等待的时候，第二个读取者到达了，那么就允许第二个读取者插到写入者之前。只有在没有其它的读取者的时候，才允许写入者开始操作。这种调度修改可能存在 LOW</em>PRIORITY写入操作永远被阻塞的情况。</p>
+
+        <p>SELECT 查询的HIGH<em>PRIORITY（高优先级）关键字也类似。它允许SELECT 插入正在等待的写入操作之前，即使在正常情况下写入操作的优先级更高。另外一种影响是，高优先级的 SELECT 在正常的 SELECT 语句之前执行，因为这些语句会被写入操作阻塞。如果希望所有支持LOW</em>PRIORITY 选项的语句都默认地按照低优先级来处理，那么 请使用--low-priority-updates 选项来启动服务器。通过使用 INSERTHIGH_PRIORITY 来把 INSERT 语句提高到正常的写入优先级，可以消除该选项对单个INSERT语句的影响。</p>
+
+        <p>四、查询条件优化
+            1. 对于复杂的查询，可以使用中间临时表 暂存数据</p>
+
+        <ol><li>优化group by语句</li></ol>
+
+        <p>默认情况下，MySQL 会对GROUP BY分组的所有值进行排序，如 “GROUP BY col1，col2，....;” 查询的方法如同在查询中指定 “ORDER BY col1，col2，...;” 如果显式包括一个包含相同的列的 ORDER BY子句，MySQL 可以毫不减速地对它进行优化，尽管仍然进行排序。</p>
+
+        <p>因此，如果查询包括 GROUP BY 但你并不想对分组的值进行排序，你可以指定 ORDER BY NULL禁止排序。例如：</p>
+
+        <p>SELECT col1, col2, COUNT(*) FROM table GROUP BY col1, col2 ORDER BY NULL ;
+            3. 优化join语句</p>
+
+        <p>MySQL中可以通过子查询来使用 SELECT 语句来创建一个单列的查询结果，然后把这个结果作为过滤条件用在另一个查询中。使用子查询可以一次性的完成很多逻辑上需要多个步骤才能完成的 SQL 操作，同时也可以避免事务或者表锁死，并且写起来也很容易。但是，有些情况下，子查询可以被更有效率的连接(JOIN)..替代。</p>
+
+        <p>例子：假设要将所有没有订单记录的用户取出来，可以用下面这个查询完成：</p>
+
+        <p>SELECT col1 FROM customerinfo WHERE CustomerID NOT in (SELECT CustomerID FROM salesinfo )
+            如果使用连接(JOIN).. 来完成这个查询工作，速度将会有所提升。尤其是当 salesinfo表中对 CustomerID 建有索引的话，性能将会更好，查询如下：</p>
+
+        <p>SELECT col1 FROM customerinfo
+            LEFT JOIN salesinfoON customerinfo.CustomerID=salesinfo.CustomerID
+            WHERE salesinfo.CustomerID IS NULL
+            连接(JOIN).. 之所以更有效率一些，是因为 MySQL 不需要在内存中创建临时表来完成这个逻辑上的需要两个步骤的查询工作。</p>
+
+        <ol><li>优化union查询</li></ol>
+
+        <p>MySQL通过创建并填充临时表的方式来执行union查询。除非确实要消除重复的行，否则建议使用union all。原因在于如果没有all这个关键词，MySQL会给临时表加上distinct选项，这会导致对整个临时表的数据做唯一性校验，这样做的消耗相当高。</p>
+
+        <p>高效：</p>
+
+        <p>SELECT COL1, COL2, COL3 FROM TABLE WHERE COL1 = 10 </p>
+
+        <p>UNION ALL </p>
+
+        <p>SELECT COL1, COL2, COL3 FROM TABLE WHERE COL3= &#39;TEST&#39;;
+            低效：</p>
+
+        <p>SELECT COL1, COL2, COL3 FROM TABLE WHERE COL1 = 10 </p>
+
+        <p>UNION </p>
+
+        <p>SELECT COL1, COL2, COL3 FROM TABLE WHERE COL3= &#39;TEST&#39;;
+            5.拆分复杂SQL为多个小SQL，避免大事务</p>
+
+        <p>简单的SQL容易使用到MySQL的QUERY CACHE；
+            减少锁表时间特别是使用MyISAM存储引擎的表；
+            可以使用多核CPU。
+            6. 使用truncate代替delete</p>
+
+        <p>当删除全表中记录时，使用delete语句的操作会被记录到undo块中，删除记录也记录binlog，当确认需要删除全表时，会产生很大量的binlog并占用大量的undo数据块，此时既没有很好的效率也占用了大量的资源。</p>
+
+        <p>使用truncate替代，不会记录可恢复的信息，数据不能被恢复。也因此使用truncate操作有其极少的资源占用与极快的时间。另外，使用truncate可以回收表的水位，使自增字段值归零。</p>
+
+        <ol><li>使用合理的分页方式以提高分页效率</li></ol>
+
+        <p>使用合理的分页方式以提高分页效率 针对展现等分页需求，合适的分页方式能够提高分页的效率。</p>
+
+        <p>案例1：</p>
+
+        <p>select * from t where thread<em>id = 10000 and deleted = 0
+            order by gmt</em>create asc limit 0, 15;
+            上述例子通过一次性根据过滤条件取出所有字段进行排序返回。数据访问开销=索引IO+索引全部记录结果对应的表数据IO。因此，该种写法越翻到后面执行效率越差，时间越长，尤其表数据量很大的时候。</p>
+
+        <p>适用场景：当中间结果集很小（10000行以下）或者查询条件复杂（指涉及多个不同查询字段或者多表连接）时适用。</p>
+
+        <p>案例2：</p>
+
+        <p>select t.* from (select id from t where thread<em>id = 10000 and deleted = 0
+            order by gmt</em>create asc limit 0, 15) a, t
+            where a.id = t.id;
+            上述例子必须满足t表主键是id列，且有覆盖索引secondary key:(thread<em>id, deleted, gmt</em>create)。通过先根据过滤条件利用覆盖索引取出主键id进行排序，再进行join操作取出其他字段。数据访问开销=索引IO+索引分页后结果（例子中是15行）对应的表数据IO。因此，该写法每次翻页消耗的资源和时间都基本相同，就像翻第一页一样。</p>
+
+        <p>适用场景：当查询和排序字段（即where子句和order by子句涉及的字段）有对应覆盖索引时，且中间结果集很大的情况时适用。</p>
+
+        <p>五、建表优化
+            1. 在表中建立索引，优先考虑where、order by使用到的字段。</p>
+
+        <ol><li>尽量使用数字型字段（如性别，男：1 女：2），若只含数值信息的字段尽量不要设计为字符型，这会降低查询和连接的性能，并会增加存储开销。</li></ol>
+
+        <p>这是因为引擎在处理查询和连接时会 逐个比较字符串中每一个字符，而对于数字型而言只需要比较一次就够了。</p>
+
+        <ol><li>查询数据量大的表 会造成查询缓慢。主要的原因是扫描行数过多。这个时候可以通过程序，分段分页进行查询，循环遍历，将结果合并处理进行展示。要查询100000到100050的数据，如下：</li></ol>
+
+        <p>SELECT <em> FROM (SELECT ROW_NUMBER() OVER(ORDER BY ID ASC) AS rowid,</em>
+            FROM infoTab)t WHERE t.rowid &gt; 100000 AND t.rowid &lt;= 100050
+            4. 用varchar/nvarchar 代替 char/nchar</p>
+
+        <p>尽可能的使用 varchar/nvarchar 代替 char/nchar ，因为首先变长字段存储空间小，可以节省存储空间，其次对于查询来说，在一个相对较小的字段内搜索效率显然要高些。</p>
+
+        <p>不要以为 NULL 不需要空间，比如：char(100) 型，在字段建立时，空间就固定了， 不管是否插入值（NULL也包含在内），都是占用 100个字符的空间的，如果是varchar这样的变长字段， null 不占用空间。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section5">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>读写分离</h2>
+        <p>
+        <p><strong>为什么要读写分离</strong>：主从复制、读写分离一般是一起使用的。目的很简单，就是<strong>为了提高数据库的并发性能</strong>。你想，假设是单机，读写都在一台MySQL上面完成，性能肯定不高。如果有三台MySQL，一台mater只负责写操作，两台salve只负责读操作，性能不就能大大提高了吗？</p>
+
+        <p>所以<strong>主从复制、读写分离就是为了数据库能支持更大的并发</strong>。</p>
+
+        <p>随着业务量的扩展、如果是单机部署的MySQL，会导致I/O频率过高。采用<strong>主从复制、读写分离可以提高数据库的可用性</strong>。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section6">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>分库分表</h2>
+        <p>
+        <p>MySQL在处理大量数据时会遇到瓶颈，为了解决这个问题，分库分表是一种有效的解决方案。</p>
+
+        <p>分库分表的基本概念是将一个大型数据库分成多个较小的数据库（分库），并将每个数据库的数据进一步分成多个较小的表（分表），每个表只包含部分数据。这种方式使得查询和更新操作可以在多个数据库和表之间并行执行，提高了系统的扩展性和性能。</p>
+
+        <p>MySQL分库分表的实现原理可以归纳为以下几个步骤：</p>
+
+        <p>根据分库分表的策略，将原始数据分散到多个数据库和表中。</p>
+
+        <p>针对每个分库分表建立一组相同的表结构，使得分散的数据可以在不同的数据库和表之间查询和更新。</p>
+
+        <p>使用分库分表的中间件，将分散的数据重新组合成逻辑上的单一数据库，对外提供服务。</p>
+
+        <p>常见的分库分表策略</p>
+
+        <p>1.垂直分表</p>
+
+        <p>垂直分表是指将原始数据按照列拆分成多个表，每个表只包含某些列。这种策略通常用于处理：包含大量无关字段的表。</p>
+
+        <p>例如，对于一个包含用户信息和订单信息的表，可以将用户信息和订单信息拆分成两个表，使得用户信息和订单信息可以分别存储在不同的表中。</p>
+
+        <p>2.水平分表</p>
+
+        <p>水平分表是指将原始数据按照行拆分成多个表，每个表只包含某些行。这种策略通常用于处理数据量大的表。</p>
+
+        <p>例如，对于一个包含订单信息的表，可以将订单信息按照订单号的哈希值分散到多个表中。</p>
+
+        <p>3.分库分表组合</p>
+
+        <p>分库分表组合是指将垂直分表和水平分表结合起来，同时对数据库和表进行切分。</p>
+
+        <p>例如，对于一个包含用户信息和订单信息的表，可以将用户信息和订单信息拆分成两个表，并将订单信息按照订单号的哈希值分散到多个表中，最终将这些表分散到多个数据库中。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section7">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>Having/Where</h2>
+        <p>
+        <p><code>HAVING</code> 和 <code>WHERE</code> 是用于过滤数据的关键字，常用于 SQL 查询语句中。</p>
+
+        <ol><li><code>WHERE</code> 子句：<ul><li><code>WHERE</code> 子句用于在执行查询之前对表中的行进行过滤。它基于给定的条件从表中选择满足条件的行，并将它们作为结果返回。</li><li><code>WHERE</code> 子句可以包含比较运算符（如等于、不等于、大于、小于等）、逻辑运算符（如AND、OR、NOT）以及其他函数和表达式来构建查询条件。</li><li><code>WHERE</code> 子句通常位于 SQL 查询语句的 <code>SELECT</code>、<code>UPDATE</code> 或 <code>DELETE</code> 语句的最后，用于指定条件。</li></ul></li></ol>
+
+        <p>示例：</p>
+
+        <p><code>sql
+            SELECT * FROM employees WHERE department = &#39;HR&#39;;
+        </code></p>
+
+        <p>以上示例查询了名为 <code>employees</code> 的表中所有部门为 &#39;HR&#39; 的记录。</p>
+
+        <ol><li><code>HAVING</code> 子句：<ul><li><code>HAVING</code> 子句用于在执行查询之后对结果集进行过滤。它在 <code>GROUP BY</code> 子句之后使用，并用于筛选由聚合函数产生的结果。</li><li><code>HAVING</code> 子句通常用于根据聚合函数的结果进行过滤，例如根据总和、平均值、计数等进行筛选。</li><li><code>HAVING</code> 子句中可以使用比较运算符和逻辑运算符来构建条件，类似于 <code>WHERE</code> 子句。</li></ul></li></ol>
+
+        <p>示例：</p>
+
+        <p><code>sql
+            SELECT department, AVG(salary) FROM employees GROUP BY department HAVING AVG(salary) &gt; 5000;
+        </code></p>
+
+        <p>以上示例查询了名为 <code>employees</code> 的表，按部门分组并计算每个部门的平均工资，然后返回平均工资大于 5000 的部门及其平均工资。</p>
+
+        <p>总结：</p>
+
+        <ul><li><code>WHERE</code> 子句用于在执行查询之前对表中的行进行过滤。</li><li><code>HAVING</code> 子句用于在执行查询之后对结果集进行过滤，特别是用于基于聚合函数的结果进行过滤。</li><li><code>WHERE</code> 子句通常出现在查询语句的最后，<code>HAVING</code> 子句通常出现在 <code>GROUP BY</code> 子句之后。</li><li><code>WHERE</code> 子句基于行级别的条件过滤，而 <code>HAVING</code> 子句基于聚合级别的条件过滤。</li></ul>
+        </p>
+    </div>
+
+    <div class="section" id="section8">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>B+树作为索引的数据结构</h2>
+        <p>
+        <p>MySQL 是会将数据持久化在硬盘，而存储功能是由 MySQL 存储引擎实现的，所以讨论 MySQL 使用哪种数据结构作为索引，实际上是在讨论存储引使用哪种数据结构作为索引，InnoDB 是 MySQL 默认的存储引擎，它就是采用了 B+ 树作为索引的数据结构。</p>
+
+        <p>要设计一个 MySQL 的索引数据结构，不仅仅考虑数据结构增删改的时间复杂度，更重要的是要考虑磁盘 I/0 的操作次数。因为索引和记录都是存放在硬盘，硬盘是一个非常慢的存储设备，我们在查询数据的时候，最好能在尽可能少的磁盘 I/0 的操作次数内完成。</p>
+
+        <p>二分查找树虽然是一个天然的二分结构，能很好的利用二分查找快速定位数据，但是它存在一种极端的情况，每当插入的元素都是树内最大的元素，就会导致二分查找树退化成一个链表，此时查询复杂度就会从 O(logn)降低为 O(n)。</p>
+
+        <p>为了解决二分查找树退化成链表的问题，就出现了自平衡二叉树，保证了查询操作的时间复杂度就会一直维持在 O(logn) 。但是它本质上还是一个二叉树，每个节点只能有 2 个子节点，随着元素的增多，树的高度会越来越高。</p>
+
+        <p>而树的高度决定于磁盘 I/O 操作的次数，因为树是存储在磁盘中的，访问每个节点，都对应一次磁盘 I/O 操作，也就是说树的高度就等于每次查询数据时磁盘 IO 操作的次数，所以树的高度越高，就会影响查询性能。</p>
+
+        <p>B 树和 B+ 都是通过多叉树的方式，会将树的高度变矮，所以这两个数据结构非常适合检索存于磁盘中的数据。</p>
+
+        <p>但是 MySQL 默认的存储引擎 InnoDB 采用的是 B+ 作为索引的数据结构，原因有：</p>
+
+        <p>B+ 树的非叶子节点不存放实际的记录数据，仅存放索引，因此数据量相同的情况下，相比存储即存索引又存记录的 B 树，B+树的非叶子节点可以存放更多的索引，因此 B+ 树可以比 B 树更「矮胖」，查询底层节点的磁盘 I/O次数会更少。
+            B+ 树有大量的冗余节点（所有非叶子节点都是冗余索引），这些冗余索引让 B+ 树在插入、删除的效率都更高，比如删除根节点的时候，不会像 B 树那样会发生复杂的树的变化；
+            B+ 树叶子节点之间用链表连接了起来，有利于范围查询，而 B 树要实现范围查询，因此只能通过树的遍历来完成范围查询，这会涉及多个节点的磁盘 I/O 操作，范围查询效率不如 B+ 树。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section9">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>数据库设计</h2>
+        <p>
+        <p>数据库表的设计是数据库系统中非常关键的一环，良好的设计可以提高数据存储和检索的效率，并确保数据的一致性和完整性。以下是一些数据库表设计的原则：</p>
+
+        <ol><li><p><strong>符合范式设计：</strong></p><ul><li><p>范式设计是数据库表设计的基本原则。主要有第一范式（1NF）、第二范式（2NF）、第三范式（3NF）等。范式设计有助于消除数据冗余，提高数据的一致性和更新的效率。</p></li></ul></li><li><p><strong>选择合适的数据类型：</strong></p><ul><li><p>选择适当的数据类型能够减小存储空间的使用，提高检索和计算的效率。例如，使用整型而不是字符型存储数字、选择合适长度的字符串、使用日期类型等。</p></li></ul></li><li><p><strong>建立适当的索引：</strong></p><ul><li><p>通过建立索引可以提高检索的速度，但要谨慎使用。过多或不必要的索引可能会增加写操作的成本，占用额外的存储空间。通常应在经常用于查询的列上建立索引。</p></li></ul></li><li><p><strong>遵循命名规范：</strong></p><ul><li><p>使用有意义、清晰的表和列的命名规范，以便于理解和维护。一致的命名规范有助于团队协作和代码的可读性。</p></li></ul></li><li><p><strong>确保数据的完整性：</strong></p><ul><li><p>使用外键、唯一约束、主键等约束条件，确保数据的完整性。这样可以防止无效的数据插入、更新和删除操作。</p></li></ul></li><li><p><strong>考虑性能优化：</strong></p><ul><li><p>考虑数据库的性能优化，包括查询性能、事务性能等。可以通过适当的索引、分区表、合理的查询语句等手段来提高数据库的性能。</p></li></ul></li><li><p><strong>规划合理的关系：</strong></p><ul><li><p>设计表之间的关系时，要根据业务需求和数据的实际情况来规划。常见的关系有一对一、一对多、多对多等，要根据具体情况选择适当的关系。</p></li></ul></li><li><p><strong>考虑扩展性：</strong></p><ul><li><p>考虑数据库的扩展性，使得系统在面对未来的业务需求扩展时，能够方便地进行数据库结构的调整和优化。</p></li></ul></li><li><p><strong>合理使用分区：</strong></p><ul><li><p>对于大型表，可以考虑使用分区表，将表按照某个列的范围进行分区，提高查询性能，减轻数据库的负担。</p></li></ul></li><li><p><strong>文档化设计：</strong></p><ul><li>对数据库表的设计进行文档化，包括表的结构、约束、索引等信息，有助于后续的维护和升级工作。</li></ul></li></ol>
+
+        <p>这些原则不是绝对的，具体的数据库设计要根据具体的业务需求和系统特点来灵活应用。在设计数据库表时，需要权衡各种因素，以达到维护性、性能和扩展性的平衡。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section10">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>数据库范式</h2>
+        <p>
+        <p>数据库范式是关系型数据库设计中的一组规范，旨在消除数据冗余，提高数据存储和检索的效率，确保数据的一致性和完整性。主要有以下几个范式：</p>
+
+        <h3>1. 第一范式（1NF）：</h3>
+
+        <ul><li><strong>定义：</strong> 数据表中的每一列都是不可再分的原子数据项，不包含集合、数组等复杂类型。</li><li><strong>要求：</strong> 每个字段的值都是原子的，不可再分。</li></ul>
+
+        <h3>2. 第二范式（2NF）：</h3>
+
+        <ul><li><strong>定义：</strong> 在满足第一范式的基础上，要求非主键列完全依赖于整个主键，而不是部分依赖。</li><li><strong>要求：</strong> 所有非主键列都完全依赖于主键。</li></ul>
+
+        <h3>3. 第三范式（3NF）：</h3>
+
+        <ul><li><strong>定义：</strong> 在满足第二范式的基础上，要求非主键列之间相互独立，不存在传递依赖。</li><li><strong>要求：</strong> 所有非主键列之间都相互独立，不存在 A-&gt;B，B-&gt;C 的传递依赖。</li></ul>
+
+        <h3>4. Boyce-Codd 范式（BCNF）：</h3>
+
+        <ul><li><strong>定义：</strong> 在满足第三范式的基础上，要求任何非主键列都不能对候选键进行部分依赖。</li><li><strong>要求：</strong> 任何非主键列都不能对候选键进行部分依赖。</li></ul>
+
+        <h3>5. 第四范式（4NF）：</h3>
+
+        <ul><li><strong>定义：</strong> 在满足BCNF的基础上，要求消除多值依赖，即表中的多值属性只依赖于候选键。</li><li><strong>要求：</strong> 消除表中多值依赖。</li></ul>
+
+        <h3>6. 第五范式（5NF）：</h3>
+
+        <ul><li><strong>定义：</strong> 在满足第四范式的基础上，要求消除联接依赖，即表中的非键属性只与候选键有关。</li><li><strong>要求：</strong> 消除表中的联接依赖。</li></ul>
+
+        <p>这些范式按照递增的顺序逐步规范化数据库表的设计，每一范式都建立在前一范式的基础上，并引入更严格的规范。在实际应用中，不是所有情况都需要遵循所有范式，要根据具体业务需求和性能考虑进行合理的设计。有时候为了性能或其他原因，可能会有一定的冗余设计。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section11">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>事务介绍</h2>
+        <p>
+        <p>设想一个场景，这个场景中我们需要插入多条相关联的数据到数据库，不幸的是，这个过程可能会遇到下面这些问题：</p>
+
+        <ol><li><p>网络问题</p></li><li><p>数据库宕机</p></li><li><p>并发访问数据库时，多个线程同时写入数据库，覆盖了彼此的更改。</p></li></ol>
+
+        <p>......</p>
+
+        <p>任何一个问题都可能会导致数据的不一致性。为了保证数据的一致性，数据库系统必须能够处理这些问题。</p>
+
+        <p>何为事务？ 一言蔽之，事务是逻辑上的一组操作，要么都执行，要么都不执行。</p>
+
+        <p>事务最经典也经常被拿出来说例子就是转账了。假如小明要给小红转账 1000 元，这个转账会涉及到两个关键操作，这两个操作必须都成功或者都失败。</p>
+
+        <p>将小明的余额减少 1000 元</p>
+
+        <p>将小红的余额增加 1000 元。</p>
+
+        <p>事务会把这两个操作就可以看成逻辑上的一个整体，这个整体包含的操作要么都成功，要么都要失败。这样就不会出现小明余额减少而小红的余额却并没有增加的情况。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section12">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>ACID</h2>
+        <p>
+        <p>关系型数据库（例如：MySQL、SQL Server、Oracle 等）事务都有 ACID 特性：</p>
+
+        <p><strong>原子性（Atomicity）</strong>：事务是最小的执行单位，不允许分割。事务的原子性确保动作要么全部完成，要么完全不起作用；</p>
+
+        <p><strong>一致性（Consistency）</strong>：执行事务前后，数据保持一致，例如转账业务中，无论事务是否成功，转账者和收款人的总额应该是不变的；</p>
+
+        <p><strong>隔离性（Isolation）</strong>：并发事务之间不会互相干扰，各并发事务之间数据库是独立的；</p>
+
+        <p><strong>持久性（Durability）</strong>：一个事务被提交之后。它对数据库中数据的改变是持久的，即使数据库发生故障也不应该对其有任何影响。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section13">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>事务并发出现的问题</h2>
+        <p>
+        <p>在典型的应用程序中，多个事务并发运行，经常会操作相同的数据来完成各自的任务（多个用户对同一数据进行操作）。并发虽然是必须的，但可能会导致以下的问题。</p>
+
+        <h1>脏读（Dirty read）</h1>
+
+        <p>一个事务读取数据并且对数据进行了修改，这个修改对其他事务来说是可见的，即使当前事务没有提交。这时另外一个事务读取了这个还未提交的数据，但第一个事务突然回滚，导致数据并没有被提交到数据库，那第二个事务读取到的就是脏数据，这也就是脏读的由来。</p>
+
+        <p>例如：事务 1 读取某表中的数据 A=20，事务 1 修改 A=A-1，事务 2 读取到 A = 19,事务 1 回滚导致对 A 的修改并未提交到数据库， A 的值还是 20。</p>
+
+        <h1>丢失修改（Lost to modify）</h1>
+
+        <p>在一个事务读取一个数据时，另外一个事务也访问了该数据，那么在第一个事务中修改了这个数据后，第二个事务也修改了这个数据。这样第一个事务内的修改结果就被丢失，因此称为丢失修改。</p>
+
+        <p>例如：事务 1 读取某表中的数据 A=20，事务 2 也读取 A=20，事务 1 先修改 A=A-1，事务 2 后来也修改 A=A-1，最终结果 A=19，事务 1 的修改被丢失。</p>
+
+        <h1>不可重复读（Unrepeatable read）</h1>
+
+        <p>指在一个事务内多次读同一数据。在这个事务还没有结束时，另一个事务也访问该数据。那么，在第一个事务中的两次读数据之间，由于第二个事务的修改导致第一个事务两次读取的数据可能不太一样。这就发生了在一个事务内两次读到的数据是不一样的情况，因此称为不可重复读。</p>
+
+        <p>例如：事务 1 读取某表中的数据 A=20，事务 2 也读取 A=20，事务 1 修改 A=A-1，事务 2 再次读取 A =19，此时读取的结果和第一次读取的结果不同。</p>
+
+        <h1>幻读（Phantom read）</h1>
+
+        <p>幻读与不可重复读类似。它发生在一个事务读取了几行数据，接着另一个并发事务插入了一些数据时。在随后的查询中，第一个事务就会发现多了一些原本不存在的记录，就好像发生了幻觉一样，所以称为幻读。</p>
+
+        <p>例如：事务 2 读取某个范围的数据，事务 1 在这个范围插入了新的数据，事务 2 再次读取这个范围的数据发现相比于第一次读取的结果多了新的数据。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section14">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>事务隔离级别</h2>
+        <p>
+        <p>SQL 标准定义了四个隔离级别：</p>
+
+        <p><strong>READ-UNCOMMITTED(读取未提交)</strong> ：最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读。
+            <strong>READ-COMMITTED(读取已提交)</strong> ：允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。
+            <strong>REPEATABLE-READ(可重复读)</strong> ：对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。
+            <strong>SERIALIZABLE(可串行化)</strong> ：最高的隔离级别，完全服从 ACID 的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。	</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section15">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>锁的分类</h2>
+        <p>
+        <p>在 MySQL 里，<strong>根据加锁的范围</strong>，可以分为<strong>全局锁、表级锁和行锁</strong>三类。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section16">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>全局锁</h2>
+        <p>
+        <p>要使用全局锁，则要执行这条命令：flush tables with read lock</p>
+
+        <p>执行后，整个<strong>数据库就处于只读状态</strong>了，这时<strong>其他线程执行</strong>以下操作：</p>
+
+        <p><strong>对数据的增删改</strong>操作，比如 insert、delete、update等语句；</p>
+
+        <p><strong>对表结构的更改</strong>操作，比如 alter table、drop table 等语句。</p>
+
+        <p><strong>就会被阻塞</strong>，如果要释放全局锁，则要执行这条命令：unlock tables</p>
+
+        <p>当然，当会话断开了，全局锁会被自动释放。</p>
+
+        <p><strong>作用：</strong>  全局锁主要应用于做全库逻辑备份，这样在备份数据库期间，不会因为数据或表结构的更新，而出现备份文件的数据与预期的不一样。**</p>
+
+        <p><strong>缺点：</strong>加上全局锁，意味着整个数据库都是<strong>只读状态</strong>。那么如果数据库里有很多数据，备份就会花费很多的时间，关键是备份期间，业务只能读数据，而<strong>不能更新数据，这样会造成业务停滞</strong>。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section17">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>表锁</h2>
+        <p>
+
+        <ul><li>元数据锁（MDL）;</li><li>意向锁；</li><li>AUTO-INC 锁；</li></ul>
+
+        <p><code>//表级别的共享锁，也就是读锁；</code></p>
+
+        <p><code>lock tables t_student read;</code></p>
+
+        <p><code>//表级别的独占锁，也就是写锁；</code></p>
+
+        <p><code>lock tables t_stuent write;</code></p>
+
+        <p><code>要释放表锁，可以使用下面这条命令，会释放当前会话的所有表锁：</code></p>
+
+        <p><code>unlock tables</code></p>
+
+        <p>另外，当会话退出后，也会释放所有表锁。</p>
+
+        <p>不过尽量避免在使用 InnoDB 引擎的表使用表锁，因为<strong>表锁的颗粒度太大，会影响并发性能</strong>，InnoDB 牛逼的地方在于实现了颗粒度更细的行级锁。</p>
+
+        <h4>元数据锁（MDL：MetaData Lock）</h4>
+
+        <p>元数据锁（MDL），我们不需要显示的使用 MDL，因为当我们<strong>对数据库表进行操作时，会自动给这个表加上元数据锁：</strong></p>
+
+        <ul><li>对一张表进行 CRUD 操作时，加的是 MDL 读锁；</li><li>对一张表做结构变更操作的时候，加的是 MDL 写锁；</li></ul>
+
+        <p><strong>当一个事务正在修改表结构时，其他事务应该等待直到结构修改完成，以防止并发操作导致不一致的状态。</strong></p>
+
+        <p>MDL 是为了保证当用户对表执行 CRUD 操作时，防止其他线程对这个表结构做了变更。</p>
+
+        <p>当有线程在执行 select 语句（ 加 MDL 读锁）的期间，如果有其他线程要更改该表的结构（ 申请 MDL 写锁），那么将会被阻塞，直到执行完 select 语句（ 释放 MDL 读锁）。</p>
+
+        <p>反之，当有线程对表结构进行变更（ 加 MDL 写锁）的期间，如果有其他线程执行了 CRUD 操作（ 申请 MDL 读锁），那么就会被阻塞，直到表结构变更完成（ 释放 MDL 写锁）。</p>
+
+        <p>MDL 是在事务提交后才会释放，这意味着事务执行期间，MDL 是一直持有的。</p>
+
+        <h4>意向锁</h4>
+
+        <p>在使用 InnoDB 引擎的表里对某些<strong>记录加上「共享锁」之前</strong>，需要先在<strong>表级别加上一个「意向共享锁」</strong>；</p>
+
+        <p>在使用 InnoDB 引擎的表里对某些<strong>纪录加上「独占锁」之前</strong>，需要先在<strong>表级别加上一个「意向独占锁」</strong>；</p>
+
+        <p>也就是，当<strong>执行插入、更新、删除操作，需要先对表加上「意向独占锁」，然后对该记录加独占锁。</strong></p>
+
+        <p>而<strong>普通的 select 是不会加行级锁</strong>的，<strong>普通的 select 语句是利用 MVCC 实现一致性读，是无锁的。</strong></p>
+
+        <p>不过，select 也是可以对记录加共享锁和独占锁的，具体方式如下：</p>
+
+        <p>//先在表上加上意向共享锁，然后对读取的记录加共享锁</p>
+
+        <p>select ... lock in share mode;</p>
+
+        <p>//先表上加上意向独占锁，然后对读取的记录加独占锁</p>
+
+        <p>select ... for update;</p>
+
+        <p>意向共享锁和意向独占锁是表级锁，不会和行级的共享锁和独占锁发生冲突，而且意向锁之间也不会发生冲突，只会和共享表锁（lock tables ... read）和独占表锁（lock tables ... write）发生冲突。</p>
+
+        <p><strong>如果没有「意向锁」，那么加「独占表锁」时，就需要遍历表里所有记录，查看是否有记录存在独占锁，这样效率会很慢。</strong></p>
+
+        <p><strong>那么有了「意向锁」，由于在对记录加独占锁前，先会加上表级别的意向独占锁，那么在加「独占表锁」时，直接查该表是否有意向独占锁，如果有就意味着表里已经有记录被加了独占锁，这样就不用去遍历表里的记录。</strong></p>
+
+        <p>所以，意向锁的目的是为了快速判断表里是否有记录被加锁。</p>
+
+        <h4>Auto-INC</h4>
+
+        <p>通过对主键字段声明 <strong>AUTO_INCREMENT</strong> 属性可以实现字段的<strong>自增</strong>。</p>
+
+        <p>之后可以在<strong>插入数据</strong>时，可以<strong>不指定主键的值</strong>，数据库会<strong>自动给主键赋值递增</strong>的值，这<strong>主要是通过 AUTO-INC 锁实现的。</strong>锁<strong>不是再一个事务提交后才释放</strong>，而是再<strong>执行完插入语句后就会立即释放</strong>。</p>
+
+        <p>在插入数据时，会加一个表级别的 AUTO-INC 锁，然后为被 AUTO_INCREMENT 修饰的字段赋值递增的值，等插入语句执行完成后，才会把 AUTO-INC 锁释放掉。</p>
+
+        <p><strong>一个事务在持有 AUTO-INC 锁的过程中</strong>，<strong>其他事务的如果要向该表插入语句都会被阻塞，从而保证插入数据时，被 AUTO_INCREMENT 修饰的字段的值是连续递增的。</strong></p>
+
+        <p>但是， AUTO-INC 锁再对<strong>大量数据进行插入</strong>的时候，<strong>会影响插入性能</strong>，因为<strong>另一个事务中的插入会被阻塞</strong>。</p>
+
+        <p>因此， 在 <strong>MySQL 5.</strong>1.22 版本开始，InnoDB 存储引擎<strong>提供了一种轻量级的锁来实现自增</strong>。</p>
+
+        <p>一样也是在插入数据的时候，会为被 AUTO_INCREMENT 修饰的字段加上<strong>轻量级锁</strong>，然后<strong>给该字段赋值一个自增的值，就把这个轻量级锁释放了，而不需要等待整个插入语句执行完后才释放锁。</strong></p>
+
+        <p>InnoDB 存储引擎提供了个 innodb<em>autoinc</em>lock_mode 的系统变量，是用来控制选择用 AUTO-INC 锁，还是轻量级的锁。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section18">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>行锁</h2>
+        <p>
+        <p><strong>InnoDB 引擎是支持</strong>行级锁的，而 <strong>MyISAM 引擎并不支持行级锁</strong>。</p>
+
+        <p>前面也提到，普通的 select 语句是不会对记录加锁的，因为它属于快照读。如果要在查询时对记录加行锁，可以使用下面这两个方式，这种查询会加锁的语句称为锁定读。</p>
+
+        <p>//对读取的记录加共享锁</p>
+
+        <p>select ... lock in share mode;</p>
+
+        <p>//对读取的记录加独占锁</p>
+
+        <p>select ... for update;</p>
+
+        <p>共享锁（S锁）满足读读共享，读写互斥。独占锁（X锁）满足写写互斥、读写互斥。</p>
+
+        <p><strong>行级锁的类型主要有三类：</strong></p>
+
+        <ul><li>Record Lock，记录锁，也就是仅仅把一条记录锁上；</li><li>Gap Lock，间隙锁，锁定一个范围，但是不包含记录本身；</li><li>Next-Key Lock：Record Lock + Gap Lock 的组合，锁定一个范围，并且锁定记录本身。</li></ul>
+
+        <h4>Record Lock</h4>
+
+        <p><strong>单个行记录上的锁</strong></p>
+
+        <p>Record Lock 称为<strong>记录锁，锁住的是一条记录。而且记录锁是有 S 锁和 X 锁之分的：</strong></p>
+
+        <p>当<strong>一个事务对一条记录加了 S 型记录锁后，其他事务也可以继续对该记录加 S 型记录锁</strong>（S 型与 S 锁兼容），但是<strong>不可以对该记录加 X 型记录锁</strong>（S 型与 X 锁不兼容）;</p>
+
+        <p>当<strong>一个事务对一条记录加了 X 型记录锁后</strong>，<strong>其他事务既不可以对该记录加 S 型记录锁</strong>（S 型与 X 锁不兼容），<strong>也不可以对该记录加 X 型记录锁</strong>（X 型与 X 锁不兼容）。</p>
+
+        <h4>Gap Lock</h4>
+
+        <p>间隙锁，锁定一个范围，但不包括记录本身。GAP锁的目的，是为了防止同一事务的两次当前读，出现幻读的情况。</p>
+
+        <p>Gap Lock 称为<strong>间隙锁</strong>，<strong>只存在于可重复读隔离级别，目的是为了解决可重复读隔离级别下幻读的现象。</strong></p>
+
+        <p>假设，<strong>表中有一个范围 id 为（3，5）间隙锁，那么其他事务就无法插入 id = 4 这条记录了，这样就有效的防止幻读现象的发生。</strong></p>
+
+        <h4>Next-Key Lock</h4>
+
+        <p>Next-Key Lock 称为临键锁，是 Record Lock + Gap Lock 的组合，锁定一个范围，并且锁定记录本身。</p>
+
+        <p>假设，表中有一个范围 id 为（3，5] 的 next-key lock，那么其他事务即不能插入 id = 4 记录，也不能修改 id = 5 这条记录</p>
+
+        <p>next-key lock 即能保护该记录，又能阻止其他事务将新纪录插入到被保护记录前面的间隙中。</p>
+
+        <p>next-key lock 是包含间隙锁+记录锁的，如果一个事务获取了 X 型的 next-key lock，那么另外一个事务在获取相同范围的 X 型的 next-key lock 时，是会被阻塞的。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section19">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>ACID</h2>
+        <p>
+
+
+        </p>
+    </div>
+</div>
+</body>
+</html>
