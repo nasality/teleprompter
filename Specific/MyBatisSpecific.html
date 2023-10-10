@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MyBatis</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center; /* 垂直居中 */
+      justify-content: center; /* 水平居中 */
+      /*height: 100vh; /* 使用视口高度作为容器高度 */
+    }
+
+    .container {
+      max-width: 800px;
+      padding: 20px;
+      background-color: #f1f1f1;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="section" id="section1">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>#/$</h2>
+    <p>
+    <p><strong>使用MyBatis可以编写动态SQL</strong>。<strong>两种支持动态SQL的语法</strong>：<code>#{}</code>和<code>${}</code>。它们的最大区别在于前者（<code>#{}</code>）的方式能够很大程度上防止SQL注入，而后者（<code>${}</code>）的方式无法防止SQL注入。</p>
+
+    <p>SQL注入指的是程序解析时会将你<strong>传入的参数作为原来SQL语句的一部分</strong>，<strong>打乱原来SQL的结构</strong>。通常情况下，我们只是需要传入一个参数，但是如果用户故意输入一些特殊字符，可能导致SQL执行的结果不符合预期。</p>
+
+    <h3>简单例子理解SQL注入：</h3>
+
+    <p>假设有一个登录系统，后台接收用户名和密码，然后拼接SQL语句来验证登录。正常情况下，SQL语句可能是这样的：</p>
+
+    <p><code>sql
+      SELECT count(1) FROM users WHERE username = &#39;userinput&#39; AND password = &#39;passinput&#39;;
+    </code></p>
+
+    <p>但是，如果用户在输入密码时输入了 <code>&#39; OR 1=1 --</code>，拼接的SQL语句可能变成：</p>
+
+    <p><code>sql
+      SELECT count(1) FROM users WHERE username = &#39;userinput&#39; AND password = &#39;&#39; OR 1=1 --&#39;;
+    </code></p>
+
+    <p>这样的语句会使条件永远成立，导致登录成功，绕过了正常的用户名和密码验证。</p>
+
+    <h3>防止SQL注入：</h3>
+
+    <ol><li><p><strong><code>#{}</code>表示一个占位符：</strong></p><ul><li><p>相当于JDBC中的 <code>?</code> 符号，向prepareStatement<code>中的预处理语句中设置参数值。</code>#{}`将传入的数据都当成一个字符串：**</p></li><li><p><code>#{}</code>会将传入的<strong>数据都当成一个字符串</strong>，并会对自动传入的数据加上双引号。例如，<code>select * from user where id = #{user_id}</code>，如果传入的值是11，那么解析成SQL时的值为 <code>where id=&quot;11&quot;</code>。</p></li></ul></li><li><p><strong><code>#{}</code>参数名称的定义：</strong></p><ul><li><p>如果SQL语句中只有一个参数，此时参数名称可以随意定义。如果SQL语句有多个参数，参数名称应该与当前表关联（实体类的属性名）或者是Map集合关键字，必须对应。</p></li></ul></li><li><p><strong><code>${}</code>（美元符号）：</strong></p><ul><li><p><code>${}</code>主要用于<strong>直接拼接SQL语句</strong>，<strong>将参数的值直接插入到SQL语句中</strong>。这种方式<strong>可能存在SQL注入的风险</strong>，因为参数直接替换到SQL语句中，没有经过预编译的处理。</p></li></ul></li></ol>
+
+    <p>总的来说，使用<code>#{}</code>更安全，因为它进行了预处理，防止了SQL注入的风险。而<code>${}</code>是直接拼接参数值，需要谨慎使用以防止安全问题。在动态SQL中，推荐使用<code>#{}</code>。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section2">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+
+  <div class="section" id="section3">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+
+  <div class="section" id="section4">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+</div>
+</body>
+</html>

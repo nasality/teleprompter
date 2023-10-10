@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>竣工资料</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center; /* 垂直居中 */
+      justify-content: center; /* 水平居中 */
+      /*height: 100vh; /* 使用视口高度作为容器高度 */
+    }
+
+    .container {
+      max-width: 800px;
+      padding: 20px;
+      background-color: #f1f1f1;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .section {
+      margin-bottom: 50px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="section" id="section1">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>介绍</h2>
+    <p>
+
+
+    </p>
+  </div>
+
+  <div class="section" id="section2">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>模板解析</h2>
+    <p>
+    <ol><li>根据这条配置信息的唯一ID去数据库中查找用户上传的word模板文档，如果查询结果为空，直接返回错误信息。</li><li>查询不为空，接下来使用POI提供的XWPFDocument类来操作这个文档，将查询到的模板文档作为参数构造XWPFDocument对象，这里如果上传的模板类型不是docx类型 ，构造对象会失败，构造方法抛出异常，我们也直接返回错误信息。</li><li><p>接下来，通过document对象获取到XWPFTable对象，操作文档中的表格，通过table对象可以获取到表格中的每个单元格，我们遍历表格中的每个单元格，通过单元格又可以获取到其中的段落，就是其中的文字，如果文字非空，继续进行下一步操作，为每个文本生成一个编码（使用文本的汉语拼音首字母大写和这个文字所在的的单元格的行号列号拼接）。</p></li><li><p><strong>判断是否是新增的字段</strong>：再查询是否已经存在这个配置表单的配置数据，<strong>根据生成的编码</strong>到配置数据的结果中查找是存在，不存在就是新增的字段。</p></li><li><p>对于新增的字段直接向表中插入新的值，非新增的字段在表中对相应数据进行修改，重置行号列号等信息。</p></li><li><p>会出现旧模板中存在的字段，在新模板中不存在的情况，用旧模板中存在的数据一一在新模板中进行比较，如果不存在将他们删除。</p></li><li><p>最后，将新增、修改、删除字段的数量作为返回值，在前端中显示。</p></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section3">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+
+  <div class="section" id="section4">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+</div>
+</body>
+</html>
