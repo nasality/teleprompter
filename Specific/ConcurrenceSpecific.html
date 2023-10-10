@@ -907,6 +907,35 @@ public void run() {
         <br>
         <br>
         <br>
+        <h2>Runnable/Callable</h2>
+        <p>
+        <ol><li><p><strong>返回值：</strong></p><ul><li><p><strong><code>Runnable</code></strong>：<code>Runnable</code> 接口的 <code>run</code> 方法没有返回值，通常用于执行一些无需返回结果的任务。</p></li><li><p><strong><code>Callable</code></strong>：<code>Callable</code> 接口的 <code>call</code> 方法有返回值，可以返回执行结果。它可以抛出受检异常，而 <code>run</code> 方法不能抛出受检异常（只能抛出未检查异常）。</p></li></ul></li><li><p><strong>异常处理：</strong></p><ul><li><p><strong><code>Runnable</code></strong>：<code>run</code> 方法不能抛出受检异常，只能通过未检查异常来处理错误。</p></li><li><p><strong><code>Callable</code></strong>：<code>call</code> 方法可以抛出受检异常，允许更灵活的异常处理。</p></li></ul></li><li><p><strong>用法：</strong></p><ul><li><p><strong><code>Runnable</code></strong>：通常通过 <code>Thread</code> 类的构造函数或者 <code>Executor</code> 框架来运行 <code>Runnable</code>。</p><p><code></code>`java
+            Runnable myRunnable = () -&gt; {
+            // Code to be executed in a separate thread
+            };</p><p>Thread thread = new Thread(myRunnable);
+            thread.start();
+            <code></code>`</p></li><li><p><strong><code>Callable</code></strong>：通常通过 <code>ExecutorService</code> 的 <code>submit</code> 方法来执行 <code>Callable</code>。</p><p><code></code>`java
+            Callable&lt;String&gt; myCallable = () -&gt; {
+            // Code to be executed in a separate thread
+            return &quot;Result&quot;;
+            };</p><p>ExecutorService executorService = Executors.newSingleThreadExecutor();
+            Future&lt;String&gt; future = executorService.submit(myCallable);
+            <code></code>`</p></li></ul></li><li><p><strong>返回结果的方式：</strong></p><ul><li><p><strong><code>Runnable</code></strong>：由于 <code>run</code> 方法没有返回值，如果需要获取执行结果，通常需要通过共享的变量或其他机制来传递。</p></li><li><strong><code>Callable</code></strong>：<code>call</code> 方法可以直接返回结果，通过 <code>Future</code> 对象来获取。</li></ul></li></ol>
+
+        <p>总体而言，<code>Runnable</code> 适用于那些不需要返回结果的简单任务，而 <code>Callable</code> 更适合需要返回结果且可能抛出受检异常的任务。在 <code>ExecutorService</code> 中，<code>submit</code> 方法可以接受 <code>Runnable</code> 或 <code>Callable</code>，但如果需要获得执行结果，最好使用 <code>Callable</code>。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section25">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
         <h2>sleep</h2>
         <p>
 

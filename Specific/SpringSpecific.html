@@ -247,6 +247,188 @@
     <br>
     <br>
     <br>
+    <h2>事务介绍</h2>
+    <p>
+    <p><strong>事务是并发控制的单位，表示一系列操作要么全部完成，要么全部不完成。</strong>它具有ACID四个特性：</p>
+
+    <ol><li><p><strong>原子性（Atomicity）：</strong></p><ul><li><p>事务中的所有操作要么全部完成，要么全部不完成，不会结束在中间某个环节。</p></li></ul></li><li><p><strong>一致性（Consistency）：</strong></p><ul><li><p>在事务开始之前和事务结束以后，数据库的完整性没有被破坏。</p></li></ul></li><li><p><strong>事务隔离（Isolation）：</strong></p><ul><li><p>多个事务之间是独立的，不相互影响。</p></li></ul></li><li><p><strong>持久性（Durability）：</strong></p><ul><li>事务处理结束后，对数据的修改是永久的，即便系统故障也不会丢失。</li></ul></li></ol>
+
+    <p><strong>Spring事务是在Spring框架中对事务的实现</strong>。为了保证事务的原子性，Spring提供了事务管理机制。在Spring中，通过声明式事务或编程式事务来实现事务管理。</p>
+
+    <p>为什么需要Spring事务？</p>
+
+    <p>考虑一个简单的例子：银行转账。假设要将<strong>金额从一个账户转移到另一个账户</strong>，这涉及<strong>两个必要的操作</strong>：<strong>将源账户余额减少，将目标账户余额增加。这两个操作要么都成功，要么都失败</strong>，以保持数据一致性。<strong>Spring事务的存在就是为了确保这种操作的原子性。</strong></p>
+
+    <p><strong>Spring事务</strong>本质上是<strong>通过AOP</strong>切面技术，<strong>来实现事务的开始、提交或回滚事务</strong>。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section9">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>@Transactional</h2>
+    <p>
+    <p><code>@Transactional</code>是Spring框架中用于<strong>声明事务</strong>的注解。它可以被用在<strong>类</strong>级别和<strong>方法</strong>级别，用于标记一个方法或类需要进行事务管理。</p>
+
+    <p>在方法级别，<code>@Transactional</code>可以用于标记一个方法应该被包装在事务中。在类级别，可以将<code>**@Transactional</code>放在类的声明上<strong>，表示</strong>类的所有公共方法<strong>都应该</strong>被事务管理**。注解可以配置多个属性，以定义事务的各个方面。</p>
+
+    <p>以下是<code>@Transactional</code><strong>注解的一些常用属性</strong>：</p>
+
+    <ol><li><p><strong>propagation（事务传播行为）：</strong></p><ul><li><p>指定事务的传播行为。常用的值包括<code>REQUIRED</code>、<code>REQUIRES_NEW</code>、<code>NESTED</code>等。</p><p><code>java
+      @Transactional(propagation = Propagation.REQUIRED)
+      public void transactionalMethod() {
+      // 业务逻辑
+      }
+    </code></p></li></ul></li><li><p><strong>isolation（事务隔离级别）：</strong></p><ul><li><p>指定事务的隔离级别。常用的值包括<code>READ_COMMITTED</code>、<code>READ_UNCOMMITTED</code>、<code>SERIALIZABLE</code>等。</p><p><code>java
+      @Transactional(isolation = Isolation.READ_COMMITTED)
+      public void transactionalMethod() {
+      // 业务逻辑
+      }
+    </code></p></li></ul></li><li><p><strong>readOnly（只读事务）：</strong></p><ul><li><p>指定事务是否为只读。如果设置为<code>true</code>，表示只读事务，不允许对数据进行修改。</p><p><code>java
+      @Transactional(readOnly = true)
+      public void readOnlyMethod() {
+      // 只读业务逻辑
+      }
+    </code></p></li></ul></li><li><p><strong>timeout（事务超时时间）：</strong></p><ul><li><p>指定事务的超时时间，单位是秒。如果事务在规定的时间内没有完成，将会被回滚。</p><p><code>java
+      @Transactional(timeout = 60)
+      public void timeoutMethod() {
+      // 业务逻辑
+      }
+    </code></p></li></ul></li><li><p><strong>rollbackFor（回滚的异常类型）：</strong></p><ul><li><p>指定在哪些异常发生时事务应该回滚。可以设置一个或多个异常类型。</p><p><code>java
+      @Transactional(rollbackFor = CustomException.class)
+      public void transactionalMethod() {
+      // 业务逻辑
+      }
+    </code></p></li></ul></li><li><p><strong>noRollbackFor（不回滚的异常类型）：</strong></p><ul><li><p>指定在哪些异常发生时事务不应该回滚。可以设置一个或多个异常类型。</p><p><code>java
+      @Transactional(noRollbackFor = { CustomException1.class, CustomException2.class })
+      public void transactionalMethod() {
+      // 业务逻辑
+      }
+    </code></p></li></ul></li></ol>
+
+    <p><code>@Transactional</code>注解提供了丰富的配置选项，可以根据具体的业务需求来设置不同的属性。这样，Spring框架就能够在方法执行前后添加事务管理的逻辑，实现声明式事务管理。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section10">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>事务失效</h2>
+    <p>
+    <p><code>@Transactional</code> 注解在以下情况下可能会失效：</p>
+
+    <ol><li><p><strong>非 <code>public</code> 方法：</strong></p><ul><li><p>由于 Spring AOP 是基于接口或者类的子类来创建代理的，所以只有 <code>public</code> 方法才能被代理。非 <code>public</code> 方法上的 <code>@Transactional</code> 注解会被忽略。</p></li></ul></li><li><p><strong>内部方法调用：</strong></p><ul><li><p>当同一类中的一个方法调用另一个有 <code>@Transactional</code> 注解的方法时，事务可能会失效。Spring AOP 默认是通过代理来实现的，而内部方法调用无法触发代理。</p></li></ul></li><li><p><strong>未被 Spring 管理的类：</strong></p><ul><li><p>被 <code>@Transactional</code> 注解标记的方法所在的类必须由 Spring 管理，通常通过注解（如 <code>@Service</code>、<code>@Component</code>）或 XML 配置来确保 Spring 对其进行管理。否则，注解可能不会生效。</p></li></ul></li><li><p><strong>底层数据库不支持事务：</strong></p><ul><li><p>如果底层数据库不支持事务，<code>@Transactional</code> 注解会失效。确保数据库引擎和连接池都支持事务，以及数据库连接的配置正确。</p></li></ul></li><li><p><strong>方法内部自调用：</strong></p><ul><li><p>如果一个方法内部自调用（即 <code>this.method()</code>），并且该方法带有 <code>@Transactional</code> 注解，事务也可能失效。这是因为 Spring AOP 默认是通过代理实现的，内部调用无法触发代理。</p></li></ul></li><li><p><strong><code>@Transactional</code> 注解使用错误：</strong></p><ul><li><p>错误地使用 <code>@Transactional</code> 注解，比如将它放在 <code>private</code> 方法上，或者放在一个没有被 Spring 管理的类上，都可能导致失效。</p></li></ul></li><li><p><strong>异常被吞没：</strong></p><ul><li>如果 <code>@Transactional</code> 注解的方法内部发生异常，但是异常被捕获并且没有重新抛出，事务可能不会回滚。确保异常能够正确传播以触发事务回滚。</li></ul></li></ol>
+
+    <p>总的来说，<code>@Transactional</code> 注解的失效通常与方法的可见性、内部调用、Spring 管理以及数据库事务支持有关。在使用时要注意这些方面，以确保事务按照预期进行。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section11">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>事务隔离级别</h2>
+    <p>
+    <p>Spring 提供了五个事务隔离级别，用于控制多个事务之间的相互影响。这些隔离级别定义了一个事务在执行时与其他事务的关系。以下是 Spring 支持的事务隔离级别：</p>
+
+    <ol><li><p><strong>DEFAULT（使用底层数据库的默认隔离级别）：</strong></p><ul><li><p>使用底层数据库的默认隔离级别，例如 MySQL 默认的是 <code>REPEATABLE READ</code>，Oracle 默认的是 <code>READ COMMITTED</code>。</p></li></ul></li><li><p><strong>READ_UNCOMMITTED：</strong></p><ul><li><p>允许一个事务读取另一个事务修改但未提交的数据。最低的隔离级别，可能导致脏读、不可重复读和幻读。</p></li></ul></li><li><p><strong>READ_COMMITTED：</strong></p><ul><li><p>保证一个事务提交后对其他事务可见的数据。防止脏读，但可能会遇到不可重复读和幻读。</p></li></ul></li><li><p><strong>REPEATABLE_READ：</strong></p><ul><li><p>对于相同的查询，保证在同一个事务中多次执行时，结果是一致的。防止脏读和不可重复读，但可能会遇到幻读。</p></li></ul></li><li><p><strong>SERIALIZABLE：</strong></p><ul><li>完全隔离事务，确保事务之间没有交叉。防止脏读、不可重复读和幻读，但可能导致性能下降。</li></ul></li></ol>
+
+    <p>这些隔离级别可以通过 <code>@Transactional</code> 注解的 <code>isolation</code> 属性来设置。例如：</p>
+
+    <p><code>java
+      @Transactional(isolation = Isolation.READ_COMMITTED)
+      public void myTransactionMethod() {
+      // 业务逻辑
+      }
+    </code></p>
+
+    <p>选择事务隔离级别时，需要根据业务场景和对数据一致性的要求进行权衡。较高的隔离级别通常伴随着较高的性能开销，因此需要根据实际需求进行选择。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section12">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>事务传播属性</h2>
+    <p></p>
+  </div>
+
+  <div class="section" id="section13">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Spring优点</h2>
+    <p>
+    <p>Spring 框架有许多优点，这些优点使其成为 Java 开发中最流行的框架之一。以下是一些 Spring 框架的主要优点：</p>
+
+    <ol><li><strong>轻量级和非侵入性：</strong><ul><li>Spring 是一个<strong>轻量</strong>级框架，<strong>不需要强制继承特定的类或实现特定的接口</strong>，使得应用的开发更加灵活和非侵入性。</li><li><strong>Spring支持IoC 和 AOP</strong></li></ul></li><li>IoC（控制反转）容器：<ul><li>Spring 提供了 IoC 容器，负责管理应用中的对象的生命周期和配置。通过 IoC，应用对象的创建、销毁和依赖关系的管理都由容器负责，降低了组件之间的耦合度。</li></ul></li><li>AOP（面向切面编程）支持：<ul><li>Spring 支持 AOP 编程，允许将横切关注点（如事务管理、日志记录）与应用主业务逻辑分开，提高了代码的模块化和可维护性。</li></ul></li><li><strong>声明式事务管理：</strong><ul><li><strong>Spring 提供了声明式事务管理</strong>，通过注解或 XML 配置的方式实现事务的声明和管理，简化了事务的编程和管理。</li></ul></li><li><strong>模块化：</strong><ul><li>Spring 是模块化的，提供了众多模块，如数据访问、事务管理、安全性、AOP 等，开发者可以根据需求选择使用，使得应用的构建更加灵活。</li></ul></li><li><strong>集成：</strong><ul><li>Spring 能够与<strong>各种不同的框架和技术集成</strong>，如 MyBatis、Quartz、JUnit 等，提供了更多选择和灵活性。</li></ul></li><li><strong>测试：</strong><ul><li>Spring 框架支持测试，可以通过模拟对象来进行单元测试，提高了代码的可测试性。</li></ul></li><li><strong>简化了 Java 开发：</strong><ul><li>Spring 提供了许多模板和工具，简化了常见任务的开发，如 JDBC 访问、REST 服务等。</li></ul></li><li><strong>强大的社区支持：</strong><ul><li>Spring 拥有庞大的社区支持，有大量的文档、教程和问题解答，开发者可以方便地获取帮助和资源。</li></ul></li></ol>
+
+    <p>这些优点使得 Spring 成为企业级应用开发的首选框架之一。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section14">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>设计模式</h2>
+    <p>
+    <p>Spring 框架使用了多种设计模式，其中一些主要的设计模式包括：</p>
+
+    <ol><li><strong>单例模式（Singleton Pattern）：</strong><ul><li>Spring 的 IoC 容器默认采用单例模式，确保在应用中只有一个实例对象。</li></ul></li><li><strong>工厂模式（Factory Pattern）：</strong><ul><li>Spring 使用工厂模式通过 BeanFactory 和 ApplicationContext 创建和管理 Bean 对象。</li></ul></li><li><strong>代理模式（Proxy Pattern）：</strong><ul><li>Spring AOP 使用代理模式实现横切关注点的分离，包括动态代理和静态代理。</li></ul></li></ol>
+
+    <p>这些设计模式使得 Spring 具有高度的灵活性、可扩展性和可维护性。Spring 通过合理使用这些设计模式，提供了一种模块化、可测试、松耦合的开发方式。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section15">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h2>HashMap添加元素</h2>
     <p></p>
   </div>

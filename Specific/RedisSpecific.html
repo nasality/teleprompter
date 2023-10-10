@@ -385,6 +385,395 @@
         <br>
         <br>
         <br>
+        <h2>缓存雪崩</h2>
+        <p>
+        <p><strong>大量缓存数据在同一时间过期（失效）或者 Redis 故障宕机</strong>时，如果此时有大量的用户请求，都无法在 Redis 中处理，于是全部请求都直接访问数据库，从而导致数据库的压力骤增，严重的会造成数据库宕机，从而形成一系列连锁反应，造成整个系统崩溃，这就是<strong>缓存雪崩</strong>的问题。</p>
+
+        <p>为了防止缓存雪崩，可以考虑以下几个策略：</p>
+
+        <ol><li><p><em>1. <strong>均匀设置过期时间</strong></em></p><p>如果要给缓存数据设置过期时间，应该避免将大量的数据设置成同一个过期时间。我们可以在对缓存数据设置过期时间时，<strong>给这些数据的过期时间加上一个随机数</strong>，这样就保证数据不会在同一时间过期。</p><p><strong>*2. 互斥锁</strong>*</p><p>当业务线程在处理用户请求时，<strong>如果发现访问的数据不在 Redis 里，就加个互斥锁，保证同一时间内只有一个请求来构建缓存</strong>（从数据库读取数据，再将数据更新到 Redis 里），当缓存构建完成后，再释放锁。未能获取互斥锁的请求，要么等待锁释放后重新读取缓存，要么就返回空值或者默认值。</p><p>实现互斥锁的时候，最好设置<strong>超时时间</strong>，不然第一个请求拿到了锁，然后这个请求发生了某种意外而一直阻塞，一直不释放锁，这时其他请求也一直拿不到锁，整个系统就会出现无响应的现象。</p><p><strong>3. 后台更新缓存</strong>*</p><p>业务线程不再负责更新缓存，<strong>缓存也不设置有效期</strong>，而是<strong>让缓存“永久有效”，并将更新缓存的工作交由后台线程定时更新</strong>。</p><p>事实上，缓存数据不设置有效期，并不是意味着数据一直能在内存里，因为<strong>当系统内存紧张的时候，有些缓存数据会被“淘汰”</strong>，而在缓存被“淘汰”到下一次后台定时更新缓存的这段时间内，业务线程读取缓存失败就返回空值，业务的视角就以为是数据丢失了。</p><p>解决上面的问题的方式有两种。</p><p>第一种方式，后台线程不仅负责定时更新缓存，而且也负责<strong>频繁地检测缓存是否有效</strong>，检测到缓存失效了，原因可能是系统紧张而被淘汰的，于是就要马上从数据库读取数据，并更新到缓存。</p><p>这种方式的检测时间间隔不能太长，太长也导致用户获取的数据是一个空值而不是真正的数据，所以检测的间隔最好是毫秒级的，但是总归是有个间隔时间，用户体验一般。</p><p>第二种方式，在业务线程发现缓存数据失效后（缓存数据被淘汰），<strong>通过消息队列发送一条消息通知后台线程更新缓存</strong>，后台线程收到消息后，在更新缓存前可以判断缓存是否存在，存在就不执行更新缓存操作；不存在就读取数据库数据，并将数据加载到缓存。这种方式相比第一种方式缓存的更新会更及时，用户体验也比较好。</p><p>在业务刚上线的时候，我们最好提前把数据缓起来，而不是等待用户访问才来触发缓存构建，这就是所谓的<strong>缓存预热</strong>，后台更新缓存的机制刚好也适合干这个事情。</p><p>#### <a href="https://www.xiaolincoding.com/redis/cluster/cache_problem.html#redis-故障宕机">#</a>Redis 故障宕机</p><p>针对 Redis 故障宕机而引发的缓存雪崩问题，常见的应对方法有下面这几种：</p><ul><li><p>服务熔断或请求限流机制；</p></li><li><p>构建 Redis 缓存高可靠集群；</p><p><em>1. 服务熔断或请求限流机制</em></p><p>因为 Redis 故障宕机而导致缓存雪崩问题时，我们可以启动<strong>服务熔断</strong>机制，<strong>暂停业务应用对缓存服务的访问，直接返回错误</strong>，不用再继续访问数据库，从而降低对数据库的访问压力，保证数据库系统的正常运行，然后等到 Redis 恢复正常后，再允许业务应用访问缓存服务。</p><p>服务熔断机制是保护数据库的正常允许，但是<strong>暂停了业务应用访问缓存服系统，全部业务都无法正常工作</strong></p><p>为了减少对业务的影响，我们可以启用<strong>请求限流</strong>机制，<strong>只将少部分请求发送到数据库进行处理，再多的请求就在入口直接拒绝服务</strong>，等到 Redis 恢复正常并把缓存预热完后，再解除请求限流的机制。</p><p><em>2. <strong>构建 Redis 缓存高可靠集群</strong></em></p><p>服务熔断或请求限流机制是缓存雪崩发生后的应对方案，我们最好通过<strong>主从节点的方式构建 Redis 缓存高可靠集群</strong>。</p><p>如果 Redis 缓存的<strong>主节点故障宕机，从节点可以切换成为主节点，继续提供缓存服务</strong>，避免了由于 Redis 故障宕机而导致的缓存雪崩问题。</p></li></ul></li></ol>
+        </p>
+    </div>
+
+    <div class="section" id="section12">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>缓存击穿</h2>
+        <p>
+        <p>如果缓存中的<strong>某个热点数据过期</strong>了，此时大量的请求访问了该热点数据，就无法从缓存中读取，直接访问数据库，数据库很容易就被高并发的请求冲垮，这就是<strong>缓存击穿</strong>的问题。</p>
+
+        <p>可以发现缓存击穿跟缓存雪崩很相似，你可以认为缓存击穿是缓存雪崩的一个子集。</p>
+
+        <p>应对缓存击穿两种方案：</p>
+
+        <ul><li>互斥锁方案，保证同一时间只有一个业务线程更新缓存，未能获取互斥锁的请求，要么等待锁释放后重新读取缓存，要么就返回空值或者默认值。</li><li>不给热点数据设置过期时间，由后台异步更新缓存，或者在热点数据准备要过期前，提前通知后台线程更新缓存以及重新设置过期时间；</li></ul>
+
+        </p>
+    </div>
+
+    <div class="section" id="section13">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>缓存穿透</h2>
+        <p>
+        <p>缓存雪崩或击穿时，数据库中还是保存了应用要访问的数据，一旦缓存恢复相对应的数据，就可以减轻数据库的压力，而缓存穿透就不一样了。</p>
+
+        <p>当用户访问的数据，<strong>既不在缓存中，也不在数据库中</strong>，导致请求在访问缓存时，发现缓存缺失，再去访问数据库时，发现数据库中也没有要访问的数据，没办法构建缓存数据，来服务后续的请求。那么当有大量这样的请求到来时，数据库的压力骤增，这就是<strong>缓存穿透</strong>的问题。</p>
+
+        <p>缓存穿透的发生情况：</p>
+
+        <ul><li>业务误操作，缓存中的数据和数据库中的数据都被误删除了，所以导致缓存和数据库中都没有数据；</li><li><strong>黑客恶意攻击</strong>，故意大量访问某些读取不存在数据的业务；</li></ul>
+
+        <p>应对缓存穿透的方案，常见的方案有三种。</p>
+
+        <ul><li>第一种方案，<strong>非法请求的限制</strong>；</li><li>第二种方案，<strong>缓存空值或者默认值</strong>；</li><li>第三种方案，<strong>使用布隆过滤器快速判断数据是否存在</strong>，<strong>避免通过查询数据库来判断</strong>数据是否存在；</li></ul>
+
+        <p>第一种方案，非法请求的限制</p>
+
+        <p>当有大量恶意请求访问不存在的数据的时候，也会发生缓存穿透，因此在 API <strong>入口处我们要判断求请求参数是否合理，请求参数是否含有非法值、请求字段是否存在，如果判断出是恶意请求就直接返回错误</strong>，避免进一步访问缓存和数据库。</p>
+
+        <p>第二种方案，缓存空值或者默认值</p>
+
+        <p>当我们线上业务发现缓存穿透的现象时，<strong>可以针对查询的数据，在缓存中设置一个空值或者默认值，这样后续请求就可以从缓存中读取到空值或者默认值，返回给应用</strong>，而不会继续查询数据库。</p>
+
+        <p><em>第三种方案，<strong>使用布隆过滤器快速判断数据是否存在，避免通过查询数据库来判断数据是否存在。</strong></em></p>
+
+        <p>我们可以在<strong>写入数据库数据时，使用布隆过滤器做个标记</strong>，然后在用户请求到来时，业务线程确认缓存失效后，可以通过<strong>查询布隆过滤器快速判断数据是否存在</strong>，如果不存在，就不用通过查询数据库来判断数据是否存在。</p>
+
+        <p>即使发生了缓存穿透，大量请求只会查询 Redis 和布隆过滤器，而不会查询数据库，保证了数据库能正常运行，<strong>Redis 自身也是支持布隆过滤器</strong>的。</p>
+
+        <p>布隆过滤器的主要特点：</p>
+
+        <ol><li><strong>空间效率高：</strong> 布隆过滤器使用比特数组表示集合，相比于传统的数据结构，它占用的空间非常小。</li><li><strong>查询效率高：</strong> 布隆过滤器的查询操作是常数时间复杂度，不受集合大小的影响。</li><li><strong>存在误判：</strong> 布隆过滤器存在一定的误判率，即可能把不属于集合的元素误判为属于集合，但不会漏判。</li><li><strong>不支持元素删除：</strong> 布隆过滤器不支持从集合中删除元素。</li></ol>
+
+        <p>如何使用布隆过滤器解决缓存击穿问题：</p>
+
+        <ol><li><strong>初始化布隆过滤器：</strong> 在系统启动时，初始化一个布隆过滤器，用于判断元素是否在缓存中。</li><li><strong>查询时先判断布隆过滤器：</strong> 在查询缓存之前，先通过布隆过滤器判断查询的key是否可能存在于缓存中。如果布隆过滤器判断不存在，直接返回缓存未命中，避免对底层存储的无效查询。</li><li><strong>存在时再查询缓存：</strong> 如果布隆过滤器判断可能存在于缓存中，再去实际查询缓存。这样可以大大减少对底层存储的压力。</li><li><strong>缓存失效时更新布隆过滤器：</strong> 当缓存失效时，更新布隆过滤器，确保下一次相同的查询能够通过布隆过滤器的判断，避免击穿问题。</li></ol>
+
+        <p>虽然布隆过滤器存在一定的误判率，但在很多场景下，其高效的空间利用和查询速度使其成为一种有效的数据结构，特别适用于缓存击穿等需要快速判断元素是否存在的场景。</p>
+
+        <p>所以，<strong>查询布隆过滤器说数据存在，并不一定证明数据库中存在这个数据，但是查询到数据不存在，数据库中一定就不存在这个数据</strong>。</p>
+        </p>
+    </div>
+
+    <div class="section" id="section14">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>持久化介绍</h2>
+        <p>
+        <p>Redis是个<strong>基于内存的</strong>数据库。那<strong>服务一旦宕机</strong>，<strong>内存中的数据将全部丢失</strong>。</p>
+
+        <p><strong>通常</strong>的解决方案是<strong>从后端数据库恢复这些数据</strong>，但<strong>后端数据库有性能瓶颈</strong>，如果是<strong>大数据量的恢复</strong>，1、<strong>会对数据库带来巨大的压力</strong>，2、数据库的性能不如Redis。导致程序响应慢。所以对Redis来说，<strong>实现数据的持久化，避免从后端数据库中恢复数据</strong>，是至关重要的。</p>
+        </p>
+    </div>
+
+    <div class="section" id="section15">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>RDB</h2>
+        <p>
+        <p>RDB持久化是Redis的一种持久化方式，用于将当前内存中的数据生成快照保存到磁盘上。</p>
+
+        <h3>触发方式：</h3>
+
+        <h4>手动触发：</h4>
+
+        <ol><li><p><strong><code>save</code> 命令：</strong></p><ul><li><p>阻塞当前Redis服务器，直到RDB过程完成为止，但在内存较大的情况下可能会造成长时间阻塞，不推荐在线上环境使用。</p></li></ul></li><li><p><strong><code>bgsave</code> 命令：</strong></p><ul><li>Redis进程执行fork操作创建子进程，RDB持久化过程由子进程负责，完成后自动结束。阻塞只发生在fork阶段，一般时间很短。</li></ul></li></ol>
+
+        <h4>自动触发：</h4>
+
+        <ul><li>在<code>redis.conf</code>中配置了<code>save m n</code>，即在m秒内有n次修改时，自动触发<code>bgsave</code>生成rdb文件。</li><li>主从复制时，从节点要从主节点进行全量复制时也会触发<code>bgsave</code>操作，生成当时的快照发送到从节点。</li><li>执行<code>debug reload</code>命令重新加载Redis时也会触发<code>bgsave</code>操作。</li><li>默认情况下执行<code>shutdown</code>命令时，如果没有开启AOF持久化，也会触发<code>bgsave</code>操作。</li></ul>
+
+        <h3><code>redis.conf</code>中配置RDB：</h3>
+
+        <ul><li><p><code>save m n</code>：在m秒内有n次修改时，自动触发<code>bgsave</code>生成rdb文件。</p></li><li><p>默认的设置为：</p><p><code>
+            save 900 1
+            save 300 10
+            save 60 10000
+        </code></p></li><li><p>以上设置表示如果在900秒内有1次修改，300秒内有10次修改，或者60秒内有10000次修改，则自动触发<code>bgsave</code>。</p></li></ul>
+
+        <h3>优缺点：</h3>
+
+        <p><strong>优点：</strong></p>
+
+        <ul><li><strong>RDB文件是某个时间节点的快照</strong>，默认使用LZF算法进行压缩，<strong>压缩后的文件体积小</strong>，适用于备份、全量复制等场景。</li><li><strong>Redis加载RDB文件恢复数据速度快于AOF方式</strong>。</li></ul>
+
+        <p><strong>缺点：</strong></p>
+
+        <ul><li>RDB方式<strong>实时性</strong>不够，无法做到秒级的持久化。</li><li>每次调用<code>bgsave</code>都需要fork子进程，属于重量级操作，频繁执行成本较高。</li><li><strong>RDB文件是二进制的，没有可读性</strong>，不如AOF文件可读。</li><li>版本兼容性可能存在问题。</li></ul>
+
+        <p>总的来说，RDB持久化适用于备份和全量复制等场景，但由于其实时性相对较低，Redis提供了AOF方式来解决这个问题。</p>
+        </p>
+    </div>
+
+    <div class="section" id="section16">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>AOF</h2>
+        <p>
+        <p>RDB持久化是Redis的一种持久化方式，用于将当前内存中的数据生成快照保存到磁盘上。</p>
+
+        <h3>触发方式：</h3>
+
+        <h4>手动触发：</h4>
+
+        <ol><li><p><strong><code>save</code> 命令：</strong></p><ul><li><p>阻塞当前Redis服务器，直到RDB过程完成为止，但在内存较大的情况下可能会造成长时间阻塞，不推荐在线上环境使用。</p></li></ul></li><li><p><strong><code>bgsave</code> 命令：</strong></p><ul><li>Redis进程执行fork操作创建子进程，RDB持久化过程由子进程负责，完成后自动结束。阻塞只发生在fork阶段，一般时间很短。</li></ul></li></ol>
+
+        <h4>自动触发：</h4>
+
+        <ul><li>在<code>redis.conf</code>中配置了<code>save m n</code>，即在m秒内有n次修改时，自动触发<code>bgsave</code>生成rdb文件。</li><li>主从复制时，从节点要从主节点进行全量复制时也会触发<code>bgsave</code>操作，生成当时的快照发送到从节点。</li><li>执行<code>debug reload</code>命令重新加载Redis时也会触发<code>bgsave</code>操作。</li><li>默认情况下执行<code>shutdown</code>命令时，如果没有开启AOF持久化，也会触发<code>bgsave</code>操作。</li></ul>
+
+        <h3><code>redis.conf</code>中配置RDB：</h3>
+
+        <ul><li><p><code>save m n</code>：在m秒内有n次修改时，自动触发<code>bgsave</code>生成rdb文件。</p></li><li><p>默认的设置为：</p><p><code>
+            save 900 1
+            save 300 10
+            save 60 10000
+        </code></p></li><li><p>以上设置表示如果在900秒内有1次修改，300秒内有10次修改，或者60秒内有10000次修改，则自动触发<code>bgsave</code>。</p></li></ul>
+
+        <h3>优缺点：</h3>
+
+        <p><strong>优点：</strong></p>
+
+        <ul><li><strong>RDB文件是某个时间节点的快照</strong>，默认使用LZF算法进行压缩，<strong>压缩后的文件体积小</strong>，适用于备份、全量复制等场景。</li><li><strong>Redis加载RDB文件恢复数据速度快于AOF方式</strong>。</li></ul>
+
+        <p><strong>缺点：</strong></p>
+
+        <ul><li>RDB方式<strong>实时性</strong>不够，无法做到秒级的持久化。</li><li>每次调用<code>bgsave</code>都需要fork子进程，属于重量级操作，频繁执行成本较高。</li><li><strong>RDB文件是二进制的，没有可读性</strong>，不如AOF文件可读。</li><li>版本兼容性可能存在问题。</li></ul>
+
+        <p>总的来说，RDB持久化适用于备份和全量复制等场景，但由于其实时性相对较低，Redis提供了AOF方式来解决这个问题。</p>
+        </p>
+    </div>
+
+    <div class="section" id="section17">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>设置过期时间</h2>
+        <p>
+        <p>在Redis中，可以为键设置过期时间，使得键在一定时间后自动被删除。这是通过使用<code>EXPIRE</code>或者<code>PEXPIRE</code>命令来实现的。</p>
+
+        <h3>使用<code>EXPIRE</code>设置过期时间：</h3>
+
+        <p><code>bash
+            EXPIRE key seconds
+        </code></p>
+
+        <p>这个命令将键 <code>key</code> 的过期时间设置为 <code>seconds</code> 秒。如果键已经有过期时间，那么会被覆盖。</p>
+
+        <p>例如，将键 &quot;mykey&quot; 的过期时间设置为 3600 秒（1小时）：</p>
+
+        <p><code>bash
+            EXPIRE mykey 3600
+        </code></p>
+
+        <h3>使用<code>PEXPIRE</code>设置过期时间：</h3>
+
+        <p><code>bash
+            PEXPIRE key milliseconds
+        </code></p>
+
+        <p>这个命令将键 <code>key</code> 的过期时间设置为 <code>milliseconds</code> 毫秒。与<code>EXPIRE</code>不同，<code>PEXPIRE</code>接受的时间单位是毫秒。</p>
+
+        <p>例如，将键 &quot;mykey&quot; 的过期时间设置为 60000 毫秒（1分钟）：</p>
+
+        <p><code>bash
+            PEXPIRE mykey 60000
+        </code></p>
+
+        <p>当然，在设置字符串时，也可以同时对 key 设置过期时间，共有 3 种命令：</p>
+
+        <ul><li><code>set &lt;key&gt; &lt;value&gt; ex &lt;n&gt;</code> ：设置键值对的时候，同时指定过期时间（精确到秒）；</li><li><code>set &lt;key&gt; &lt;value&gt; px &lt;n&gt;</code> ：设置键值对的时候，同时指定过期时间（精确到毫秒）；</li></ul>
+
+        <h3>设置过期时间的注意事项：</h3>
+
+        <ol><li><p>过期时间是相对于键设置的时刻而言的，而不是相对于上一次访问键的时刻。</p></li><li><p>过期时间是以秒或毫秒为单位的整数值。</p></li><li><p>如果在设置过期时间后，再次对键执行写入操作（如<code>SET</code>），过期时间会被移除。</p></li><li><p>如果对已经设置过期时间的键执行读取操作，过期时间不会被移除，键仍然会在过期时间后被自动删除。</p></li></ol>
+
+        <p>这种设置过期时间的机制非常适用于缓存场景，可以确保一些<strong>临时性的数据</strong>在一定时间后<strong>自动清理</strong>，从而避免数据的无效保留。</p>
+        </p>
+    </div>
+
+    <div class="section" id="section18">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>过期删除实现</h2>
+        <p>
+        <p>在Redis中，<strong>过期键</strong>的判定是通过一种<strong>惰性</strong>（lazy）的<strong>策略</strong>来实现的。Redis并<strong>不会在键到达过期时间</strong>的瞬间<strong>立即删除</strong>它，而是在对该<strong>键执行读或写</strong>操作时<strong>进行判断</strong>，如果<strong>键已过期</strong>，则在<strong>操作</strong>执行<strong>之前删除</strong>该键。</p>
+
+        <p>当我们在Redis中为一个<strong>键设置了过期时间时</strong>，Redis会将该<strong>键以及其过期时间</strong>存储到一个称为&quot;<strong>过期字典</strong>&quot;（expires dict）的数据结构中。</p>
+
+        <ul><li>这个<strong>过期字典实际上是一个哈希表</strong>（<code>dict</code>），哈希表的使用使得在该字典中快速<strong>查找变得具有 O(1) 的时间复杂度。</strong></li><li><strong>过期字典的键是一个指针，指向某个键对象</strong>。</li><li><strong>过期字典的值</strong>是一个<code>long long</code>类型的整数，<strong>保存了键的过期时间</strong>。</li></ul>
+
+        <p>当进行<strong>查询操作</strong>时，Redis会按照以下流程进行：</p>
+
+        <ol><li>如果<strong>键不在过期字典中</strong>，说明键<strong>没有设置过期时间</strong>，直接<strong>正常读取</strong>键值。</li><li>如果键<strong>在过期字典</strong>中，<strong>获取该键的过期时间</strong>，并<strong>与当前系统时间进行比较</strong>。<ul><li>如果过期时间<strong>大于当前系统时间，说明键还未过期</strong>，可以正常访问。</li><li>如果过期时间<strong>小于等于当前系统时间，说明键已经过期</strong>，需要被删除。</li></ul></li></ol>
+
+        <p>这种设计通过过期字典的哈希表结构，使得在键的过期时间管理上能够以高效的方式实现。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section19">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>过期删除策略</h2>
+        <p>
+        <p>Redis 使用定期删除（<strong>定时任务</strong>）和<strong>惰性删除</strong>（懒汉式）<strong>相结合</strong>的方式来处理<strong>过期键的删除</strong>。</p>
+
+        <h3>1. 定期删除（定时任务）：</h3>
+
+        <p>定期删除是通过<strong>在设置了过期时间的键中随机抽样一部分键</strong>，并<strong>检查它们是否过期</strong>，<strong>如果过期则删除</strong>。这个过程是<strong>周期性</strong>的，由Redis每隔一段时间执行一次。</p>
+
+        <p>具体步骤如下：</p>
+
+        <ol><li>Redis将所有设置了过期时间的键的一部分（默认是100个）进行随机抽样。</li><li>对每个被抽样的键进行过期时间检查，如果过期则删除。</li></ol>
+
+        <p>这个定期删除策略的优点是比较简单，但缺点是不够及时，可能会导致一些过期键在周期性检查之前就一直存在。</p>
+
+        <h3>2. 惰性删除（懒汉式）：</h3>
+
+        <p>惰性删除是指<strong>在获取键的时候检查它是否过期</strong>，<strong>如果过期</strong>则<strong>在获取操作之前将其删除</strong>。这种方式能够确保过期键在被访问时立即删除，但也增加了每次访问的开销。</p>
+
+        <p>具体步骤如下：</p>
+
+        <ol><li>当对一个键进行读取或写入操作时，Redis会先检查该键是否存在于过期字典中。</li><li>如果存在于过期字典中，获取该键的过期时间。</li><li>与当前系统时间比较，如果过期则删除，然后执行相应的读或写操作。</li></ol>
+
+        <p>这种方式的优点是能够在键被访问时立即删除，但缺点是可能增加了读写操作的开销。</p>
+
+        <p>通过定期删除和惰性删除的相结合，Redis能够在一定程度上平衡过期键的及时性和性能开销。如果对即时性要求很高，可以通过调整配置参数来增加定期删除的频率。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section20">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>内存淘汰策略</h2>
+        <p>
+        <p>过期删除策略，是删除已过期的 key，而当 <strong>Redis 的运行内存</strong>已经<strong>超过 Redis 设置的最大内存之后</strong>，则会使用<strong>内存淘汰策略删除符合条件的 key</strong>，以此来保障 Redis 高效的运行。</p>
+
+        <p><strong>内存淘汰策略有哪些？</strong></p>
+
+        <p>Redis 内存淘汰策略共有八种，这八种策略大体分为<strong>「不进行数据淘汰」和「进行数据淘汰」</strong>两类策略。</p>
+
+        <p><em>1、<strong>不进行数据淘汰的策略</strong></em></p>
+
+        <p><strong>noeviction</strong>（Redis3.0之后，默认的内存淘汰策略） ：它表示当运行内存超过最大设置内存时，不淘汰任何数据，这时如果有新的数据写入，会报错通知禁止写入，不淘汰任何数据，但是如果没用数据写入的话，只是单纯的查询或者删除操作的话，还是可以正常工作。</p>
+
+        <p><em>2、<strong>进行数据淘汰的策略</strong></em></p>
+
+        <p>针对「进行数据淘汰」这一类策略，又可以细分为「在设置了过期时间的数据中进行淘汰」和「在所有数据范围内进行淘汰」这两类策略。</p>
+
+        <p><strong>在设置了过期时间的数据中进行淘汰：</strong></p>
+
+        <ul><li><strong>volatile-random</strong>：随机淘汰设置了过期时间的任意键值；</li><li><strong>volatile-ttl</strong>：优先淘汰更早过期的键值。</li><li><strong>volatile-lru</strong>（Redis3.0 之前，默认的内存淘汰策略）：淘汰所有设置了过期时间的键值中，最久未使用的键值；</li><li><strong>volatile-lfu</strong>（Redis 4.0 后新增的内存淘汰策略）：淘汰所有设置了过期时间的键值中，最少使用的键值；</li></ul>
+
+        <p><strong>在所有数据范围内进行淘汰：</strong></p>
+
+        <ul><li><strong>allkeys-random</strong>：随机淘汰任意键值;</li><li><strong>allkeys-lru</strong>：淘汰整个键值中最久未使用的键值；</li><li><strong>allkeys-lfu</strong>（Redis 4.0 后新增的内存淘汰策略）：淘汰整个键值中最少使用的键值。</li></ul>
+        </p>
+    </div>
+
+    <div class="section" id="section21">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>热点key</h2>
+        <p>
+        <h3>5.1 数据分片</h3>
+
+        <p>数据分片是通过将热点数据分散存储在多个Redis节点上，避免单个节点负载过高，是解决热点Key问题最常用的策略。</p>
+
+        <p>例如，在Redis Cluster模式下，数据自动按槽位分布在多个节点上，从而实现负载均衡。对于非Cluster模式，可以通过客户端或代理层实现一致性哈希等分片算法，将数据分布在多个Redis实例上。</p>
+
+        <h3>5.2 读写分离</h3>
+
+        <p>读写分离可以将读操作与写操作分开处理，降低单个节点的负载。在主从复制模式下，可以将读操作分发到从节点上，从而分担主节点的压力。此外，可以使用代理层如Redis Sentinel或Twemproxy实现自动故障转移和读写分离。</p>
+
+        <h3>5.3 缓存预热</h3>
+
+        <p>缓存预热是指在系统启动或重启后，主动将热点数据加载到缓存中。这样，当用户访问这些热点数据时，可以直接从缓存中获取，避免对后端数据库造成压力。缓存预热可以通过定时任务或应用程序启动时加载热点数据实现。</p>
+
+        <h3>5.4 限流</h3>
+
+        <p>限流是通过控制请求的速率来防止系统过载。在应用层实现限流，可以有效减轻热点Key对Redis的压力。常见的限流算法有漏桶算法和令牌桶算法。</p>
+
+        <h3>5.5 熔断降级</h3>
+
+        <p>熔断降级是在系统出现问题时，自动降低系统功能的一种策略。在应用层实现熔断降级，可以在Redis出现热点Key问题时，快速降低对Redis的访问压力。熔断降级可以通过开源工具如Hystrix实现。</p>
+
+        <p>通过上述策略，可以有效解决Redis的热点Key问题。然而，在实际应用中，需要根据具体业务场景和需求选择合适的策略。接下来，我们将通过实践案例来说明如何解决热点Key问题。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section22">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
         <h2>SkipList</h2>
         <p>
 

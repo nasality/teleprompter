@@ -444,6 +444,90 @@
     <br>
     <br>
     <br>
+    <h2>异常</h2>
+    <p>
+    <p>在 Java 中，常见的异常可以分为三类：可检查异常（Checked Exception）、运行时异常（Runtime Exception）和错误（Error）。</p>
+
+    <ol><li><p>可检查异常（Checked Exception）：</p><ul><li>IOException：输入/输出操作失败或中断时抛出的异常。</li><li>SQLException：访问数据库时发生错误时抛出的异常。</li><li>FileNotFoundException：尝试打开文件时找不到文件时抛出的异常。</li><li>ClassNotFoundException：尝试加载类时找不到类的定义时抛出的异常。</li><li>InterruptedException：线程在等待、休眠或被中断时抛出的异常。</li><li>NoSuchMethodException：尝试通过反射调用不存在的方法时抛出的异常。</li><li><p>...</p></li></ul></li><li><p>运行时异常（Runtime Exception）：</p><ul><li>NullPointerException：尝试使用空引用时抛出的异常。</li><li>IllegalArgumentException：传递给方法的参数不合法时抛出的异常。</li><li>IndexOutOfBoundsException：访问数组或集合时使用了无效的索引时抛出的异常。</li><li>IllegalStateException：对象处于不正确的状态时抛出的异常。</li><li>ArithmeticException：算术运算错误时抛出的异常（如除以零）。</li><li>ClassCastException：尝试将对象强制转换为不兼容的类型时抛出的异常。</li><li><p>...</p></li></ul></li><li><p>错误（Error）：</p><ul><li>OutOfMemoryError：内存不足时抛出的错误。</li><li>StackOverflowError：方法调用层级过深导致栈溢出时抛出的错误。</li><li>NoClassDefFoundError：找不到类的定义时抛出的错误。</li><li>AssertionError：断言失败时抛出的错误。</li><li>...</li></ul></li></ol>
+
+    <p>可检查异常通常表示程序可能需要处理的情况，例如文件操作失败、网络连接中断等。对于可检查异常，程序必须显式地捕获或声明抛出。</p>
+
+    <p>运行时异常通常表示程序逻辑错误或不可恢复的错误情况，例如空指针引用、索引越界等。对于运行时异常，程序可以选择捕获和处理，但不强制要求。</p>
+
+    <p>错误通常表示虚拟机或系统级别的问题，例如内存不足、栈溢出等。对于错误，程序通常无法处理，而是由系统或虚拟机来处理。</p>
+
+    <p>需要注意的是，这只是一些常见的异常示例，Java 中还有许多其他的异常和错误类型。在编写代码时，应该根据具体的情况选择合适的异常处理方式。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section18">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>解决哈希冲突</h2>
+    <p>
+    <p>在哈希表中，哈希冲突指的是不同的键值对被映射到相同的哈希桶（数组索引）的情况。为了解决哈希冲突，常见的方式包括以下几种：</p>
+
+    <ol><li>链地址法（Chaining）：<ul><li>链地址法<strong>使用链表来存储哈希冲突的键值对</strong>。每个哈希桶（数组索引）<strong>维护一个链表</strong>，具有<strong>相同哈希值的键值对被添加到链表中。</strong></li><li>当发生哈希冲突时，新的键值对可以添加到链表的末尾，不会影响已经存在的键值对。</li><li>这种方式需要额外的空间来存储链表节点，但可以有效地解决哈希冲突。</li></ul></li><li>开放地址法（Open Addressing）：<ul><li>开放地址法尝试将<strong>哈希冲突的键值对存储在其他可用的哈希桶中</strong>，<strong>而不是使用链表来存储</strong>。</li><li>当发生哈希冲突时，可以使用一定的探测策略（如线性探测、二次探测等）来找到下一个可用的哈希桶。</li><li>开放地址法的优点是<strong>节省了存储链表节点的额外空间</strong>，但可能会导致聚集现象（Clustering），即连续的哈希桶被频繁使用，影响查找效率。</li></ul></li><li>再哈希法（Rehashing）：<ul><li>再哈希法是指<strong>使用不同的哈希函数来计算哈希值</strong>，以便将哈希冲突的键值对<strong>映射到其他的哈希桶。</strong></li><li>当发生哈希冲突时，可以尝试使用另一个哈希函数计算新的哈希值，并将键值对存储在新的哈希桶中。</li><li>再哈希法需要额外的哈希函数，并且在冲突较多时可能需要多次重新哈希。</li></ul></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section19">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>基本数据类型</h2>
+    <p>
+    <p>在Java中，有以下八种基本数据类型：</p>
+
+    <ol><li>byte：8 位有符号整数，范围为 -128 到 127。</li><li>short：16 位有符号整数，范围为 -32,768 到 32,767。</li><li>int：32 位有符号整数，范围为 -2,147,483,648 到 2,147,483,647。</li><li>long：64 位有符号整数，范围为 -9,223,372,036,854,775,808 到 9,223,372,036,854,775,807。</li><li>boolean：用于表示逻辑值，只能取两个值之一：true 或 false。</li><li>char：16 位 Unicode 字符，用于表示单个字符或特殊字符。</li><li>float：32 位单精度浮点数，可表示带小数的数值。</li><li>double：64 位双精度浮点数，可表示更大范围和更高精度的数值。</li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section20">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>final</h2>
+    <p>
+    <p>在 Java 中，final 是一个关键字，用于表示不可变性和不可继承性。它可以用于修饰类、方法和变量，具体作用如下：</p>
+
+    <ol><li><p><strong>final 修饰类</strong>：当类被声明为 final 时，表示该类是最终类，不能被其他类继承。final 类通常用于确保类的稳定性和<strong>安全性</strong>，防止子类对其进行修改或继承。</p></li><li><p><strong>final 修饰方法</strong>：当方法被声明为 final 时，表示该方法是最终方法，<strong>不能被子类重写</strong>。final 方法通常用于确保方法的行为不会被子类修改，<strong>保持方法的一致性</strong>和稳定性。</p></li><li><p><strong>final 修饰变量</strong>：当变量被声明为 final 时，<strong>表示该变量是一个常量，一旦赋值后就不能再修改</strong>。final 变量通常用于表示不可变的常量值，如数学常数、配置参数等。</p></li></ol>
+
+    <p>使用 final 关键字的主要目的是为了实现代码的安全性、稳定性和性能优化。它可以防止类、方法或变量被修改或继承，保护代码的完整性；同时，final 修饰的变量可以在编译时进行优化，减少运行时的开销。</p>
+
+    <p>需要注意的是，<strong>final 修饰的变量并不意味着它的内容一定是不可变的，而是表示变量的引用不可变</strong>。如果 <strong>final 变量是一个对象引用，那么对象本身的状态是可以改变的，但是变量引用的对象不能改变。</strong></p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section21">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h2>HashMap添加元素</h2>
     <p>
 

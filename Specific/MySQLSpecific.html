@@ -679,11 +679,10 @@
         <p>
         <p>SQL 标准定义了四个隔离级别：</p>
 
-        <p><strong>READ-UNCOMMITTED(读取未提交)</strong> ：最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读。
-            <strong>READ-COMMITTED(读取已提交)</strong> ：允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。
-            <strong>REPEATABLE-READ(可重复读)</strong> ：对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。
-            <strong>SERIALIZABLE(可串行化)</strong> ：最高的隔离级别，完全服从 ACID 的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。	</p>
-
+        <p><strong>READ-UNCOMMITTED(读取未提交)</strong> ：最低的隔离级别，允许读取尚未提交的数据变更，可能会导致脏读、幻读或不可重复读。<br>
+            <strong>READ-COMMITTED(读取已提交)</strong> ：允许读取并发事务已经提交的数据，可以阻止脏读，但是幻读或不可重复读仍有可能发生。<br>
+            <strong>REPEATABLE-READ(可重复读)</strong> ：对同一字段的多次读取结果都是一致的，除非数据是被本身事务自己所修改，可以阻止脏读和不可重复读，但幻读仍有可能发生。<br>
+            <strong>SERIALIZABLE(可串行化)</strong> ：最高的隔离级别，完全服从 ACID 的隔离级别。所有的事务依次逐个执行，这样事务之间就完全不可能产生干扰，也就是说，该级别可以防止脏读、不可重复读以及幻读。</p>
         </p>
     </div>
 
@@ -889,6 +888,76 @@
     </div>
 
     <div class="section" id="section19">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>聚集索引/非聚集索引</h2>
+        <p>
+        <p>聚集索引和非聚集索引的<strong>根本区别是表记录的排列顺序和与索引的排列顺序是否一致</strong>。</p>
+
+        <h3>1. 聚集索引：</h3>
+
+        <ul><li><p><strong>排列顺序一致：</strong></p><ul><li><p><strong>表记录的排列顺序与聚集索引的排列顺序一致</strong>。在InnoDB的聚集索引中，<strong>叶子节点中存储的是行数据</strong>，按照主键索引的顺序进行排列。</p></li></ul></li><li><p><strong>查询效率快：</strong></p><ul><li><p>查询效率较高，因为只要找到第一个索引值记录，其余连续性的记录在物理上也是连续存放的，减少了磁盘I/O操作。</p></li></ul></li><li><p><strong>修改慢：</strong></p><ul><li><p>修改数据较慢，因为<strong>为了保证表中记录的物理和索引顺序一致</strong>，<strong>插入新数据时可能需要对数据页进行重新排序，导致大量数据移动操作</strong>。</p></li></ul></li><li><p><strong>一个表只能有一个聚集索引：</strong></p><ul><li><strong>在物理内存中的顺序只能有一种</strong>，所以一个表只能有一个聚集索引。</li></ul></li></ul>
+
+        <h3>2. 非聚集索引：</h3>
+
+        <ul><li><p><strong>数据存储方式：</strong></p><ul><li><p><strong>非聚集索引</strong>和<strong>数据行的物理存储顺序无关</strong>，而是在<strong>索引</strong>中<strong>存储</strong>了<strong>指向实际数据行的指针</strong>。</p></li></ul></li><li><p><strong>键值唯一性：</strong></p><ul><li><strong>一个表可以有多个非聚集索引</strong>。</li></ul></li><li><strong>不影响插入性能：</strong><ul><li><strong>插入新数据</strong>或更新非聚集索引列的值时，<strong>不会对</strong>整个表的<strong>物理存储结构进行调整</strong>，因此插入性能相对较好。</li></ul></li><li><strong>覆盖索引：</strong><ul><li><strong>非聚集索引不包含所有列的数据</strong>，因此在执行查询时可能需要额外的查找实际数据行。</li></ul></li></ul>
+
+        <p><strong>3. 对比两种索引的例子：</strong></p>
+
+        <p><strong>聚集索引类似于</strong>新华<strong>字典中</strong>的<strong>拼音排序</strong>索引，<strong>按顺序进行排列</strong>。<strong>非聚集索引类似于笔画</strong>排序，<strong>索引顺序和物理顺序不一致</strong>。</p>
+
+        <p>总体来说，<strong>聚集索引的叶节点就是数据节点</strong>，而<strong>非聚集索引的叶节点仍然是索引节点</strong>，有一个指针指向对应的数据块。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section20">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>执行顺序</h2>
+        <p>
+        <p>理解 MySQL 查询语句的执行顺序可以帮助你更有效地编写和优化查询。让我们深入理解这个顺序：</p>
+
+        <ol><li><p><strong>FROM：</strong> 这是查询的起点。在 FROM 子句中，你指定从<strong>哪个表或子查询中检索数据</strong>。这是获取数据的第一步。</p></li><li><p><strong>JOIN：</strong> 如果你的<strong>查询涉及多个表</strong>，这一步用于<strong>将这些表连接在一起</strong>。连接是通过在 <code>JOIN</code> 子句中指定的条件进行的。这是将相关数据组合在一起的步骤。</p></li><li><p><strong>ON：</strong> 在 JOIN 子句中，<code>ON</code> 子句用于<strong>指定连接条件</strong>。这是确定如何将两个表的行相匹配的地方。</p></li><li><p><strong>WHERE：</strong> 在连接和组合数据之后，<strong>WHERE 子句用于筛选出符合条件的行</strong>。这是对连接后的数据进行进一步过滤的步骤。</p></li><li><p><strong>GROUP BY：</strong> 如果查询包括 GROUP BY 子句，那么数据将<strong>按照 GROUP BY 指定的列进行分组</strong>。这是为了对数据进行聚合和分组操作。</p></li><li><p><strong>HAVING：</strong> <strong>HAVING 子句用于筛选 GROUP BY 操作后的结果</strong>。它类似于 WHERE 子句，但用于过滤分组而不是单独的行。</p></li><li><p><strong>SELECT：</strong> 在前面的步骤中，你已经从表中选择了相关的行，进行了连接和过滤。现在，<strong>在 SELECT 中</strong>，你<strong>指定要返回的列</strong>。</p></li><li><p><strong>ORDER BY：</strong> ORDER BY 子句用于<strong>对结果进行排序</strong>。你可以指定一个或多个列，并选择<strong>升序或降序</strong>排序。</p></li><li><p><strong>LIMIT：</strong> 最后，LIMIT 子句用于限制结果集的大小。这是为了<strong>返回一定数量</strong>的行，通常与 ORDER BY 结合使用。</p></li></ol>
+
+        <p>理解这个执行顺序有助于你理解查询是如何执行的，以及在哪些步骤可能发生性能问题。例如，过多的连接和缺乏索引可能导致查询变得缓慢。通过理解执行顺序，你可以更有针对性地优化查询。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section21">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>引擎</h2>
+        <p>
+        <p><code>InnoDB</code> 和 <code>MyISAM</code> 是 MySQL 数据库中两种常见的存储引擎，它们在设计和功能上有一些关键的区别：</p>
+
+        <ol><li><p><strong>事务支持：</strong></p><ul><li><strong>InnoDB：</strong> 提供事务支持，支持 ACID 属性（原子性、一致性、隔离性、持久性）。</li><li><p><strong>MyISAM：</strong> 不支持事务，不具备事务的 ACID 特性。</p></li></ul></li><li><p><strong>锁定级别：</strong></p><ul><li><strong>InnoDB：</strong> 使用行级锁，这意味着在事务处理中只锁定需要的行，而不是整个表。</li><li><p><strong>MyISAM：</strong> 使用表级锁，这意味着在执行写操作时，整个表被锁定，其他操作必须等待。</p></li></ul></li><li><p><strong>外键约束：</strong></p><ul><li><strong>InnoDB：</strong> 支持外键约束，可以确保数据的完整性。</li><li><p><strong>MyISAM：</strong> 不支持外键约束。</p></li></ul></li><li><p><strong>崩溃恢复：</strong></p><ul><li><strong>InnoDB：</strong> 具有崩溃恢复能力，支持崩溃后的数据恢复。</li><li><p><strong>MyISAM：</strong> 在崩溃后，可能会导致表损坏，需要进行修复操作。</p></li></ul></li><li><p><strong>并发性能：</strong></p><ul><li><strong>InnoDB：</strong> 在高并发的读写环境下性能相对较好，特别适用于写密集型的应用。</li><li><p><strong>MyISAM：</strong> 在读密集型的应用中性能较好，但在并发写入的情况下性能可能下降。</p></li></ul></li><li><p><strong>表级缓存：</strong></p><ul><li><strong>InnoDB：</strong> 有一个缓存池用于缓存表和索引数据。</li><li><p><strong>MyISAM：</strong> 没有表级缓存，但有一个键缓存用于缓存索引数据。</p></li></ul></li><li><p><strong>全文索引：</strong></p><ul><li><strong>InnoDB：</strong> 支持全文索引。</li><li><p><strong>MyISAM：</strong> 也支持全文索引，并且在这方面的性能可能略优于 InnoDB。</p></li></ul></li><li><p><strong>空间占用：</strong></p><ul><li><strong>InnoDB：</strong> 通常需要更多的磁盘空间来存储数据和索引。</li><li><strong>MyISAM：</strong> 通常需要较少的磁盘空间。</li></ul></li></ol>
+
+        <p>根据具体的应用场景和需求，选择合适的存储引擎是非常重要的。如果需要事务支持、更好的并发性能以及数据完整性，推荐使用 <code>InnoDB</code>。如果对于读操作的性能要求更高，而且不需要事务支持，可以考虑使用 <code>MyISAM</code>。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section22">
         <br>
         <br>
         <br>
