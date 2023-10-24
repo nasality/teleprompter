@@ -169,6 +169,114 @@
     <br>
     <br>
     <br>
+    <h2>Nacos服务注册</h2>
+    <p>
+    <p>以下是 Nacos 服务注册的基本原理：</p>
+
+    <ol><li><strong>服务提供者注册：</strong><ul><li>当一个<strong>微服务启动</strong>时，它会<strong>向</strong> Nacos <strong>注册中心发送</strong>一个<strong>注册请求</strong>，<strong>包含</strong>了自身的<strong>服务信息</strong>，<strong>比如服务名</strong>、<strong>IP 地址</strong>、<strong>端口等</strong>。</li><li>Nacos <strong>注册中心接收</strong>到<strong>注册请求</strong>后，将服务的<strong>信息保存在注册表中</strong>。</li></ul></li><li><strong>注册表：</strong><ul><li>注册表是 Nacos 注册中心维护的一个数据结构，用于存储所有已注册的服务实例的信息。</li><li>每个服务实例都有一个唯一的标识，通常是服务名和实例ID的组合。</li></ul></li><li><strong>心跳机制：</strong><ul><li><strong>注册后</strong>的<strong>服务</strong>实例需要<strong>定期发送  心跳请求</strong>给 Nacos <strong>注册中心</strong>，以<strong>表明自己</strong>仍然<strong>存活</strong>。</li><li>心跳请求包含了服务实例的唯一标识，Nacos 注册中心通过收到心跳来更新服务实例的存活状态。</li></ul></li><li><strong>实例失效剔除：</strong><ul><li>如果某个<strong>服务</strong>实例<strong>长时间  未发送  心跳</strong>，<strong>Nacos</strong> 注册中心将<strong>认为  该实例  不再可用</strong>。</li><li>在一定的失效阈值内，如果没有收到该实例的心跳，<strong>Nacos</strong> 将<strong>从注册表  中  移除  该实例</strong>。</li></ul></li><li><strong>服务发现时的查询：</strong><ul><li>当一个<strong>服务消费者</strong>需要<strong>调用</strong>某个<strong>服务</strong>时，它会<strong>向  Nacos  注册中心  发起   服务发现   请求</strong>，要求<strong>获取</strong>符合条件的<strong>服务列表</strong>。</li><li><strong>Nacos</strong> 注册中心<strong>返回</strong>符合条件的<strong>服务列表</strong>给<strong>消费者</strong>选择。</li></ul></li></ol>
+
+    </p>
+  </div>
+
+  <div class="section" id="section7">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Nacos CAP</h2>
+    <p>
+    <p><strong>Nacos 支持 CP+AP 模式</strong>，这意味着它能够<strong>根据配置</strong>的<strong>不同 设置 成CP模式或AP模式</strong>，<strong>默认</strong>情况下<strong>是AP模式</strong>。具体来说，Nacos可以根据客户端节点注册时的属性来确定使用distro协议实现的AP模式，还是使用raft协议实现的CP模式。如果注册时设置ephemeral=<strong>在配置是有一个参数，如果为true</strong>，<strong>Nacos集群 对该 client 节点 采用AP 模式</strong>；而如果设置ephemeral=<strong>false</strong>，<strong>Nacos 集群 对该节点 采用 CP模式</strong>，使用raft协议。</p>
+
+    <p><strong>根据客户端注册</strong>时<strong>的配置</strong>，Nacos<strong>可以</strong>同时<strong>混合使用AP和CP模式</strong>，只是<strong>对不同的客户端</strong>节点<strong>产生不同的效果</strong>。这样的设计使得Nacos能够灵活地满足不同场景的业务需求。</p>
+
+    <p>在大多数<strong>分布式环境</strong>中，尤其是<strong>涉及到 数据存储 的场景</strong>，<strong>首要</strong>的是<strong>保护数据一致性</strong>，这也是<strong>Zookeeper 是CP 模式的</strong>。然而，<strong>在服务发现方面</strong>，情况有所不同。<strong>对于</strong>同<strong>一个服务</strong>，即使<strong>不同注册中心</strong>节点<strong>保存的服务</strong>提供者<strong>信息略有不同</strong>，也<strong>不会 造成 很大的 影响</strong>。对于<strong>服务消费者</strong>看来，<strong>更看中的是</strong>能够<strong>获得 可用的 服务</strong>实例。所以，分布式<strong>服务注册中心采用AP模式</strong>对于服务发现而言<strong>更合适</strong>。这也是为什么越来越多的人抛弃Zookeeper的原因。</p>
+
+    <p>总之，选择CP模型还是AP模型，取决于业务场景。如果对数据一致性要求较高，且可以容忍一定时间的不可用，选择CP模型；反之，如果能够容忍一定时延的数据不一致性，但不能容忍不可用，选择AP模型。</p>
+    <a href="DistributionSpecific.html#section4"> CAP </a>
+
+    </p>
+  </div>
+
+  <div class="section" id="section8">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Nacos 健康检查</h2>
+    <p>
+    <p>Nacos<strong>判断服务的状态</strong>通常是<strong>通过健康检查</strong>（Health Check）<strong>机制来实现的</strong>。</p>
+
+    <p>在Nacos中，<strong>服务提供者</strong>注册服务时可以<strong>配置健康检查的相关参数</strong>，包括健康检查的<strong>地址、端口、检查间隔</strong>、<strong>超时时间</strong>等。<strong>Nacos</strong>会<strong>定期向服务提供者</strong>配置的健康检查地址<strong>发送</strong>HTTP或TCP<strong>请求</strong>，<strong>根据</strong>服务提供者返回的<strong>响应结果</strong>来<strong>判断服务的状态</strong>。</p>
+
+    <p>比如 <strong>5秒发送一次</strong>，如果<strong>15秒没有回应</strong>，则说明<strong>服务出现了问题</strong></p>
+
+    <p>如果<strong>30秒后没有回应</strong>，则说明<strong>服务已经停止。</strong></p>
+
+    <p>Nacos根据服务提供者返回的健康检查结果，判断服务的状态，如果<strong>服务正常</strong>，则<strong>继续  放在  服务列表  中</strong>；如果<strong>服务异常</strong>，则<strong>从 服务列表 中 删除</strong>。</p>
+
+    <p><strong>通过这种方式</strong>，Nacos可以实时监控服务的健康状态，<strong>确保</strong>只有<strong>正常运行的服务</strong>被注册和<strong>提供给</strong>服务<strong>消费者</strong>。这有助于提高整个系统的可用性和稳定性。</p>
+    </p>
+  </div>
+
+  <div class="section" id="section9">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>OpenFeign介绍</h2>
+    <p>
+    <p><strong>OpenFeign</strong> 他是一个<strong>声明式远程调用客户端</strong>，用来<strong>简化服务之间调用的过程</strong>。</p>
+
+    <p>OpenFeign 是<strong>对 Feign 的二次封装</strong>，它具<strong>有 Feign 的所有功能</strong>，并在 Feign 的基础上增加了对 Spring MVC 注解的支持，例如 @RequestMapping、@GetMapping 和 @PostMapping 等。它的出现就是为了<strong>替代进入停更维护状态的 Feign。</strong></p>
+
+    <p>OpenFeign 集成了 Ribbon ，其服务调用以及负载均衡在底层都是依靠 Ribbon 实现的。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section10">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>动态路由</h2>
+    <p>
+    <p>Gateway作为一个微服务网关，意味着他也是一个服务实例，也可以去Nacos中获取服务列表。</p>
+
+    <p>这样有新的服务上下线，服务列表就会改变，Gateway通过重新拉去服务列表也能够感知到。</p>
+
+    <p>选择合适的服务实例进行请求转发。</p>
+
+    <p>Gateway也可以通过 Nacos 获取配置信息，实现配置的动态更新，而无需重启网关。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section11">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h2>HashMap添加元素</h2>
     <p></p>
   </div>

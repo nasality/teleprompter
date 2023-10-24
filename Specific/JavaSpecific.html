@@ -528,6 +528,108 @@
     <br>
     <br>
     <br>
+    <h2>语言</h2>
+    <p>
+    <p>当谈论 C、C++、Java、Golang（Go）、Python 这几种编程语言时，我可以从它们的特点、应用领域以及一些优缺点等方面来谈一下我的理解。</p>
+
+    <ol><li><p><strong>C语言：</strong></p><ul><li><strong>特点：</strong> C 语言是一种<strong>底层的、面向过程</strong>的编程语言。它提供了对<strong>硬件的直接访问</strong>，具有高效的执行速度和对系统底层的灵活控制。</li><li><p><strong>应用领域：</strong> <strong>嵌入式系统</strong>、操作系统、系统编程等。C语言常被用于<strong>开发对性能要求较高的系统软件</strong>。</p></li></ul></li><li><p><strong>C++语言：</strong></p><ul><li><strong>特点：</strong> C++ 在 C 语言的基础上<strong>引入了面向对象编程</strong>的概念，提供了类和对象的机制。同时，C++仍然<strong>支持面向过程编程</strong>，允许<strong>直接调用C语言的代码</strong>。</li><li><p><strong>应用领域：</strong> <strong>游戏开发</strong>、系统软件开发、桌面应用程序等。C++广泛用于要求高性能和复杂性的应用。</p></li></ul></li><li><p><strong>Java语言：</strong></p><ul><li><strong>特点：</strong> Java 是一种<strong>跨平台</strong>的、<strong>面向对象的编程语言</strong>。<strong>它通过虚拟机（JVM）实现了跨平台性</strong>，具<strong>有垃圾回收机制</strong>，提供了<strong>丰富的类库</strong>和框架。</li><li><p><strong>应用领域：</strong> 企业级应用、Web开发、移动应用开发（Android）、大数据处理等。Java因其跨平台性和可移植性在企业级应用领域得到广泛应用。</p></li></ul></li><li><p><strong>Golang（Go）语言：</strong></p><ul><li><strong>特点：</strong> Go是一门<strong>高并发</strong>支持、垃圾回收的编程语言。它具有简洁的语法、快速编译、高效的并发模型，并内置了网络编程的支持。</li><li><p><strong>应用领域：</strong> 分布式系统、<strong>云计算</strong>、网络编程、容器技术（如Docker）等。Go因其高效的并发模型在构建大规模系统时表现出色。</p></li></ul></li><li><p><strong>Python语言：</strong></p><ul><li><strong>特点：</strong> Python 是一种解释型、面向对象、动态类型的高级编程语言。它具有清晰简洁的语法，广泛的标准库和丰富的第三方库。</li><li><strong>应用领域：</strong> Web开发、数据科学、<strong>人工智能</strong>、自动化<strong>脚本</strong>等。Python因其易学易用的特点在各个领域都有广泛应用。</li></ul></li></ol>
+
+    <p>这几种语言各有其优点和适用场景。选择使用哪种语言取决于项目的需求、团队的技能水平、开发周期等因素。有时，不同语言也可以组合使用，以满足不同方面的需求。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section22">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>值传递</h2>
+    <p>
+    <p>在Java中只有值传递。</p>
+
+    <ol><li><p><strong>值传递（Pass by Value）：</strong></p><ul><li><p>在方法中接收基本数据类型的变量，就是值传递，方法收到的是实际参数的副本，而不是实际参数本身。即。</p><p><code></code>`java
+      public class Example {
+      public static void main(String[] args) {
+      int x = 5;
+      modifyValue(x);
+      System.out.println(x); // 输出结果是 5，因为值传递中修改的是副本
+      }</p><p>public static void modifyValue(int num) {
+      num = num + 1;
+      }
+      }
+      <code></code>`</p></li></ul></li><li><p><strong>引用传递（Pass by Reference）：</strong></p><ul><li><p>在引用传递中，方法收到的是实际参数的引用，不是副本。这意味着方法可以通过引用修改实际参数所指向的对象的值。</p></li><li><p>在Java中，对象引用是以值传递方式进行传递的，但传递的是引用的副本，而不是引用本身。</p><p><code></code>`java
+      public class Example {
+      public static void main(String[] args) {
+      StringBuilder str = new StringBuilder(&quot;Hello&quot;);
+      modifyValue(str);
+      System.out.println(str); // 输出结果是 &quot;Hello World&quot;
+      }</p><p>public static void modifyValue(StringBuilder s) {
+      s.append(&quot; World&quot;);
+      }
+      }
+      <code></code>`</p></li></ul></li></ol>
+
+    <p>在Java中，无论是值传递还是引用传递，<strong>实际参数的原始值</strong>（对于基本数据类型）或<strong>对象引用都不会被修改</strong>。如果方法修改了参数的值，那么这种修改只在方法内部有效，不会影响到调用方法的地方。</p>
+
+    <p>需要注意的是，Java中的对象引用是按值传递的，而不是按引用传递。这是因为传递的是引用的副本，而不是引用本身。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section23">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>解决哈希冲突</h2>
+    <p>
+    <p>哈希冲突是指两个不同的输入数据经过哈希函数计算后得到相同的哈希值。解决哈希冲突的方法有很多种，以下是一些常见的策略：</p>
+
+    <ol><li><strong>链地址法（Separate Chaining）：</strong><ul><li>将哈希表的每个槽（bucket）维护为一个链表或其他数据结构，相同哈希值的元素被放置在同一个槽内。当发生冲突时，新的元素被添加到该槽的链表中。</li></ul></li><li><strong>开放地址法（Open Addressing）：</strong><ul><li>将所有元素都存放在哈希表的槽中，当发生冲突时，根据一定的规则（如线性探测、二次探测等）寻找下一个可用的槽。</li></ul></li><li><strong>再哈希（Rehashing）：</strong><ul><li>哈希表存储的元素超过了负载因子x容量时，对哈希表进行扩容，并重新计算所有元素的哈希值。这可以减小冲突的概率。</li></ul></li><li><strong>线性探测和二次探测：</strong><ul><li>在开放地址法中，线性探测是逐个查找下一个可用槽，而二次探测是使用二次函数来寻找下一个可用槽。</li></ul></li></ol>
+
+    <p>选择哪种解决哈希冲突的方法通常取决于具体的应用场景和性能要求。每种方法都有其优势和局限性，因此在实际应用中需要根据情况选择合适的策略。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section24">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>哈希值特点</h2>
+    <p>
+    <p>哈希值是通过哈希函数计算得到的固定大小的值，通常用于唯一标识数据。哈希值具有一些特点，这些特点使得哈希值在许多计算机科学和密码学领域中被广泛应用：</p>
+
+    <ol><li><strong>固定长度：</strong> 哈希值的<strong>长度固定</strong>。<strong>无论输入数据的大小是多少</strong>，哈希函数<strong>生成的哈希值的长度始终保持不变</strong>。</li><li><strong>唯一性：</strong> <strong>不同的输入数据应该映射为不同的哈希值</strong>，但由于输出空间有限，理论上<strong>可能存在碰撞</strong>。</li><li><strong>不可逆性：</strong> 从哈希值<strong>不能逆向推导出原始输入数据</strong>。即使得知哈希值，也很难反向计算出原始的输入数据。</li><li><strong>扰动效应：</strong> <strong>对于微小的输入变化，哈希值应该有很大的变化</strong>，这被称为“avalanche effect”或“雪崩效应”。</li><li><strong>无法还原：</strong> 一个好的哈希函数应该是不可还原的，即无法通过观察哈希值推断出输入的某些部分。</li><li><strong>高效性：</strong> <strong>哈希函数的计算速度应该足够快</strong>，适用于大规模数据集。</li></ol>
+
+    <p>哈希值的这些特点使得它在密码学、数据完整性检查、数据索引等领域有着广泛的应用。在实际应用中，选择适当的哈希函数非常关键，因为不同的应用场景对哈希函数的要求有所不同。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section25">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h2>HashMap添加元素</h2>
     <p>
 

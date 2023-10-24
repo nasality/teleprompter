@@ -487,24 +487,21 @@
         <br>
         <h2>B+树作为索引的数据结构</h2>
         <p>
-        <p>MySQL 是会将数据持久化在硬盘，而存储功能是由 MySQL 存储引擎实现的，所以讨论 MySQL 使用哪种数据结构作为索引，实际上是在讨论存储引使用哪种数据结构作为索引，InnoDB 是 MySQL 默认的存储引擎，它就是采用了 B+ 树作为索引的数据结构。</p>
+        <p>MySQL 是会将数据持久化在硬盘，而存储功能是由 MySQL 存储引擎实现的，所以讨论 MySQL 使用哪种数据结构作为索引，实际上是在讨论存储引擎使用哪种数据结构作为索引，<strong>InnoDB 是 MySQL 默认的存储引擎，它就是采用了 B+ 树作为索引的数据结构。</strong></p>
 
-        <p>要设计一个 MySQL 的索引数据结构，不仅仅考虑数据结构增删改的时间复杂度，更重要的是要考虑磁盘 I/0 的操作次数。因为索引和记录都是存放在硬盘，硬盘是一个非常慢的存储设备，我们在查询数据的时候，最好能在尽可能少的磁盘 I/0 的操作次数内完成。</p>
+        <p>要设计一个 MySQL 的<strong>索引数据结构，不仅仅考虑数据结构增删改的时间复杂度</strong>，更重要的是要<strong>考虑磁盘 I/0 的操作次数</strong>。因为<strong>索引和记录都是存放在硬盘</strong>，<strong>硬盘</strong>是一个<strong>非常慢</strong>的存储设备，我们在<strong>查询数据的时</strong>候，最好能在尽可能<strong>少的磁盘 I/0 的操作次数内完成</strong>。</p>
 
-        <p>二分查找树虽然是一个天然的二分结构，能很好的利用二分查找快速定位数据，但是它存在一种极端的情况，每当插入的元素都是树内最大的元素，就会导致二分查找树退化成一个链表，此时查询复杂度就会从 O(logn)降低为 O(n)。</p>
+        <p><strong>二分查找树</strong>虽然是一个天然的<strong>二分结构</strong>，能很好的<strong>利用二分查找快速定位数据</strong>，但是它存在一种<strong>极端的情况</strong>，<strong>每当插入的元素都是树内最大的元素</strong>，就会导致<strong>二分查找树退化成一个链表</strong>，此时<strong>查询复杂度就会从 O(logn)降低为 O(n)。</strong></p>
 
-        <p>为了解决二分查找树退化成链表的问题，就出现了自平衡二叉树，保证了查询操作的时间复杂度就会一直维持在 O(logn) 。但是它本质上还是一个二叉树，每个节点只能有 2 个子节点，随着元素的增多，树的高度会越来越高。</p>
+        <p><strong>为了解决二分查找树退化成链表</strong>的问题，就<strong>出现了自平衡二叉树</strong>，<strong>保证了查询操作</strong>的<strong>时间复杂度</strong>就会<strong>一直维持在 O(logn)</strong> 。但是<strong>它本质上还是一个二叉树</strong>，<strong>每个节点只能有 2 个子节点</strong>，<strong>随着元素的增多，树的高度会越来越高。</strong></p>
 
-        <p>而树的高度决定于磁盘 I/O 操作的次数，因为树是存储在磁盘中的，访问每个节点，都对应一次磁盘 I/O 操作，也就是说树的高度就等于每次查询数据时磁盘 IO 操作的次数，所以树的高度越高，就会影响查询性能。</p>
+        <p>而<strong>树的高度决定于磁盘 I/O 操作的次数</strong>，因为<strong>树是存储在磁盘中</strong>的，<strong>访问每个节点</strong>，<strong>都对应一次磁盘 I/O 操作</strong>，也就是<strong>说树的高度就等于每次查询数据时磁盘 IO 操作的次数，所以树的高度越高，就会影响查询性能。</strong></p>
 
-        <p>B 树和 B+ 都是通过多叉树的方式，会将树的高度变矮，所以这两个数据结构非常适合检索存于磁盘中的数据。</p>
+        <p><strong>还有B 树和 B+数，他俩 都是通过多叉树的方式，会将树的高度变矮</strong>，所以这两个数据结构非常<strong>适合检索存于磁盘中的数据。</strong></p>
 
-        <p>但是 MySQL 默认的存储引擎 InnoDB 采用的是 B+ 作为索引的数据结构，原因有：</p>
+        <p><strong>但是 MySQL 默认的存储引擎 InnoDB 采用的是 B+ 作为索引的数据结构</strong>，原因有：</p>
 
-        <p>B+ 树的非叶子节点不存放实际的记录数据，仅存放索引，因此数据量相同的情况下，相比存储即存索引又存记录的 B 树，B+树的非叶子节点可以存放更多的索引，因此 B+ 树可以比 B 树更「矮胖」，查询底层节点的磁盘 I/O次数会更少。
-            B+ 树有大量的冗余节点（所有非叶子节点都是冗余索引），这些冗余索引让 B+ 树在插入、删除的效率都更高，比如删除根节点的时候，不会像 B 树那样会发生复杂的树的变化；
-            B+ 树叶子节点之间用链表连接了起来，有利于范围查询，而 B 树要实现范围查询，因此只能通过树的遍历来完成范围查询，这会涉及多个节点的磁盘 I/O 操作，范围查询效率不如 B+ 树。</p>
-
+        <ul><li><strong>B+ 树的非叶子节点不存放实际的记录数据，仅存放索引</strong>，因此<strong>数据量相同的情况下</strong>，相比<strong>既存索引又存记录的 B 树，B+树的非叶子节点可以存放更多的索引</strong>，因此 <strong>B+ 树可以比 B 树更「矮胖」，查询底层节点的磁盘 I/O次数会更少。</strong></li><li>B+ 树有大量的冗余节点（所有非叶子节点都是冗余索引），这些冗余索引让 B+ 树在插入、删除的效率都更高，比如删除根节点的时候，不会像 B 树那样会发生复杂的树的变化；</li><li><strong>B+ 树叶子节点之间用链表连接了起来，有利于范围查询，而 B 树要实现范围查询</strong>，因此只能通过<strong>树的遍历来完成</strong>范围查询，<strong>这会涉及多个节点的磁盘 I/O 操作，范围查询效率不如 B+ 树。</strong></li></ul>
         </p>
     </div>
 
@@ -521,10 +518,16 @@
         <p>
         <p>数据库表的设计是数据库系统中非常关键的一环，良好的设计可以提高数据存储和检索的效率，并确保数据的一致性和完整性。以下是一些数据库表设计的原则：</p>
 
-        <ol><li><p><strong>符合范式设计：</strong></p><ul><li><p>范式设计是数据库表设计的基本原则。主要有第一范式（1NF）、第二范式（2NF）、第三范式（3NF）等。范式设计有助于消除数据冗余，提高数据的一致性和更新的效率。</p></li></ul></li><li><p><strong>选择合适的数据类型：</strong></p><ul><li><p>选择适当的数据类型能够减小存储空间的使用，提高检索和计算的效率。例如，使用整型而不是字符型存储数字、选择合适长度的字符串、使用日期类型等。</p></li></ul></li><li><p><strong>建立适当的索引：</strong></p><ul><li><p>通过建立索引可以提高检索的速度，但要谨慎使用。过多或不必要的索引可能会增加写操作的成本，占用额外的存储空间。通常应在经常用于查询的列上建立索引。</p></li></ul></li><li><p><strong>遵循命名规范：</strong></p><ul><li><p>使用有意义、清晰的表和列的命名规范，以便于理解和维护。一致的命名规范有助于团队协作和代码的可读性。</p></li></ul></li><li><p><strong>确保数据的完整性：</strong></p><ul><li><p>使用外键、唯一约束、主键等约束条件，确保数据的完整性。这样可以防止无效的数据插入、更新和删除操作。</p></li></ul></li><li><p><strong>考虑性能优化：</strong></p><ul><li><p>考虑数据库的性能优化，包括查询性能、事务性能等。可以通过适当的索引、分区表、合理的查询语句等手段来提高数据库的性能。</p></li></ul></li><li><p><strong>规划合理的关系：</strong></p><ul><li><p>设计表之间的关系时，要根据业务需求和数据的实际情况来规划。常见的关系有一对一、一对多、多对多等，要根据具体情况选择适当的关系。</p></li></ul></li><li><p><strong>考虑扩展性：</strong></p><ul><li><p>考虑数据库的扩展性，使得系统在面对未来的业务需求扩展时，能够方便地进行数据库结构的调整和优化。</p></li></ul></li><li><p><strong>合理使用分区：</strong></p><ul><li><p>对于大型表，可以考虑使用分区表，将表按照某个列的范围进行分区，提高查询性能，减轻数据库的负担。</p></li></ul></li><li><p><strong>文档化设计：</strong></p><ul><li>对数据库表的设计进行文档化，包括表的结构、约束、索引等信息，有助于后续的维护和升级工作。</li></ul></li></ol>
+        <ol><li><p><strong>符合范式设计：</strong></p><ul><li><p>范式设计是数据库表设计的基本原则。主要有第一范式（1NF）、第二范式（2NF）、第三范式（3NF）等。范式设计有助于消除数据冗余，提高数据的一致性和更新的效率。</p></li></ul></li><li><p><strong>选择合适的数据类型：</strong>
+            2、<strong>日期类型如果要记录时分秒使用datetime，只记录年月日使用date类型，</strong></p><p>对于字符类型的选择，固定长度字段选择char，不固定长度的字段选择yarchar,varchar 比 char节省空间但速度没有char快；  </p><p><strong>长文本字段使用text</strong>或longtext类型；</p><p>如果存储图片等二进制数据使用blob或Longblob类型；</p><p>对金额字段建议使用DECIMAL；对于数值类型的字段在确保取值范围足够的前提下尽量使用占用空间较小的类型，
+            3、主键字段建议使用自然主键，不要有业务意义，建议使用int unsigned类型，特殊场景使用bigint类型。
+            4、<strong>如果要存储text、blob字段建议单独建一张表</strong>，使用外键关联。
+            5、尽量不要定义外键，保证表的独立性，可以存在外键意义的字段。
+            6、设置字段默认值，比如：状态、创建时间等。
+            7、<strong>每个字段写清楚注释。</strong>
+            8、<strong>注意字段的约束</strong>，比如：非空、唯一、主键等。</p></li><li><p><strong>建立适当的索引：</strong></p><ul><li><p>通过建立索引可以提高检索的速度，但要谨慎使用。过多或不必要的索引可能会增加写操作的成本，占用额外的存储空间。通常应在经常用于查询的列上建立索引。</p></li></ul></li><li><p><strong>遵循命名规范：</strong></p><ul><li><p>使用有意义、清晰的表和列的命名规范，以便于理解和维护。一致的命名规范有助于团队协作和代码的可读性。</p></li></ul></li><li><p><strong>确保数据的完整性：</strong></p><ul><li><p>使用外键、唯一约束、主键等约束条件，确保数据的完整性。这样可以防止无效的数据插入、更新和删除操作。</p></li></ul></li><li><p><strong>考虑性能优化：</strong></p><ul><li><p>考虑数据库的性能优化，包括查询性能、事务性能等。可以通过适当的索引、分区表、合理的查询语句等手段来提高数据库的性能。</p></li></ul></li><li><p><strong>规划合理的关系：</strong></p><ul><li><p>设计表之间的关系时，要根据业务需求和数据的实际情况来规划。常见的关系有一对一、一对多、多对多等，要根据具体情况选择适当的关系。</p></li></ul></li><li><p><strong>考虑扩展性：</strong></p><ul><li><p>考虑数据库的扩展性，使得系统在面对未来的业务需求扩展时，能够方便地进行数据库结构的调整和优化。</p></li></ul></li><li><p><strong>合理使用分区：</strong></p><ul><li><p>对于大型表，可以考虑使用分区表，将表按照某个列的范围进行分区，提高查询性能，减轻数据库的负担。</p></li></ul></li><li><p><strong>文档化设计：</strong></p><ul><li>对数据库表的设计进行文档化，包括表的结构、约束、索引等信息，有助于后续的维护和升级工作。</li></ul></li></ol>
 
         <p>这些原则不是绝对的，具体的数据库设计要根据具体的业务需求和系统特点来灵活应用。在设计数据库表时，需要权衡各种因素，以达到维护性、性能和扩展性的平衡。</p>
-
         </p>
     </div>
 
@@ -543,15 +546,19 @@
 
         <h3>1. 第一范式（1NF）：</h3>
 
-        <ul><li><strong>定义：</strong> 数据表中的每一列都是不可再分的原子数据项，不包含集合、数组等复杂类型。</li><li><strong>要求：</strong> 每个字段的值都是原子的，不可再分。</li></ul>
+        <ul><li><strong>定义：</strong><strong>列不可再分</strong>。</li><li><strong>要求：</strong> 每个字段的值都是原子的，不可再分。</li><li>举例： 考虑这样一个表：<strong>【联系人】（姓名，性别，电话）</strong>
+            如果在实际场景中，一个联系人有家庭电话和公司电话，那么这种表结构设计就没有达到 1NF。要符合 1NF 我们只需把列（电话）拆分，即：<strong>【联系人】（姓名，性别，家庭电话，公司电话）</strong>。</li></ul>
 
         <h3>2. 第二范式（2NF）：</h3>
 
-        <ul><li><strong>定义：</strong> 在满足第一范式的基础上，要求非主键列完全依赖于整个主键，而不是部分依赖。</li><li><strong>要求：</strong> 所有非主键列都完全依赖于主键。</li></ul>
+        <ul><li><p><strong>定义：</strong> 一是<strong>表必须有一个主键</strong>；二是<strong>非主属性完全依赖与主属性</strong>，而<strong>不能只依赖于主属性的一部分</strong>。 </p></li><li><p><strong>要求：</strong> 所有非主键列都完全依赖于主键。</p></li><li><p><strong>举例：</strong></p><p><strong>考虑一个订单明细表</strong>：【OrderDetail】（OrderID，ProductID，UnitPrice，Discount，Quantity，ProductName）。
+            因为我们知道在一个订单中可以订购多种产品，所以单单一个 OrderID 是不足以成为主键的，主键应该是（OrderID，ProductID）。显而易见 Discount（折扣），Quantity（数量）完全依赖（取决）于主键（OderID，ProductID），而 UnitPrice，ProductName 只依赖于 ProductID。所以 OrderDetail 表不符合 2NF。不符合 2NF 的设计容易产生冗余数据。
+            可以把【OrderDetail】表拆分为【OrderDetail】（OrderID，ProductID，Discount，Quantity）和【Product】（ProductID，UnitPrice，ProductName）来消除原订单表中UnitPrice，ProductName多次重复的情况。</p><p>第二范式（2NF）要求实体的属性完全依赖于主关键字。所谓完全依赖是指不能存在仅依赖主关键字一部分的属性，如果存在，那么这个属性和主关键字的这一部分应该分离出来形成一个新的实体，新实体与原实体之间是一对多的关系。为实现区分通常需要为表加上一个列，以存储各个实例的唯一标识。简而言之，第二范式就是在第一范式的基础上属性完全依赖于主键。</p></li></ul>
 
         <h3>3. 第三范式（3NF）：</h3>
 
-        <ul><li><strong>定义：</strong> 在满足第二范式的基础上，要求非主键列之间相互独立，不存在传递依赖。</li><li><strong>要求：</strong> 所有非主键列之间都相互独立，不存在 A-&gt;B，B-&gt;C 的传递依赖。</li></ul>
+        <ul><li><p><strong>定义：</strong>非主属性完全依赖于主属性，不存在传递依赖。</p></li><li><p><strong>要求：</strong> 所有非主键列之间都相互独立，不存在 A-&gt;B，B-&gt;C 的传递依赖。</p></li><li><p><strong>举例：</strong> 考虑一个订单表【Order】（OrderID，OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity）主键是（OrderID）。 </p><p>其中 OrderDate，CustomerID，CustomerName，CustomerAddr，CustomerCity 等非主键列都完全依赖于主键（OrderID），所以符合 2NF。不过问题是 CustomerName，CustomerAddr，CustomerCity 直接依赖的是 CustomerID（非主键列），而不是直接依赖于主键，它是通过传递才依赖于主键，所以不符合 3NF。
+            通过拆分【Order】为【Order】（OrderID，OrderDate，CustomerID）和【Customer】（CustomerID，CustomerName，CustomerAddr，CustomerCity）从而达到 3NF。 </p></li></ul>
 
         <h3>4. Boyce-Codd 范式（BCNF）：</h3>
 
@@ -566,7 +573,6 @@
         <ul><li><strong>定义：</strong> 在满足第四范式的基础上，要求消除联接依赖，即表中的非键属性只与候选键有关。</li><li><strong>要求：</strong> 消除表中的联接依赖。</li></ul>
 
         <p>这些范式按照递增的顺序逐步规范化数据库表的设计，每一范式都建立在前一范式的基础上，并引入更严格的规范。在实际应用中，不是所有情况都需要遵循所有范式，要根据具体业务需求和性能考虑进行合理的设计。有时候为了性能或其他原因，可能会有一定的冗余设计。</p>
-
         </p>
     </div>
 
@@ -958,6 +964,210 @@
     </div>
 
     <div class="section" id="section22">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>int(11)varchar(10)</h2>
+        <p>
+        <p><code>int(11)</code> 和 <code>varchar(10)</code> 中的数字表示的含义不同，它们分别用于定义不同类型的数据库字段。</p>
+
+        <ol><li><p><strong><code>int(11)</code>：</strong></p><ul><li><code>int</code> 表示整数类型，而括号中的<strong>数字 <code>11</code> 并不是限制整数的长度</strong>，而<strong>是用于显示的宽度</strong>。</li><li><p>在 MySQL 中，<code>int(11)</code> 中的数字用于指定显示的宽度，并<strong>不影响存储范围</strong>或性能。这只是在显示查询结果时的一种提示，告诉客户端在显示整数时应该留多少位宽度。例如，如果数字是一个较小的整数，可以用零填充以达到显示的位数。</p></li></ul></li><li><p><strong><code>varchar(10)</code>：</strong></p><ul><li><code>varchar</code> 表示<strong>可变长度字符串</strong>类型，而括号中的数字 <code>10</code> <strong>表示该字段的最大长度</strong>。</li><li>在 MySQL 中，<code>varchar(10)</code> 表示该<strong>字段最多可以存储 10 个字符的字符串</strong>。<strong>实际存储的字符串长度可以少于 10 个字符，但不能超过 10 个字符</strong>。</li></ul></li></ol>
+
+        <p>总结：</p>
+
+        <ul><li><code>int(11)</code> 中的数字是显示宽度，用于指定在显示查询结果时整数的位数。</li><li><code>varchar(10)</code> 中的数字是最大长度，用于指定字符串字段能够存储的最大字符数。</li></ul>
+
+        <p>这两者的数字都不会影响实际存储空间或性能，而只是用于在显示和规范数据时提供一些提示信息。在设计数据库时，需要根据实际需要选择合适的数据类型和长度。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section23">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>MVCC</h2>
+        <p>
+        <p>MVCC，即<strong>Multi-Version Concurrency Control</strong>（<strong>多版本并发控制</strong>），是一种<strong>处理并发的方法</strong>。</p>
+
+        <p>在MySQL InnoDB中，MVCC的实现旨在<strong>提高数据库并发性能</strong>，以更好地处理读-写冲突，实现非阻塞并发读，即使有读写冲突时也不加锁。</p>
+
+        <p>MVCC的目标是实现读-写冲突不加锁，其中的“读”指的是快照读，而非当前读。</p>
+
+        <ul><li><p><strong>当前读：</strong> 包括像<code>select lock in share mode</code>（共享锁）、<code>select for update</code>（排他锁）、<code>update</code>、<code>insert</code>、<code>delete</code>等操作。它<strong>读取记录的最新版本</strong>，需要<strong>确保其他并发事务不能修改当前记录</strong>，因此会对读取的<strong>记录进行加锁</strong>。</p></li><li><p><strong>快照读：</strong> 例如<strong>不加锁的<code>select</code>操作</strong>，即非阻塞读。快照读的<strong>前提是隔离级别不是串行级别</strong>，<strong>串行级别下的快照读会退化成当前读。</strong>快照读基于提高并发性能的考虑，实现是<strong>基于多版本并发控制</strong>（MVCC），<strong>可能读到的并不是数据的最新版本</strong>，而有可能<strong>是之前的历史版本</strong>。</p></li></ul>
+
+        <p>MVCC通过<strong>维护一个数据的多个版本</strong>，使得读写操作没有冲突。在MySQL中，MVCC的具体实现包括3个隐式字段、undo日志、Read View等。</p>
+
+        <p>MVCC<strong>解决</strong>了数据库并发场景中的读-写冲突，提供了一些好处：</p>
+
+        <ul><li><p><strong>在并发读写数据库时</strong>，实现了<strong>读操作不阻塞写</strong>操作，<strong>写操作不阻塞读</strong>操作，提高了数据库的并发读写性能。</p></li><li><p>解决了事务隔离问题，如脏读、幻读、不可重复读等，但不能解决更新丢失问题。</p></li></ul>
+
+        <p>适用于读多写少、高并发的数据库场景</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section24">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>Delete/Truncate</h2>
+        <p>
+        <p>在MySQL中，<code>DELETE</code>和<code>TRUNCATE</code>是用于<strong>删除表中数据的两个关键字</strong>，它们有一些区别和适用场景：</p>
+
+        <ol><li><p><strong>DELETE</strong>:</p><ul><li><code>DELETE</code>是一条<strong>DML（数据操作语言）语句</strong>，用于从表中<strong>删除指定的行</strong>。</li><li><code>DELETE</code>语句可以根据条件删除表中的部分数据，例如使用<strong><code>WHERE</code>子句指定删除条件。</strong></li><li><code>DELETE</code>语句在<strong>删除每一行时都会生成相应的事务日志</strong>，因此<strong>可以进行回滚</strong>操作。</li><li><p><code>DELETE</code>操作是逐行删除的，它会触发相关的触发器（如果有定义）和其他的删除操作的触发器。</p></li></ul></li><li><p><strong>TRUNCATE</strong>:</p><ul><li><code>TRUNCATE</code>是一条<strong>DDL（数据定义语言）语句</strong>，用于<strong>快速删除表中的所有数据</strong>，将表恢复到空状态。</li><li><code>TRUNCATE</code>语句不仅删除表中的所有数据，还重置表的自增计数器和存储引擎的状态。</li><li><code>TRUNCATE</code>语句<strong>不会生成事务日志，因此无法回滚删除操作</strong>。</li><li><code>TRUNCATE</code>操作是通过<strong>释放表所占用的空间来实现的，而不是逐行删除</strong>。</li></ul></li></ol>
+
+        <p>主要区别：</p>
+
+        <ul><li><code>DELETE</code>用于删除表中的指定行，可以指定删除条件，逐行删除，生成事务日志，可以回滚。</li><li><code>TRUNCATE</code>用于删除表中的所有数据，将表恢复到空状态，快速操作，不生成事务日志，不可回滚。</li></ul>
+
+        <p>选择使用<code>DELETE</code>还是<code>TRUNCATE</code>取决于具体的需求和场景。如果只需要删除表中的所有数据并重置表状态，而不关心删除操作的事务性和触发器的执行，那么<code>TRUNCATE</code>是一个更快的选择。如果需要根据条件删除部分数据、触发相关的触发器，并支持事务性操作，那么应该使用<code>DELETE</code>语句。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section25">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>数据库优化</h2>
+        <p>
+        <h2>一：数据库结构优化</h2>
+
+        <ul><li>1）范式优化：表的设计合理化（符合3NF），比如消除冗余（节省空间）；</li><li>2）反范式优化：比如适当加冗余等（减少join）</li></ul>
+
+        <h2>二：优化SQL语句</h2>
+
+        <ul><li>7）创建索引（主键索引/唯一索引/全文索引/普通索引）；</li><li>8）避免Select * （不查询多余的列与行）；</li></ul>
+
+        <h2>三：分库分表</h2>
+
+        <p>当数据量非常大、高并发时，可以通过分库分表来提升数据库性能。把一个大的数据库拆分成多个小的数据库这就是分库，每个大的数据库表再拆分成多个小的数据库表这就是分表。</p>
+
+        <p><strong>分库：</strong>
+            把一个大的数据库拆分成多个小的数据库，这就是分库。每个数据库可以单独部署在不同的服务器上，来提高数据库的并发能力。    <em>分库的策略可以按照一定规则，例如根据用户ID的哈希值来确定存储在哪个数据库</em>。</p>
+
+        <p><strong>分表：</strong>
+            每个大的数据库表再拆分成多个小的数据库表这就是分表。可以按照某个字段的取值范围、哈希值等规则将数据分布到不同的表中。 拆分后每个数据库表的数据量减小，提高了并发性能。</p>
+
+        <hr/>
+
+        <p><strong>优势：</strong></p>
+
+        <ol><li><strong>提高并发性能：</strong> 拆分后每个数据库或表的数据量减小，提高了数据库的并发性能。</li><li><strong>扩展性好：</strong> 可以方便地横向扩展，增加数据库服务器和表的数量来应对更大的数据和请求量。</li><li><strong>容灾备份：</strong> 每个数据库或表可以单独进行备份和恢复，提高了容灾性。</li></ol>
+
+        <p><strong>挑战：</strong></p>
+
+        <ol><li><strong>业务复杂性：</strong> 涉及到跨库、跨表的查询和事务处理会更加复杂。</li><li><strong>数据迁移：</strong> 数据库扩容、迁移和合并都需要谨慎操作，以免影响业务。</li><li><strong>维护成本：</strong> 分库分表会增加系统的维护和管理成本，需要更多的人力资源。</li></ol>
+
+        <p><strong>适用场景：</strong></p>
+
+        <ol><li><strong>数据量巨大：</strong> 当单一数据库无法满足存储和查询需求时。</li><li><strong>高并发访问：</strong> 需要提高数据库的并发处理能力时。</li><li><strong>系统可扩展：</strong> 需要在系统运行过程中灵活地扩展数据库规模时。</li></ol>
+
+        <h2>四：读写分离</h2>
+
+        <p>MySQL读写分离可以参考：<a href="https://help.aliyun.com/document_detail/96073.html?source=5176.11533457&amp;userCode=czfmwdn3&amp;type=copy">阿里云MySQL读写分离详解</a>，本文来说说抛开阿里云来实现读写分离的方法：</p>
+
+        <ul><li>方法：基本的原理是让主数据库处理写操作（insert、update、delete），而从数据库处理查询操作（select）。而数据库的一致性则通过主从复制来实现。</li></ul>
+
+        <h2>五：存储过程 [模块化编程，可以提高速度]</h2>
+
+        <p>存储过程是预编译的SQL语句，保存在数据库中，可以在程序中调用。</p>
+
+        <p>使用存储过程的优点：存储过程只需创建一次，之后就可以随意的调用；不用在网络中传递复杂的SQL语句，执行速度快，效率高；</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section26">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>Explain</h2>
+        <p>
+        <p><code>EXPLAIN</code> 是 MySQL 中的一个关键字，用于分析查询语句的执行计划，帮助优化查询性能。通过 <code>EXPLAIN</code>，你可以获取关于 MySQL 如何执行查询的信息，包括表的读取顺序、使用的索引、连接类型等。</p>
+
+        <h3>基本语法：</h3>
+
+        <p><code>sql
+            EXPLAIN SELECT column1, column2, ...
+            FROM table
+            WHERE condition;
+        </code></p>
+
+        <h3>例子：</h3>
+
+        <p>考虑以下查询：</p>
+
+        <p><code>sql
+            EXPLAIN SELECT * FROM users WHERE age &gt; 25;
+        </code></p>
+
+        <p>执行该语句后，MySQL 将返回一个表格，其中包含有关查询执行计划的信息。</p>
+
+        <h3>解释执行计划的关键列：</h3>
+
+        <ol><li><strong>id：</strong> 查询的标识符，用于标识查询中的不同步骤。</li><li><strong>select_type：</strong> 查询的类型，例如 SIMPLE、PRIMARY、SUBQUERY 等。</li><li><strong>table：</strong> 正在访问的表的名称。</li><li><strong>partitions：</strong> 匹配的分区。</li><li><strong>type：</strong> 表示连接类型，包括 <code>ALL</code>（全表扫描）、<code>index</code>（索引扫描）、<code>range</code>（范围扫描）等。</li><li><strong>possible_keys：</strong> 可能使用的索引列表。</li><li><strong>key：</strong> 实际使用的索引。</li><li><strong>key_len：</strong> 索引字段的长度。</li><li><strong>ref：</strong> 显示索引的哪一列被使用，通常是一个常数或表达式。</li><li><strong>rows：</strong> 估计的行数，表示需要检查的行数。</li><li><strong>filtered：</strong> 过滤的行百分比。</li><li><strong>Extra：</strong> 附加信息，例如 <code>Using where</code>、<code>Using index</code> 等。</li></ol>
+
+        <h3>优化查询：</h3>
+
+        <p>通过分析 <code>EXPLAIN</code> 的输出，你可以识别查询语句中可能存在的性能问题，例如是否使用了索引、是否进行了全表扫描等。基于这些信息，你可以优化查询，提高数据库性能。</p>
+
+        <p>例如，如果 <code>type</code> 列显示 <code>ALL</code>，表示进行了全表扫描，你可以考虑在相应的列上创建索引，以减少扫描的行数。</p>
+
+        <p><code>sql
+            CREATE INDEX age_index ON users(age);
+        </code></p>
+
+        <p>然后重新运行 <code>EXPLAIN</code>，查看是否改善了执行计划。</p>
+
+        <p><code>EXPLAIN</code> 是优化查询性能的有力工具，特别是在处理复杂查询或大量数据的情况下。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section27">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>ACID</h2>
+        <p>
+
+
+        </p>
+    </div>
+
+    <div class="section" id="section28">
         <br>
         <br>
         <br>

@@ -774,6 +774,78 @@
         <br>
         <br>
         <br>
+        <h2>Redis为什么这么快</h2>
+        <p>
+        <ol><li><p>内存存储：<strong> Redis主要</strong>将数据存储在内存中，而不是磁盘上<strong>。由于</strong>内存的读写速度比磁盘快得多**，因此Redis能够提供极高的读写性能。</p></li><li><p><strong>单线程模型：</strong> <strong>Redis采用单线程模型</strong>，即每个Redis实例都在<strong>单个线程上运行</strong>。虽然这<strong>听起来似乎会限制性能</strong>，但实际上，这样可以<strong>避免多线程之间的竞争和锁的开销</strong>，简化了系统的设计，提高了整体性能。在多核系统上，可以通过运行多个Redis实例来充分利用多核。</p></li><li><p><strong>非阻塞I/O：</strong> Redis使用了非阻塞I/O，这意味着它可以在等待数据从内存或网络中读取时执行其他操作，而不会被阻塞。这提高了系统的并发性和响应速度。</p></li><li><p><strong>数据结构：</strong> <strong>Redis</strong>支持丰富<strong>的数据结构</strong>，如字符串、列表、集合、哈希表等。这些数据结构的<strong>实现经过优化</strong>，使得Redis可以高效地执行各种操作。</p></li><li><p><strong>持久化选项：</strong> 尽管Redis主要是一个内存数据库，但它支持多种持久化选项，允许将数据定期写入磁盘以防止数据丢失。这使得Redis在需要持久性的场景中仍然表现良好。</p></li></ol>
+
+        <p>总体而言，Redis通过将数据存储在内存中、采用单线程模型、使用非阻塞I/O等策略，以及优化的数据结构，实现了出色的性能。这使得它成为许多场景中首选的数据存储解决方案之一。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section23">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>布隆过滤器</h2>
+        <p>
+        <p>布隆过滤器（Bloom Filter）是一种空间效率高、误判率低的数据结构，主要用于<strong>判断一个元素是否属于一个集合</strong>。<strong>使用哈希函数和一个位数组实现</strong>。</p>
+
+        <h3>基本原理：</h3>
+
+        <ol><li><p><strong>位数组：</strong> 初始化一个位数组，所有位都初始化为 0。</p></li><li><p><strong>哈希函数：</strong> 初始化若干个哈希函数，这些<strong>哈希函数</strong>能<strong>将输入映射到位数组上</strong>的不同位置。</p></li><li><p><strong>添加元素：</strong> 当一个元素被加入集合时，<strong>通过多个哈希函数</strong>将其<strong>映射到位数组上的多个位置</strong>，并将<strong>这些位置的位设置为 1</strong>。</p></li><li><p><strong>查询元素：</strong> 当需要<strong>查询某个元素是否在集合中</strong>时，<strong>同样通过多个哈希函数</strong>将其<strong>映射到位数组上的多个位置</strong>，<strong>如果</strong>所有<strong>位置</strong>的位<strong>都为 1</strong>，则认为<strong>元素可能在集合中</strong>；如果有一个位置的位为 0，则元素肯定不在集合中。</p></li></ol>
+
+        <h3>优点：（查询速度快 占用空间小 存在误判 不能删除）</h3>
+
+        <ul><li><p><strong>空间效率高：</strong> 布隆过滤器只需要很少的内存空间，因为它使用位数组存储信息。</p></li><li><p><strong>查询速度快：</strong> 通过多个哈希函数，查询速度非常快。</p></li><li><p><strong>误判率低：</strong> 误判率主要取决于哈希函数的设计和位数组的大小。</p></li></ul>
+
+        <h3>缺点：</h3>
+
+        <ul><li><p><strong>不支持删除操作：</strong> 由于添加元素时设置了位数组的相应位置，删除元素会影响其他元素的判断结果，因此不支持删除操作。</p></li><li><p><strong>存在误判：</strong> 有一定的概率存在误判，即判断某个元素在集合中时，可能存在一定的误报率。</p></li></ul>
+
+        <h3>应用场景：</h3>
+
+        <ul><li><p><strong>缓存击穿：</strong> 用于快速判断某个查询是否存在于缓存中，避免对数据库进行频繁查询。</p></li><li><p><strong>防止爬虫：</strong> 用于检查某个 URL 是否已经被爬虫爬取过，减少重复爬取。</p></li><li><p><strong>单词拼写检查：</strong> 用于检查输入的单词是否拼写正确。</p></li><li><p><strong>安全领域：</strong> 用于判断一个 IP 是否是恶意攻击。</p></li></ul>
+
+        <p>实现布隆过滤器的关键在于选择合适的哈希函数和位数组大小，以及根据实际情况合理估计误判率。</p>
+
+        <hr/>
+
+        <p>选择布隆过滤器的<strong>位数组大小</strong>需要根据预计的数据量和容忍的误判率来进行权衡。位数组的大小（通常用 m 表示）和哈希函数的数量（通常用 k 表示）是布隆过滤器的两个关键参数。</p>
+
+        <p>误判率（False Positive Rate）和位数组大小、哈希函数数量之间的关系可以通过以下公式估计：</p>
+
+        <p>[ \text{False Positive Rate} = \left(1 - e^{-\frac{kn}{m}}\right)^k ]</p>
+
+        <p>其中：</p>
+
+        <ul><li>( n ) 是要插入的元素数量。</li><li>( m ) 是位数组的大小。</li><li>( k ) 是哈希函数的数量。</li><li>( e ) 是自然对数的底数。</li></ul>
+
+        <p>要选择合适的位数组大小，可以通过以下步骤进行估算：</p>
+
+        <ol><li><p><strong>估算数据量 ( n )：</strong> 预估系统中可能出现的不同元素的数量。</p></li><li><p><strong>估算允许的误判率 ( \text{False Positive Rate} )：</strong> 根据业务需求和对误判率的容忍程度，选择一个合适的误判率。</p></li><li><p><strong>选择哈希函数数量 ( k )：</strong> 根据 ( \text{False Positive Rate} ) 的公式，选择合适的哈希函数数量。常见的选择是 ( k = \frac{m}{n} \times \ln(2) )。</p></li><li><p><strong>计算位数组大小 ( m )：</strong> 使用 ( m = -\frac{n \times \ln(\text{False Positive Rate})}{(\ln(2))^2} ) 计算位数组大小。</p></li></ol>
+
+        <p>需要注意的是，选择较小的位数组大小和哈希函数数量可以减小空间占用，但可能增加误判率。选择过大的位数组大小和哈希函数数量会增加空间占用，但可以降低误判率。</p>
+
+        <p>根据实际情况，可以进行多次试验和调整以找到满足性能和误判率要求的最佳参数。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section24">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
         <h2>SkipList</h2>
         <p>
 

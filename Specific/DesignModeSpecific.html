@@ -139,8 +139,79 @@
         <br>
         <br>
         <br>
-        <h2>HashMap添加元素</h2>
-        <p></p>
+        <h2>组合模式</h2>
+        <p>
+        <p>一种结构型设计模式，定义一个组件接口，叶子结点实现这个组件接口，还有复合节点，也实现组件接口，复合结点可以包含子结点，会把具体的操作交给子节点。</p>
+
+        <p>例如：文件夹和文件都是组合模式的典型应用。文件夹可以包含文件或其他文件夹，而文件是叶子节点。组合模式可以忽略节点之间的差异，进行统一处理。</p>
+
+        <p><strong>要素：</strong></p>
+
+        <ol><li><p><strong>Component（组件）：</strong> 定义树节点的通用接口，可以在其中包含子节点的操作。这可以是抽象类或接口。</p><p><code>java
+            public interface Component {
+            void operation();
+            }
+        </code></p></li><li><p><strong>Leaf（叶子节点）：</strong> 实现了 Component 接口的叶子节点对象，它没有子节点。</p><p><code>java
+            public class Leaf implements Component {
+            @Override
+            public void operation() {
+            // Leaf 特定的操作
+            }
+            }
+        </code></p></li><li><p><strong>Composite（复合节点）：</strong> 也实现了 Component 接口，但是可以包含子节点。它通常会将操作委托给其子节点。</p><p><code></code>`java
+            import java.util.ArrayList;
+            import java.util.List;</p><p>public class Composite implements Component {
+            private List&lt;Component&gt; children = new ArrayList&lt;&gt;();</p><p>   public void add(Component component) {
+            children.add(component);
+            }</p><p>   public void remove(Component component) {
+            children.remove(component);
+            }</p><p>   @Override
+            public void operation() {
+            // Composite 特定的操作</p><p>       // 调用子节点的操作
+            for (Component child : children) {
+            child.operation();
+            }
+            }
+            }
+            <code></code>`</p></li></ol>
+
+        <p><strong>使用场景：</strong></p>
+
+        <ul><li>当你需要表示部分-整体层次结构时，且希望客户端能够统一处理单个对象和组合对象时。</li><li>当你希望用户忽略组合对象与单个对象的差异，客户端代码可以一致地使用组合结构中的所有对象。</li></ul>
+
+        <p><strong>示例：</strong></p>
+
+        <p>考虑一个文件系统的例子。文件夹和文件都是组合模式的典型应用。文件夹可以包含文件或其他文件夹，而文件是叶子节点。</p>
+
+        <p><code></code>`java
+            public class Client {
+            public static void main(String[] args) {
+            // 创建文件和文件夹
+            Component file1 = new Leaf();
+            Component file2 = new Leaf();
+            Component folder1 = new Composite();
+            folder1.add(file1);
+            folder1.add(file2);</p>
+
+        <pre><code>    Component file3 = new Leaf();
+    Component folder2 = new Composite();
+    folder2.add(file3);
+
+    // 组合文件和文件夹
+    Component root = new Composite();
+    root.add(folder1);
+    root.add(folder2);
+
+    // 调用操作
+    root.operation();
+}</code></pre>
+
+        <p>}
+            <code></code>`</p>
+
+        <p>这是一个简单的组合模式示例，其中文件和文件夹都实现了 <code>Component</code> 接口。客户端可以递归地调用 <code>operation()</code> 方法，而不必关心是文件还是文件夹。</p>
+
+        </p>
     </div>
 
     <div class="section" id="section4">

@@ -118,6 +118,65 @@
     <br>
     <br>
     <br>
+    <h2>CAP</h2>
+    <p>
+    <p><strong>美国加州大学的一位教授</strong>提出<strong>分布式系统</strong>有<strong>三个性能指标</strong>：</p>
+
+    <ul><li>Consistency</li><li>Availability</li><li>Partition tolerance</li></ul>
+
+    <p>具体解释如下：</p>
+
+    <ul><li>一致性（Consistency）：一致性意味着<strong>所有 客户端 无论连接到 哪个节点</strong>，<strong>都能</strong>在同一时间<strong>看到 相同的 数据</strong>。为此，<strong>向节点中写入数据</strong>，<strong>也要立即将  数据转发  到系统中的</strong>所有<strong>其他节点</strong>，才能看作是数据写入成功。</li><li>可用性（Availability）：可用性意味着<strong>任何数据请求都会得到响应</strong>，<strong>即使有节点发生故障</strong>。换一种说法，分布式系统中的所有工作节点都会对任何请求返回有效响应，无一例外。</li><li>分区容错性（Partition tolerance）：<strong>分区</strong>指的<strong>是分布式系统中</strong>两个<strong>节点之间 失去连接 或 短暂延迟</strong>。<strong>节点之间出现</strong>任意数量的<strong>通信故障</strong>，<strong>集群也要能继续工作</strong>。</li></ul>
+
+    <p><strong>CAP定理指出</strong>，在一个分布式系统中，<strong>无法同时满足</strong>一致性、可用性和分区容错性这<strong>三个特性，只能在其中选择满足其中两个。</strong></p>
+    <p><strong>节点之间通过网路组成</strong>一个<strong>分布式系统</strong>，但是<strong>网络</strong>是<strong>一个不稳定因素</strong>，，<strong>不能因为网络出现问题了，整个系统都停用</strong>，<strong>所以分区容错性必须考虑</strong>。</p>
+
+    <p>而CP 和 AP<strong>一个是强一致性</strong>，<strong>一个是可用性</strong>，<strong>不可能实现</strong>某些<strong>节点出现故障</strong>后<strong>还能提供 最新的 数据</strong>。</p>
+    </p>
+  </div>
+
+  <div class="section" id="section5">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>分布式与微服务</h2>
+    <p>
+    <p>分布式系统和微服务<strong>都是为了</strong>更好地处理<strong>大规模、高并发</strong>的业务需求，但它们关注点略有不同。</p>
+
+    <ul><li><strong>分布式系统</strong>是一个<strong>更宽泛的概念</strong>，强调将<strong>整个系统的不同部分分布在多个计算机</strong>上。</li><li><strong>微服务是分布式系统的一种架构风格</strong>，<strong>关注于将系统划分为小的服务单元</strong>，每个<strong>服务都有自己的业务逻辑和数据存储。</strong></li></ul>
+
+    <p><strong>微服务是分布式</strong>系统的<strong>一种具体实现</strong>方式，通过服务自治提高系统<strong>灵活性和可维护性</strong></p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section6">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>HashMap添加元素</h2>
+    <p></p>
+  </div>
+
+  <div class="section" id="section7">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h2>HashMap添加元素</h2>
     <p></p>
   </div>

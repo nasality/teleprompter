@@ -429,6 +429,194 @@
     <br>
     <br>
     <br>
+    <h2>Spring Security介绍</h2>
+    <p>
+    <p><strong>Spring Security 是一个</strong>用于 Java 应用程序的<strong>安全框架</strong>，它提供了<strong>认证、授权</strong>和安全防护等功能。它的主要目标是提供一个简单且可扩展的<strong>安全解决方案</strong>，使开发人员可以轻松地将<strong>安全功能集成</strong>到应用程序中。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section16">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>Spring Security功能介绍</h2>
+    <p>
+    <p>Spring Security 提供了以下核心功能：</p>
+
+    <ul><li>认证（Authentication）：验证用户身份的过程。</li><li>授权（Authorization）：确定用户是否具有访问特定资源的权限。</li><li>防护攻击（Protection against attacks）：保护应用程序免受常见安全攻击，如跨站请求伪造（CSRF）和跨站脚本攻击（XSS）。</li><li>Servlet API 集成：与 Java Servlet API 无缝集成，提供 Web 安全功能。</li><li>可扩展性：通过自定义组件和扩展点，可以轻松地扩展 Spring Security。</li></ul>
+
+    </p>
+  </div>
+
+  <div class="section" id="section17">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>单例</h2>
+    <p>
+    <p>虽然Spring的单例和传统的单例模式在某种程度上<strong>有相似之处</strong>，但它们并<strong>不完全相同</strong>。</p>
+
+    <p>在<strong>传统的单例</strong>模式中，通过私有的构造函数和静态方法来确保类只有一个实例，并提供全局访问点。这通常是通过<strong>使用<code>private</code>构造函数</strong>和<code>static</code><strong>方法返回实例</strong>来实现的。</p>
+
+    <p>而在<strong>Spring中</strong>，单例是通过<strong>Spring容器</strong>来管理的。Spring的单例是指在<strong>Spring容器中一个Bean</strong>（组件）<strong>只有一个实例</strong>，由Spring容器负责创建和管理。这是通过Spring容器的IoC（控制反转）和DI（依赖注入）实现的。</p>
+
+    <p>Spring的单例模式有以下特点：</p>
+
+    <ol><li><strong>由Spring容器管理：</strong> <strong>单例由Spring容器负责创建和管理</strong>，不再由程序员显式地去控制单例的创建和获取。</li><li><strong>懒加载：</strong> Spring的<strong>单例默认是懒加载</strong>的，即在第一次被使用时才会被创建。这有助于提高系统的性能，减少启动时的开销。</li><li><strong>线程安全：</strong> Spring的单例是<strong>线程安全</strong>的，Spring容器负责处理并发访问的问题。</li></ol>
+
+    <p>在Spring中，单例是一种管理和创建Bean实例的机制，而不是传统的通过类构造函数来创建的单例模式。虽然概念上有一些相似之处，但实现机制和用途是不同的。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section18">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>定时任务</h2>
+    <p>
+    <p>在Spring框架中，定时任务可以通过<code>@Scheduled</code>注解来实现。使用Spring的定时任务模块，你可以方便地执行周期性的任务或者定时调度一些特定的方法。</p>
+
+    <p>下面是一个简单的例子：</p>
+
+    <p><code></code>`java
+      import org.springframework.scheduling.annotation.Scheduled;
+      import org.springframework.stereotype.Component;</p>
+
+    <p>@Component
+      public class MyScheduledTask {</p>
+
+    <pre><code>// 每隔一分钟执行一次
+@Scheduled(fixedRate = 60000)
+public void myScheduledMethod() {
+    System.out.println(&quot;定时任务执行，当前时间：&quot; + System.currentTimeMillis());
+}</code></pre>
+
+    <p>}
+      <code></code>`</p>
+
+    <p>上述代码中，<code>@Scheduled(fixedRate = 60000)</code>表示每隔一分钟执行一次<code>myScheduledMethod</code>方法。你可以根据需求选择不同的定时策略，例如<code>fixedDelay</code>、<code>cron</code>等，具体取决于你的业务需求。</p>
+
+    <p><strong>使用cron表达式：</strong></p>
+
+    <p>如果你需要更灵活的定时调度，可以使用cron表达式。例如，每天凌晨执行一次：</p>
+
+    <p><code>java
+      @Scheduled(cron = &quot;0 0 0 * * ?&quot;)
+      public void myScheduledMethod() {
+      System.out.println(&quot;定时任务执行，当前时间：&quot; + System.currentTimeMillis());
+      }
+    </code></p>
+
+    <p>这里的<code>&quot;0 0 0 * * ?&quot;</code>是一个cron表达式，表示每天零点执行一次。</p>
+
+    <p><strong>注意事项：</strong></p>
+
+    <ol><li><p>定时任务的方法需要使用<code>@Scheduled</code>注解标注，并且该<strong>类需要被Spring容器管理</strong>，可以使用<code>@Component</code>或者其他Spring容器管理的注解进行标注。</p></li><li><p><strong>定时任务的方法不应该有返回值</strong>，因为Spring对于定时任务的返回值并不关心。</p></li><li><p><strong>定时任务的方法不能有参数</strong>，因为在调度时，Spring框架无法提供参数。</p></li><li><p>使用<code>fixedRate</code>或<code>fixedDelay</code>时，任务的执行时间不应该超过任务的间隔时间，否则可能会出现任务重叠。</p></li></ol>
+
+    <p>以上是一个简单的介绍，实际使用时，可以根据具体需求选择适当的定时策略，并结合业务逻辑实现相应的定时任务。</p>
+
+    <p>如果你希望每隔十五分钟执行一次定时任务，你可以使用如下的cron表达式：</p>
+
+    <p><code>java
+      @Scheduled(cron = &quot;0 0/15 * * * ?&quot;)
+      public void myScheduledMethod() {
+      System.out.println(&quot;定时任务执行，当前时间：&quot; + System.currentTimeMillis());
+      }
+    </code></p>
+
+    <p>这里的<code>&quot;0 0/15 * * * ?&quot;</code>表示：</p>
+
+    <ul><li>第一位：秒钟（0-59）</li><li>第二位：分钟（0-59）</li><li>第三位：小时（0-23）</li><li>第四位：日（1-31）</li><li>第五位：月（1-12）</li><li>第六位：星期（0-7，其中0和7都表示星期日）</li><li>第七位：年份（可选）</li></ul>
+
+    <p><code>0/15</code>表示每隔15分钟触发一次，所以这个cron表达式的含义是每隔十五分钟执行一次定时任务。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section19">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>常用注解</h2>
+    <p>
+    <p>Spring Boot 提供了许多注解，用于简化开发过程、配置应用程序以及实现各种功能。以下是一些常用的 Spring Boot 注解：</p>
+
+    <h3>1. <strong>核心注解：</strong></h3>
+
+    <ul><li><p><strong><code>@SpringBootApplication</code>：</strong>
+      用于标识一个 Spring Boot 主应用程序类。通常与 <code>@Configuration</code>、<code>@EnableAutoConfiguration</code>、<code>@ComponentScan</code> 一起使用。</p></li><li><p><strong><code>@Controller</code>：</strong>
+      用于定义控制器类，处理 HTTP 请求，返回html页面。</p></li><li><p><strong><code>@RestController</code>：</strong>  </p><p>相当于Controller + ResponseBody，通过这种方式返回JSON数据，不能返回html页面。</p></li><li><p><strong><code>@Service</code>：</strong>
+      用于标识业务逻辑层的服务类。</p></li><li><p><strong><code>@Repository</code>：</strong>
+      用于标识数据访问层的类，通常与数据库交互。</p></li><li><p><strong><code>@Component</code>：</strong>
+      通用的组件注解，可以用于标识任何 Spring 管理的组件。</p></li></ul>
+
+    <h3>2. <strong>Web 相关注解：</strong></h3>
+
+    <ul><li><p><strong><code>@RequestMapping</code>：</strong>
+      用于映射 HTTP 请求的路径，可用在类和方法上。</p></li><li><p><strong><code>@GetMapping</code>、<code>@PostMapping</code>、<code>@PutMapping</code>、<code>@DeleteMapping</code>：</strong>
+      简化了常见 HTTP 方法的映射，分别对应 GET、POST、PUT、DELETE。</p></li><li><p><strong><code>@RequestParam</code>：</strong>
+      用于提取请求中的参数。</p></li><li><p><strong><code>@PathVariable</code>：</strong>
+      用于提取路径中的参数。</p></li></ul>
+
+    <h3>3. <strong>数据访问注解：</strong></h3>
+
+    <ul><li><p><strong><code>@Entity</code>：</strong>
+      用于定义 JPA 实体类。</p></li><li><p><strong><code>@Repository</code>：</strong>
+      标识一个 DAO 组件。</p></li><li><p><strong><code>@Transactional</code>：</strong>
+      声明一个事务方法。</p></li></ul>
+
+    <h3>4. <strong>配置注解：</strong></h3>
+
+    <ul><li><p><strong><code>@Configuration</code>：</strong>
+      声明一个配置类，通常与 <code>@Bean</code> 一起使用。</p></li><li><p><strong><code>@Bean</code>：</strong>
+      用于定义一个 Bean。</p></li><li><p><strong><code>@Value</code>：</strong>
+      注入配置文件中的值。</p></li></ul>
+
+    <h3>5. <strong>其他常用注解：</strong></h3>
+
+    <ul><li><p><strong><code>@Autowired</code>：</strong>
+      自动注入依赖。</p></li><li><p><strong><code>@Qualifier</code>：</strong>
+      与 <code>@Autowired</code> 一起使用，指定要注入的 Bean 的名称。</p></li><li><p><strong><code>@ComponentScan</code>：</strong>
+      扫描指定包下的组件。</p></li><li><p><strong><code>@Conditional</code>：</strong>
+      根据条件是否满足来决定是否创建 Bean。</p></li><li><p><strong><code>@Slf4j</code>：</strong>
+      生成 SLF4J 日志对象。</p></li></ul>
+
+    <p>这只是一小部分 Spring Boot 注解，Spring Boot 提供了许多其他有用的注解，具体使用取决于项目的需求和开发者的选择。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section20">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <h2>HashMap添加元素</h2>
     <p></p>
   </div>

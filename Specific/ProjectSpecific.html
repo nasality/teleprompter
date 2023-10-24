@@ -66,15 +66,13 @@
     <br>
     <h2>为什么选择MongoDB</h2>
     <p>
-    <p>由于评论的特殊性，它需要如下能力:</p>
+      <p>如果使用MySQL这种关系型数据库，查询数据时会涉及到多表关联查询，并发的情况下有损性能</p>
 
-    <pre> 【字段扩展】不同的评论存储的字段有一定差异，需要支持动态的自动扩展。
+      <p>对于评论涉及到的字段，我想让他有更高的扩展性</p>
 
-  【海量数据】作为公司中台服务，数据量随着业务方的增多成倍增长，需要具备快速便捷的水平扩展和迁移能力。
+      <p>抖音评论就先后增加了两个属性：归属地和评论不喜欢</p>
 
-  【高可用】作为中台产品，需要提供快速和稳定的读写能力，能够读写分离和自动恢复
-
-  而评论业务不涉及用户资产，对事务的要求性不高。因此我们选用了MongoDB集群作为了最底层的数据存储方式。</pre>
+      <p>使用MongoDB不需要提前建立表结构</p>
 
     </p>
   </div>
@@ -212,8 +210,7 @@
 
      <p><strong>不选择Redis和MySQL的原因：</strong>评论管理模块，如果使用 Redis KEY VALUE这种结构实现，不能很好的满足基础的 CRUD 操作，比如: 评论基本信息查询、分页展示、时间排序、评论状态修改等等，如果<strong>使用传统的关系型数据库实现的话，会涉及到频繁的多表连接查询，在高并发场景下非常消耗性能</strong>。综合考虑下，使用MongoDB 进行实现，</p>
 
-     <p><strong>具体实现：</strong>我们在MongoDB 中创建了4张表 评论表、评论点赞表、评论回复表、 评论回复表、评论回复点赞表
-       ap<em>comment ap</em>comment like  ap<em>comment</em>repay  ap_comment repay like </p>
+       <ol><li>不需要提前创建表，可以直接写入数据</li><li>可以轻松的扩展字段</li><li>查询速度快（不需要关联查询，没有事务）</li></ol>
 
      <p><strong>查询文章评论流程，是一个分页查询，默认查询前 10条评论</strong>，使用MongoDB 的管道聚合查询的方式，将评论点赞、评论回复信息一并查询出来，返回给前端展示。后续用户发表评论，评论回复，评论点赞，都是针对MondoDB 中的数据进行更新的。</p>
 
@@ -288,54 +285,31 @@
      <br>
     <h2>微信登录</h2>
     <p>
-     <p>OAuth是一个开放授权标准，允许用户让第三方应用访问该用户在其它网站上存储的资源，而无需将用户名和密码提供给第三方应用。</p>
+       <p><strong>使用OAuth来实现微信登录</strong>。<strong>OAuth是</strong>一个开放<strong>授权标准</strong>，允许用户让<strong>第三方应用访问</strong>该<strong>用户在微信上存储的资源</strong>，<strong>不用提供用户名和密码给第三方应用</strong>。</p>
 
-     <p>提供一个令牌，而不是用户名和密码来访问他们存放在特定服务提供者的数据。</p>
+       <p><strong>我们这里主要使用OAuth2.0</strong>，<strong>用户通过扫描我们网页应用的二维码并进行授权登录</strong>，具体步骤：</p>
 
-     <p>我们这里主要模拟使用OAuth2.0，用户通过扫描我们网页应用的二维码并进行授权登录，步骤：</p>
+       <p>微信扫码登录通常涉及以下步骤：</p>
 
-     <ol><li><p>在<strong>微信开放平台注册开发者帐号</strong>，并拥有一个已审核通过的网站应用，并获得相应的AppID和AppSecret，申请微信登录且通过审核后，可开始接入流程。</p></li><li><p><strong>提交网站应用审核</strong>，等微信审核通过，我们即可<strong>获得我们需要的网页应用的appid和AppSecret</strong>，<strong>并配置后回调的域名</strong>。</p></li><li><p>由于我们这里要<strong>使用微信登录的接口</strong>，所以我们还需要向微信提出认证，只有认证了才能使用微信那些高级的接口。</p></li></ol>
+       <ol><li><p><strong>创建微信开发者账号：</strong> 首先，你需要<strong>在微信开放平台注册一个开发者账号</strong>，并创建一个应用。</p></li><li><p><strong>获取应用ID和密钥：</strong> 在<strong>创建应用</strong>后，你会<strong>获得一个应用ID</strong>（AppID）<strong>和应用密钥</strong>（AppSecret）。这对信息在后续的开发中需要使用。</p></li><li><p>1、<strong>用户点击网站微信登陆图标</strong>。</p><p>2、<strong>网站带上AppID和AppSecret</strong>和回调<a href="https://cloud.tencent.com/act/pro/domain-sales?from_column=20065&amp;from=20065">域名</a>参数<strong>请求微信OAuth2.0授权登陆</strong>。<strong>通过后，微信返回二维码供用户扫码。</strong>（回调参数是用于指定用户在授权后跳转回你网站的地址。这个地址通常是你网站的一个特定页面）</p><p>4、<strong>用户扫码确定授权</strong>。</p><p>5、<strong>微信带上code参数</strong>回调<strong>访问java后端相关接口</strong>。</p><p>6、java<strong>后端获取到code后，在带上带上AppID和AppSecret和code再去调微信接口</strong>。</p><p>7、<strong>获取access_token后就可以解析用户的一些基本信息</strong>，比如：微信用户头像、用户名、性别、城市等一些基本参数。</p></li><li><p><strong>后端处理授权码：</strong> 你的后端服务器接收到授权码后，可以使用该授权码请求微信服务器，获取用户的唯一标识（OpenID）等信息。</p></li><li><p><strong>验证用户身份：</strong> 获取用户信息后，你可以根据OpenID等信息在你的系统中创建或验证用户身份。</p></li><li><p><strong>用户登录：</strong> 如果用户在你的系统中已存在，你可以将其登录；否则，可以根据微信提供的信息创建新用户。</p></li></ol>
 
-     <p>授权流程说明：</p>
+       <p><strong>微信OAuth2.0授权登录目前支持authorization_code模式</strong></p>
 
-     <p>微信OAuth2.0授权登录让微信用户使用微信身份安全登录第三方应用或网站，在微信用户授权登录已接入微信OAuth2.0的第三方应用后，第三方可以获取到用户的接口调用凭证（access<em>token），通过access</em>token可以进行微信开放平台授权关系接口调用，从而可实现获取微信用户基本开放信息和帮助用户实现基础开放功能等。</p>
+       <p>假如前面已经获得code。我们可以<strong>通过code参数去获取用户openid和access_token,进而获得用户的信息。</strong></p>
 
-     <p><strong>微信OAuth2.0授权登录目前支持authorization_code模式</strong></p>
-       <p><strong>授权码</strong></p>
-       <p>1、授权码</p>
+       <p><strong>通过access_token获取用户的基本信息</strong></p>
 
-       <p>OAuth2.0四种授权中授权码方式是最为复杂，但也是安全系数最高的，比较常用的一种方式。这种方式适用于兼具前后端的Web项目，因为有些项目只有后端或只有前端，并不适用授权码模式。</p>
+       <p>ttps://api.weixin.qq.com/sns/userinfo?access<em>token=ACCESS</em>TOKEN&amp;openid=OPENID</p>
 
-       <p>以用WX登录掘金为例，详细看一下授权码方式的整体流程</p>
+       <ol><li><p>普通用户的标识，对当前开发者帐号唯一</p></li><li><p>普通用户昵称</p></li><li><p>普通用户性别</p></li><li><p>普通用户个人资料填写的省份</p></li><li><p>普通用户个人资料填写的城市</p></li><li><p>国家</p></li><li><p>用户头像</p></li></ol>
 
-       <p>用户选择WX登录掘金，掘金会向WX发起授权请求，接下来 WX询问用户是否同意授权（常见的弹窗授权）。response<em>type 为 code 要求返回授权码，scope 参数表示本次授权范围为只读权限，redirect</em>uri 重定向地址。</p>
+       <p>前端：引入JS路径</p>
 
-       <p>用户同意授权后，WX 根据 redirect_uri重定向并带上授权码。</p>
+       <p><strong>存储到数据库中：</strong>每个用户都有一个唯一的union_id</p>
 
-       <p>当掘金拿到授权码（code）时，带授权码和密匙等参数向WX申请令牌。grant<em>type表示本次授权为授权码方式 authorization</em>code ，获取令牌要带上客户端密匙 client_secret，和上一步得到的授权码 code。</p>
+       <p>如果数据库不存在该id，就将用户的数据存储到用户表中</p>
 
-       <p>最后 WX 收到请求后向 redirect<em>uri 地址发送 JSON 数据，其中的access</em>token 就是令牌。</p>
-
-       <p>拿到令牌可以调用 WX API 请求数据了，那令牌该怎么用呢？</p>
-
-       <p>每个到达WX的请求都必须带上 token，将 token 放在 http 请求头部的一个Authorization字段里。</p>
-
-     <p>第三方发起微信授权登录请求，微信用户允许授权第三方应用后，微信会拉起应用或重定向到第三方网站，并且带上授权临时票据code参数；</p>
-
-     <ol><li><p>通过code参数加上AppID和AppSecret等，通过API换取access_token；</p></li><li><p>通过access_token进行接口调用，获取用户基本数据资源或帮助用户实现基本操作。</p></li></ol>
-
-     <p><strong>当我们通过微信的认证，获取到了appid和AppSecret，并配置了回调的域名</strong>。我们就已经可以获取属于我们网页的二维码了，获取的方式很简单，<strong>只需打开一个微信的链接，加上我们的appid和回调域名即可在网页上面打开二维码</strong>，<strong>用户用微信客户端扫码并授权登录之后即会跳转到我们配置的回调域名下</strong>。</p>
-
-     <p>通过使用微信客户端的扫一扫功能，扫描该二维码，即会跳转到上面填写redirect_uri所在的地址上。假如用户同意授权，这里就获得了微信返回的code参数了。</p>
-
-     <p>假如前面已经获得code。我们可以<strong>通过code参数去获取用户openid和access_token,进而获得用户的信息。</strong></p>
-
-     <p>通过access_token获取用户的基本信息</p>
-
-     <p>ttps://api.weixin.qq.com/sns/userinfo?access<em>token=ACCESS</em>TOKEN&amp;openid=OPENID</p>
-
-     <ol><li><p>普通用户的标识，对当前开发者账号唯一</p></li><li><p>普通用户昵称</p></li><li><p>普通用户性别</p></li><li><p>普通用户个人资料填写的省份</p></li><li><p>普通用户个人资料填写的城市</p></li><li><p>国家</p></li><li><p>用户头像</p></li></ol>
-
+       <p><strong>向用户角色关系表中存储数据：</strong>  id 是UUID、学生角色</p>
     </p>
   </div>
 
@@ -463,6 +437,7 @@
      <br>
     <h2>接口限流</h2>
     <p>
+       <ol><li><strong>前端限流：</strong>在抢购开始前，抢购按钮置灰，抢购开始后再把按钮置为可用状态，在点击后，按钮再置灰几秒。</li><li><strong>后端限流：</strong></li></ol>
        <p>使用<strong>注解、AOP和Redis</strong>来实现接口限流，限流算法采用简单计数器法，可以按照以下步骤进行：</p>
 
        <ol><li><p>创建一个自定义注解：通过<strong>创建一个自定义注解（例如<code>@RateLimit</code>）</strong>，<strong>用这个注解标记需要进行限流的接口方法。</strong></p></li><li><p>编写切面类：创建一个切面类，使用AOP技术拦截带有<code>@RateLimit</code>注解的方法。</p></li><li><p>切面逻辑实现：在切面类中，编写逻辑来实现接口的限流。具体步骤如下：</p><ul><li><p>使用类名加方法名作为标识符。</p><p>/<strong> 获取类名和方法名 </strong>/
@@ -520,13 +495,1083 @@
      <br>
      <br>
      <br>
-    <h2></h2>
+    <h2>RBAC</h2>
     <p>
+       <p>RBAC 即<strong>基于角色的权限访问控制</strong>（Role-Based Access Control）。这是一种通过<strong>角色关联权限</strong>，<strong>角色同时又关联用户的授权</strong>的方式。</p>
 
+       <p><strong>一个用户可以拥有若干角色</strong>，<strong>每一个角色又可以被分配若干权限</strong>，这样就构造成“用户-角色-权限” 的授权模型。在这种模型中，用户与角色、角色与权限之间构成了多对多的关系</p>
+
+       <p>权限与角色相关联，<strong>用户通过成为某些角色，获得这些角色的权限</strong>。这就极大地<strong>简化了权限的管理</strong>。</p>
+
+       <h3>表说明：</h3>
+
+       <ul><li><strong>roles表：</strong> 存储系统中定义的<strong>角色</strong>。</li><li><strong>permissions表：</strong> 存储系统中定义的<strong>权限</strong>。</li><li><strong>users表：</strong> 存储系统中的<strong>用户信息</strong>。</li><li><strong>user_roles表：</strong> 存储<strong>用户与角色的关联关系</strong>。</li><li><strong>role_permissions表：</strong> 存储<strong>角色与权限的关联关系</strong>。</li></ul>
     </p>
   </div>
 
    <div class="section" id="section15">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>IP地址</h2>
+    <p>
+       <p>ip2region - 是一个离线IP地址库</p>
+
+       <ol><li><p><strong>获取ip2region数据文件：</strong> 首先，您需要获得<strong>ip2region的数据文件</strong>（通常是一个名为<code>ip2region.db</code>的二进制文件），这个文件<strong>包含</strong>了<strong>IP地址</strong>范围和<strong>相关信息</strong>的映射数据。</p></li><li><p><strong>导入相关依赖：</strong> 在Java项目中，您需要导入相关依赖以便使用ip2region库。一个常见的方式是<strong>将ip2region库的JAR文件添加到项目中</strong>。</p></li><li><p><strong>加载ip2region数据库：</strong> 在您的代码中，您需要加载ip2region的数据文件。通常，您可以通过提供数据文件的路径来加载数据库。</p><p><code>java
+           String dbFilePath = &quot;path/to/ip2region.db&quot;;
+           DbConfig config = new DbConfig();
+           DbSearcher dbSearcher = new DbSearcher(config, dbFilePath);
+       </code></p></li><li><p><strong>解析IP地址：</strong> 可以<strong>通过请求头</strong>中的<code>X-Forwarded-For</code>或<code>Remote-Addr</code>等字段<strong>获取用户的IP地址</strong></p><p><code>java
+           String ipAddress = &quot;8.8.8.8&quot;; // 要解析的IP地址
+           DataBlock dataBlock = dbSearcher.memorySearch(ipAddress);
+           String region = dataBlock.getRegion(); // 获取地区信息
+       </code></p></li><li><p><strong>解析结果处理：</strong> 解析<strong>结果会以字符串形式返回</strong>，通常包含<strong>国家、省份、城市</strong>、网络服务商等信息。您可以对解析结果进行进一步处理，提取需要的信息。</p><p><code>java
+           String[] info = region.split(&quot;\\|&quot;); // 解析结果以 &quot;|&quot; 分隔
+           String country = info[0]; // 国家信息
+           String region = info[2]; // 省份信息
+           String city = info[3]; // 城市信息
+           String isp = info[4]; // 网络服务商信息
+       </code></p></li></ol>
+
+       <h1>功能细节</h1>
+
+    </p>
+  </div>
+
+   <div class="section" id="section16">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>分库分表</h2>
+    <p>
+       <p>如果你希望按照不同的业务进行分库，可以考虑以下步骤：</p>
+
+       <ol><li><p><strong>创建不同的数据库：</strong> 针对不同的业务创建不同的数据库，每个数据库独立负责一个业务模块。</p></li><li><p><strong>配置多数据源：</strong> 在项目的配置文件中配置多个数据库数据源，每个数据源对应一个数据库。每个数据库可以独立配置连接信息、用户名、密码等。</p><p><code>yaml
+           spring:
+           shardingsphere:
+           datasource:
+           names: articleDb, systemDb
+           articleDb:
+           driver-class-name: com.mysql.cj.jdbc.Driver
+           url: jdbc:mysql://localhost:3306/article_db
+           username: root
+           password: root
+           systemDb:
+           driver-class-name: com.mysql.cj.jdbc.Driver
+           url: jdbc:mysql://localhost:3306/system_db
+           username: root
+           password: root
+       </code></p></li><li><p><strong>配置分库规则：</strong> 配置分库规则，指定每个业务模块使用哪个数据库。可以使用 ShardingSphere 提供的分库算法或自定义分库算法。</p><p><code>yaml
+           spring:
+           shardingsphere:
+           sharding:
+           default-database-strategy:
+           inline:
+           sharding-column: business_type
+           algorithm-expression: systemDb
+           tables:
+           article:
+           actualDataNodes: articleDb.article$-&gt;{0..1}
+           tableStrategy:
+           standard:
+           shardingColumn: user_id
+           preciseAlgorithmClassName: com.example.PreciseShardingAlgorithm
+       </code></p><p>这里的配置中使用 <code>business_type</code> 字段进行分库，根据业务类型选择不同的数据库。</p></li><li><p><strong>业务代码适配：</strong> 在业务代码中，根据业务类型选择合适的数据源。可以通过配置文件、注解等方式实现。</p><p><code></code>`java
+           @Service
+           public class ArticleService {</p><p>   @Autowired
+           @Qualifier(&quot;articleDbDataSource&quot;)
+           private DataSource dataSource;</p><p>   // 业务代码...
+           }
+           <code></code>`</p></li></ol>
+
+       <p>通过这种方式，你可以根据不同的业务将数据存储在不同的数据库中，实现更灵活的分库配置。在实际应用中，你可能需要根据具体的业务需求调整分库分表的配置。</p>
+
+    </p>
+  </div>
+
+   <div class="section" id="section17">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>分页查询</h2>
+    <p>
+       <p>分页使用到了MyBatis-Plus的分页插件，<strong>在 MyBatis-Plus 的配置类中，配置分页插件</strong>：</p>
+
+       <ol><li><p><strong>通过@Bean:注解向 Spring 容器注册一个 <code>paginationInterceptor</code>  Bean，来开启分页插件。</strong></p></li><li><p><strong>会涉及到一个和分页功能有关的Page&lt;T&gt;`类</strong>，构造分页参数的方法：</p><p><code>java
+           Page&lt;UserEntity&gt; page = new Page&lt;&gt;(1, 1);
+       </code></p><ul><li><p>在构造参数中添加页码 和 分页大小。</p><p>&gt; 使用的时候只需要将创建的<code>Page</code>对象作为第一个参数传入即可。</p></li></ul></li></ol>
+
+       <p><code>
+           @Data
+           public class BaseRequest&lt;T&gt; implements Serializable {
+           @ApiModelProperty(value=&quot;页码&quot;,required = true)
+           private long current;
+           @ApiModelProperty(value = &quot;每页有多少数据&quot;,required = true)
+           private long size;
+           封装分页对象
+           @ApiModelProperty(hidden = true)
+           public IPage&lt;T&gt; getPage(){
+           return new Page&lt;T&gt;().setCurrent(this.current).setSize(this.size);
+           }
+           }
+       </code></p>
+
+       <p><strong>写一个基本请求封装类</strong>，包含<strong>页码和分页</strong>大小，并且包含一个方法可以获取Page对象。</p>
+
+       <p><strong>其它请求封装类继承这个类</strong>来<strong>实现分页</strong>，在查询时<strong>将Page对象作为第一个参数</strong>，<strong>MyBatis-Plus就会自动</strong>的<strong>在查询语句中添加limit</strong>。<strong>查询结果还是用Page对象封装</strong>，<strong>会包含分页信息</strong>。</p>
+
+    </p>
+  </div>
+
+   <div class="section" id="section18">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>异常处理</h2>
+    <p>
+       <p><strong>1. 自定义异常类型：</strong></p>
+
+       <p>自定义异常类型枚举类，包括异常信息，状态码：</p>
+
+       <p><code></code>`java
+           public class CustomException extends RuntimeException {</p>
+
+       <pre><code>private String errorCode;
+
+public CustomException(String errorCode, String message) {
+    super(message);
+    this.errorCode = errorCode;
+}
+
+public String getErrorCode() {
+    return errorCode;
+}</code></pre>
+
+       <p>}
+           <code></code>`</p>
+
+       <p><strong>3. 可预知的异常由程序员主动抛出：</strong></p>
+
+       <p>在你的业务代码中，当有可预知的异常时，可以使用 <code>throw new CustomException(&quot;yourErrorCode&quot;, &quot;Your error message&quot;);</code> 来抛出异常。</p>
+
+       <ol><li><strong>由 SpringMVC 统一捕获异常：</strong></li></ol>
+
+       <p><strong>通过@ControllerAdvice注解，创建一个异常处理类，来实现统一异常处理</strong>。  将异常转换为统一格式：</p>
+
+       <p><code></code>`java
+           import org.springframework.http.HttpStatus;
+           import org.springframework.http.ResponseEntity;
+           import org.springframework.web.bind.annotation.ControllerAdvice;
+           import org.springframework.web.bind.annotation.ExceptionHandler;</p>
+
+       <p>@ControllerAdvice
+           public class GlobalExceptionHandler {</p>
+
+       <pre><code>@ExceptionHandler(Exception.class)
+public ResponseEntity&lt;ErrorResponse&gt; handleException(Exception e) {
+    // 在这里将Exception转换为自定义格式ErrorResponse
+    ErrorResponse errorResponse = new ErrorResponse(&quot;UNEXPECTED_ERROR&quot;, &quot;An unexpected error occurred&quot;);
+    return new ResponseEntity&lt;&gt;(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+}</code></pre>
+
+       <p>}
+           <code></code>`</p>
+
+       <p>一个简单的包含错误代码和错误信息的类</p>
+
+       <p><code></code>`java
+           public class ErrorResponse {</p>
+
+       <pre><code>private String errorCode;
+private String errorMessage;
+
+// 构造函数、getter和setter省略</code></pre>
+
+       <p>}
+           <code></code>`</p>
+
+       <p><strong>5. 统一信息格式返回给客户端：</strong></p>
+
+       <p>确保你的控制器方法中抛出的异常要么是你自定义的异常类型，要么是运行时异常，然后<strong>全局异常处理类会统一处理成指定格式的 <code>ErrorResponse</code> 并返回给客户端。</strong></p>
+
+       <p>这样，无论是可预知的异常还是不可预知的异常，客户端都会收到统一的信息格式（错误代码+错误信息）。希望这个解释能够帮助你实现所需的异常处理逻辑！</p>
+
+    </p>
+
+   <div class="section" id="section19">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>介绍</h2>
+    <p>
+       <p>这是一个基于Spring Cloud Alibaba的微服务项目，主要面向校园用户，用户可以根据自己的需求在这个平台上发布不同类型的信息。拆分系统为文章、问答、系统、网关、评论等独立的服务。项目中使用到了Nacos、OpenFigen、Gateway微服务组件。在用户认证方面使用了JWT+OAuth2。</p>
+
+       <p>除了基本的功能之外，这个项目：</p>
+
+       <ol><li>支持微信扫码登录</li><li>使用RBAC权限模型来管理用户权限</li><li>用户的行为分析</li><li>基于文章的评论功能、文章热度计算</li><li>在发布文章或者评论时显示用户的省份信息</li></ol>
+
+    </p>
+  </div>
+
+   <div class="section" id="section20">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>垂直分表</h2>
+    <p>
+       <h3>文章表</h3>
+
+       <p><strong>文章表拆分原则</strong>：用户在平台<strong>流览文章</strong>时，<strong>首先看到的是文章的基本信息</strong>，如果<strong>对文章感兴趣时才会继续查看</strong>该<strong>文章的详细描述</strong>。所以，文章<strong>基本信息的访问频次要高于文章详细描述信息</strong>，表拆分如下：</p>
+
+       <p>所以把文章信息表垂直拆分成 - &gt; 文章基本信息表 + 文章详情表</p>
+
+       <h3>文章基本信息表：</h3>
+
+       <ol><li><p><strong>文章ID（article_id）：</strong></p><ul><li>类型：字符串型（VARCHAR）</li><li><p>长度：无符号整数，根据需求确定具体长度。</p></li></ul></li><li><p><strong>标题（title）：</strong></p><ul><li>类型：字符串型（VARCHAR）</li><li><p>长度：根据文章标题的平均长度，设定适当的值，比如 VARCHAR(255)。</p></li></ul></li><li><p><strong>作者（author）：</strong></p><ul><li>类型：字符串型（VARCHAR）</li><li><p>长度：根据作者名字的平均长度，设定适当的值，比如 VARCHAR(100)。</p></li></ul></li><li><p><strong>发布时间（publish_time）：</strong></p><ul><li><p>类型：日期时间型（DATETIME）或时间戳（TIMESTAMP）。</p></li></ul></li><li><p><strong>阅读量（views）：</strong></p><ul><li><p>类型：整数型（INT）。</p></li></ul></li><li><p><strong>点赞数（likes）：</strong></p><ul><li><p>类型：整数型（INT）。</p></li></ul></li><li><p><strong>类别（category）：</strong></p><ul><li>类型：字符串型（VARCHAR）</li><li>长度：根据类别名字的平均长度，设定适当的值，比如 VARCHAR(50)。</li></ul></li></ol>
+
+       <h3>文章详情表：</h3>
+
+       <ol><li><p><strong>文章ID（article_id）：</strong></p><ul><li><p>类型：字符串型（VARCHAR）</p></li></ul></li><li><p><strong>内容（content）：</strong></p><ul><li>类型：文本型（TEXT）<code>TEXT</code>: 最大长度为 65,535 字节（64 KB）或长文本型（LONGTEXT），具体选择取决于文章内容的长度，一般情况下 TEXT 足够存储大部分文章内容。</li></ul></li></ol>
+
+       <p>上述类型和长度的选择是基于一般性的建议，实际项目中应根据业务需求和数据库系统的特性进行调整。例如，数据库系统的类型支持情况、存储引擎的选择等都会影响字段的具体定义。在设计时需要根据具体情况权衡存储效率和查询性能。</p>
+
+    </p>
+  </div>
+
+   <div class="section" id="section21">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>密码加密</h2>
+    <p>
+       <p>通过BCrptPasswordEncoder加密，每次生成的加密密码会变化。</p>
+
+       <p><code>BCryptPasswordEncoder</code> 是 Spring Security 提供的一个密码编码器，它使用 BCrypt 强哈希函数来存储密码，以提高密码的安全性。BCrypt 是一种单向哈希函数，通过加盐（salt）和可调整的工作因子（cost factor）来防止彩虹表攻击。</p>
+
+       <h3>加密密码：</h3>
+
+       <ol><li><p><strong>生成随机的盐：</strong></p><ul><li><p>在加密密码时，<code>BCryptPasswordEncoder</code> 会生成一个随机的盐。</p></li></ul></li><li><p><strong>计算哈希值：</strong></p><ul><li><p>使用密码和生成的盐，通过 BCrypt 算法计算密码的哈希值。</p></li></ul></li><li><p><strong>存储哈希值：</strong></p><ul><li>存储密码的哈希值和盐。</li></ul></li></ol>
+
+       <h3>验证密码：</h3>
+
+       <ol><li><p><strong>从数据库中获取存储的哈希值和盐：</strong></p><ul><li><p>当用户登录时，从数据库中获取存储的密码哈希值和盐。</p></li></ul></li><li><p><strong>使用相同的盐和密码计算哈希值：</strong></p><ul><li><p>使用从数据库中获取的盐和用户输入的密码，通过 BCrypt 算法计算哈希值。</p></li></ul></li><li><p><strong>比较计算出的哈希值和存储的哈希值：</strong></p><ul><li>将计算出的哈希值与存储的哈希值进行比较。</li></ul></li></ol>
+
+       <h3>示例代码：</h3>
+
+       <p><code></code>`java
+           import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;</p>
+
+       <p>public class PasswordEncoderExample {</p>
+
+       <pre><code>public static void main(String[] args) {
+    // 创建BCryptPasswordEncoder
+    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // 用户注册时加密密码
+    String rawPassword = &quot;userPassword&quot;;
+    String encodedPassword = passwordEncoder.encode(rawPassword);
+
+    // 将加密后的密码存储到数据库
+
+    // 用户登录时验证密码
+    String userInputPassword = &quot;userPassword&quot;; // 用户输入的密码
+    boolean matches = passwordEncoder.matches(userInputPassword, encodedPassword);
+
+    if (matches) {
+        System.out.println(&quot;密码匹配&quot;);
+    } else {
+        System.out.println(&quot;密码不匹配&quot;);
+    }
+}</code></pre>
+
+       <p>}
+           <code></code>`</p>
+
+       <p>在上面的代码中，<code>passwordEncoder.encode(rawPassword)</code> 用于注册时加密密码，而 <code>passwordEncoder.matches(userInputPassword, encodedPassword)</code> 用于验证用户登录时输入的密码。<code>matches</code> 方法会返回 <code>true</code> 表示密码匹配，否则返回 <code>false</code>。这是通过比较用户输入密码的哈希值与存储的哈希值实现的。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section22">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>策略模式</h2>
+    <p>
+       <p>一个登录接口有多种实现类，所有的登录验证都需要实现这个接口，在实现类里指定具体的实现方法（微信登录、密码登录），每种实现有共同的封装类作为参数</p>
+
+       <p>为实现类指定相应的@Service（“服务名”）指定Bean的名字。</p>
+
+       <p>通过登录类型，按照服务名从Spring 容器中取出相应的Bean</p>
+
+       <p>AuthService = applicationContext.getBean(beanName, AuthService.class);</p>
+
+       <p>执行Bean中的方法进行认证。</p>
+
+       <p>通过这个Bean实现具体的登录认证功能。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section23">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>内网穿透</h2>
+    <p>
+       <p>微信给我们重定向发授权码，需要访问外网地址。加一个中介，微信访问内网穿透服务器（netapp），内网穿透服务器访问我们的认证服务。</p>
+
+       <p>当我们在微信中实现 OAuth2 授权登录时，通常需要进行用户重定向以获取授权码。然而，由于微信服务器<strong>无法直接访问我们内部网络中的认证服务</strong>，我们需要通过一种中介方式来实现这一过程。</p>
+
+       <p>为了解决这个问题，我们引入了内网穿透服务器（例如 NetApp）。<strong>内网穿透服务器充当了一个桥梁</strong>，使得微信服务器能够通过互联网访问我们内部网络中的认证服务。整个过程如下：</p>
+
+       <ol><li><p><strong>用户触发授权：</strong></p><ul><li><p>用户在微信中触发了授权登录操作，<strong>微信服务器生成授权码并重定向到我们事先配置好的外网地址</strong>。</p></li></ul></li><li><p><strong>中介过程：</strong></p><ul><li><p>重定向的外网地址实际上是指向了内网穿透服务器，微信服务器向内网穿透服务器发起请求，请求中包含了授权码等信息。</p></li></ul></li><li><p><strong>内网穿透服务器转发：</strong></p><ul><li><p><strong>内网穿透服务器接收到微信服务器的请求后</strong>，通过事先建立的通道或协议，<strong>将请求转发到我们内部网络中的认证服务。</strong></p></li></ul></li><li><p><strong>认证服务处理请求：</strong></p><ul><li><p>我们的认证服务接收到来自内网穿透服务器的请求，验证授权码等信息，完成用户认证过程。</p></li></ul></li><li><p><strong>认证结果返回：</strong></p><ul><li><p>认证服务将认证结果返回给内网穿透服务器。</p></li></ul></li><li><p><strong>内网穿透服务器返回给微信：</strong></p><ul><li>内网穿透服务器将认证结果再次返回给微信服务器，完成整个授权登录过程。</li></ul></li></ol>
+
+       <p>通过引入内网穿透服务器，我们成功地实现了微信服务器与内部网络中认证服务之间的通信，允许微信用户在应用中进行授权登录操作。这种中介方式不仅解决了外部网络无法直接访问内部服务的问题，还提供了一定的安全性，确保授权信息在传输过程中得到保护。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section24">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>发送请求</h2>
+    <p>
+       <p><code>RestTemplate</code> 是 Spring Framework 提供的用于发送 HTTP 请求的模板类。它提供了一系列方便的方法，可以发送 GET、POST、PUT、DELETE 等各种类型的请求。以下是使用 <code>RestTemplate</code> 发送请求的详细介绍：</p>
+
+       <h3>1. 创建 <code>RestTemplate</code> 实例：</h3>
+
+       <p><code>java
+           RestTemplate restTemplate = new RestTemplate();
+       </code></p>
+
+       <h3>2. 发送 GET 请求：</h3>
+
+       <p><code>java
+           String result = restTemplate.getForObject(&quot;https://api.example.com/data&quot;, String.class);
+       </code></p>
+
+       <p>上述代码中，<code>getForObject</code> 方法发送一个 GET 请求，并期望将响应转换为 <code>String</code> 类型的对象。你可以根据实际情况选择其他返回类型。</p>
+
+       <h3>3. 发送带参数的 GET 请求：</h3>
+
+       <p><code>java
+           String url = &quot;https://api.example.com/data?param1={value1}&amp;param2={value2}&quot;;
+           String result = restTemplate.getForObject(url, String.class, &quot;value1&quot;, &quot;value2&quot;);
+       </code></p>
+
+       <p>这里使用了占位符 <code>{}</code>，并通过额外的参数传递具体的值。</p>
+
+       <h3>4. 发送 POST 请求：</h3>
+
+       <p><code>java
+           String url = &quot;https://api.example.com/data&quot;;
+           String requestJson = &quot;{\&quot;key\&quot;:\&quot;value\&quot;}&quot;;
+           HttpHeaders headers = new HttpHeaders();
+           headers.setContentType(MediaType.APPLICATION_JSON);
+           HttpEntity&lt;String&gt; requestEntity = new HttpEntity&lt;&gt;(requestJson, headers);
+           ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(url, requestEntity, String.class);
+           String result = response.getBody();
+       </code></p>
+
+       <p>在这个例子中，我们使用 <code>postForEntity</code> 方法发送一个 POST 请求，并且在请求中包含了 JSON 格式的数据。通过 <code>HttpEntity</code> 封装请求体和请求头。</p>
+
+       <h3>5. 发送带参数的 POST 请求：</h3>
+
+       <p><code>java
+           String url = &quot;https://api.example.com/data&quot;;
+           MultiValueMap&lt;String, String&gt; params = new LinkedMultiValueMap&lt;&gt;();
+           params.add(&quot;param1&quot;, &quot;value1&quot;);
+           params.add(&quot;param2&quot;, &quot;value2&quot;);
+           HttpHeaders headers = new HttpHeaders();
+           headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+           HttpEntity&lt;MultiValueMap&lt;String, String&gt;&gt; requestEntity = new HttpEntity&lt;&gt;(params, headers);
+           ResponseEntity&lt;String&gt; response = restTemplate.postForEntity(url, requestEntity, String.class);
+           String result = response.getBody();
+       </code></p>
+
+       <p>这里使用了 <code>MultiValueMap</code> 作为请求体，同时设置了请求头。</p>
+
+       <h3>6. 发送 PUT 请求：</h3>
+
+       <p><code>java
+           String url = &quot;https://api.example.com/data/{id}&quot;;
+           String requestJson = &quot;{\&quot;key\&quot;:\&quot;value\&quot;}&quot;;
+           HttpHeaders headers = new HttpHeaders();
+           headers.setContentType(MediaType.APPLICATION_JSON);
+           HttpEntity&lt;String&gt; requestEntity = new HttpEntity&lt;&gt;(requestJson, headers);
+           restTemplate.put(url, requestEntity, &quot;id&quot;);
+       </code></p>
+
+       <p>这里使用了占位符 <code>{}</code>，并通过额外的参数传递具体的值。</p>
+
+       <h3>7. 发送 DELETE 请求：</h3>
+
+       <p><code>java
+           String url = &quot;https://api.example.com/data/{id}&quot;;
+           restTemplate.delete(url, &quot;id&quot;);
+       </code></p>
+
+       <p>同样，使用了占位符 <code>{}</code>。</p>
+
+       <h3>注意事项：</h3>
+
+       <ul><li>在实际项目中，可能需要处理请求参数、请求头、响应处理等更多细节，可以根据具体需求查看文档并适当配置。</li><li><code>RestTemplate</code> 在 Spring 5.x 版本中已经被标记为过时，推荐使用 <code>WebClient</code> 来进行 HTTP 请求，特别是在响应式编程中。</li></ul>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section25">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>参数验证</h2>
+    <p>
+       <p>使用 JSR 303 在Controller层进行参数校验，比如必填项校验、数据格式校验。</p>
+
+       <p> Service层校验的是和业务相关的内容，不方便写成通用代码。</p>
+
+       <h3>使用 JSR 303：</h3>
+
+       <ol><li><p><strong>定义 Bean：</strong></p><p>在 Java Bean 上使用 JSR 303 的约束注解：</p><p><code></code>`java
+           public class User {
+           @NotNull(message = &quot;Username cannot be null&quot;)
+           @Size(min = 5, max = 20, message = &quot;Username must be between 5 and 20 characters&quot;)
+           private String username;</p><p>   @NotEmpty(message = &quot;Password cannot be empty&quot;)
+           @Size(min = 6, max = 20, message = &quot;Password must be between 6 and 20 characters&quot;)
+           private String password;</p><p>   // Getter and setter methods
+           }
+           <code></code>`</p></li><li><p><strong>在控制器中使用验证：</strong></p><p>在 Spring MVC 控制器中使用 <code>@Valid</code> 注解进行验证：</p><p><code></code>`java
+           @RestController
+           @RequestMapping(&quot;/api&quot;)
+           public class UserController {</p><p>   @PostMapping(&quot;/saveUser&quot;)
+           public ResponseEntity&lt;String&gt; saveUser(@Valid @RequestBody User user) {
+           // 处理 user 对象，例如保存到数据库
+           // ...</p><p>       return ResponseEntity.ok(&quot;User saved successfully&quot;);
+           }
+           }
+           <code></code>`</p><p>注意，<code>@Valid</code> 注解用于标记需要验证的对象。</p></li></ol>
+
+       <h3>JSR 303 提供的约束注解：</h3>
+
+       <ul><li><p><strong>基本约束：</strong></p><ul><li><code>@NotNull</code>：值不能为 null。</li><li><code>@Size</code>：指定值的大小范围。</li><li><code>@NotEmpty</code>：字符串不能为 null 且长度不为 0。</li><li><p><code>@NotBlank</code>：字符串不能为 null 且去除首尾空格后长度不为 0。</p></li></ul></li><li><p><strong>数值约束：</strong></p><ul><li><code>@Min</code>：最小值。</li><li><code>@Max</code>：最大值。</li><li><code>@DecimalMin</code>：最小浮点数值。</li><li><p><code>@DecimalMax</code>：最大浮点数值。</p></li></ul></li><li><p><strong>其他约束：</strong></p><ul><li><code>@Email</code>：字符串是一个有效的电子邮件地址。</li><li><code>@Pattern</code>：字符串符合指定的正则表达式。</li><li><code>@Future</code>：日期必须是未来的日期。</li><li><code>@Past</code>：日期必须是过去的日期。</li></ul></li></ul>
+
+       <h3>优势：</h3>
+
+       <ol><li><p><strong>声明性验证：</strong> 使用注解将验证规则直接声明在 Java Bean 上，提高了代码的可读性和可维护性。</p></li><li><p><strong>与 Spring 集成：</strong> Spring 框架天然支持 JSR 303，通过 <code>@Valid</code> 注解可以轻松集成验证。</p></li><li><p><strong>可扩展性：</strong> 可以定义自定义的验证注解，扩展验证规则。</p></li><li><p><strong>支持国际化：</strong> 提供了对多语言的支持，可以通过资源文件实现错误消息的国际化。</p></li></ol>
+
+       <p>总体而言</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section26">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>分库</h2>
+    <p>
+       <p><strong>划分原则：</strong>基于系统的业务进行划分，每个服务管理自己的数据库。</p>
+
+       <h3>划分：文章、系统、评论</h3>
+
+       <h4>文章数据库：</h4>
+
+       <ol><li><strong>文章基本信息表：</strong>文章ID、标题、作者、发布时间、点赞数</li><li><strong>文章详情表：</strong>具体的文章内容</li><li><strong>文章标签表：</strong>存储文章和哪些标签相关联</li><li><strong>文章分类表：</strong>包括二手信息、恋爱交友、求助打听</li></ol>
+
+       <h4>系统数据库（System）</h4>
+
+       <p>RBAC 即<strong>基于角色的权限访问控制</strong>（Role-Based Access Control）。这是一种通过<strong>角色关联权限</strong>，<strong>角色同时又关联用户的授权</strong>的方式。</p>
+
+       <p><strong>一个用户可以拥有若干角色</strong>，<strong>每一个角色又可以被分配若干权限</strong>，这样就构造成“用户-角色-权限” 的授权模型。在这种模型中，用户与角色、角色与权限之间构成了多对多的关系</p>
+
+       <p>权限与角色相关联，<strong>用户通过成为某些角色，获得这些角色的权限</strong>。这就极大地<strong>简化了权限的管理</strong>。</p>
+
+       <h5>表说明：</h5>
+
+       <ul><li><strong>roles表：</strong> 存储系统中定义的<strong>角色</strong>。</li><li><strong>permissions表：</strong> 存储系统中定义的<strong>权限</strong>。</li><li><strong>users表：</strong> 存储系统中的<strong>用户信息</strong>。 用户ID（varchar60）、用户名、加密后的密码（varchar60）、昵称（varchar60）、注册手机号（varchar20）</li><li><strong>user_roles表：</strong> 存储<strong>用户与角色的关联关系</strong>。</li><li><strong>role_permissions表：</strong> 存储<strong>角色与权限的关联关系</strong>。</li></ul>
+
+       <h3>评论数据库</h3>
+
+       <p><strong>为什么使用MongoDB：</strong>评论数据库使用MongoDB实现，因为评论可能会涉及到显示内容的改动。</p>
+
+       <p>抖音的评论就涉及了两个改动，先后增加了评论显示IP地址，和不喜欢这条评论的功能。</p>
+
+       <p>通过使用MongoDB，不用预先定义表结构，字段更加灵活。</p>
+
+       <h3>1. 数据库设计：</h3>
+
+       <h4>1.1 评论集合：</h4>
+
+       <p><code>
+           jsonCopy code{
+           &quot;_id&quot;: ObjectId(&quot;comment_id&quot;),
+           &quot;articleId&quot;: ObjectId(&quot;article_id&quot;),
+           &quot;userId&quot;: &quot;user_id&quot;,
+           &quot;username&quot;: &quot;username&quot;,
+           &quot;content&quot;: &quot;Comment Content&quot;,
+           &quot;createdAt&quot;: ISODate(&quot;comment_time&quot;),
+           &quot;parentCommentId&quot;: null  // 父评论的ID，null表示顶级评论
+           “IP地址”
+           “点赞数”
+           “不喜欢数量”
+           }
+       </code></p>
+
+       <h4>1.2 回复集合：</h4>
+
+       <p><code>
+           jsonCopy code{
+           &quot;_id&quot;: ObjectId(&quot;reply_id&quot;),
+           &quot;commentId&quot;: ObjectId(&quot;parent_comment_id&quot;),
+           &quot;userId&quot;: &quot;user_id&quot;,
+           &quot;username&quot;: &quot;username&quot;,
+           &quot;content&quot;: &quot;Reply Content&quot;,
+           &quot;createdAt&quot;: ISODate(&quot;reply_time&quot;)
+           “点赞数”
+           “不喜欢数量”
+           }
+       </code></p>
+
+       <p><strong>优势：</strong></p>
+
+       <ol><li>降低服务之间的依赖关系。</li><li>每个数据库可以部署在不同的机器上，提升数据库的并发性能。</li><li>如果将数据库部署在单个机器上，提升性能带来的代价很高。</li></ol>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section27">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>单客户端登录</h2>
+    <p>
+       <ol><li>一个用户登录成功，将用户的UserId作为key，jwt令牌作为value记录到Redis中。</li><li>由于jwt令牌很长，所以使用MD5对令牌计算出一个更短的字符串。</li><li>此后，用户携带令牌访问系统，会在网关处判断JWT的合法性，如果JWT合法，就从Redis中查询对应用户存在Redis中的JWT，如果相同就继续访问。</li><li>如果用户使用原来的JWT令牌登录系统，发现和已记录的令牌不一样，就提示在其他设备上已经登录，需要重新登录。</li></ol>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section28">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>Spring Cloud 怎么用的</h2>
+    <p>
+       <p>1、项目基于Spring Cloud Alibaba，具体到每个微服务使用 <code>Spring Boot</code> 开发，和普通的单体下项目一样，包括了Controller、service、dao三层：</p>
+
+       <ul><li>Controller层使用Spring MVC实现，提供API接口给前端调用。 </li><li>service 层来编写业务逻辑。 </li><li>dao 层就是数据访问接口，访问MySQL和Mongodb，访问MySQL使用<code>Mybatis-Plus</code>，访问 <code>mongodb</code>使用 <code>Spring data mongodb</code>。 </li></ul>
+
+       <p>2、微服务开发完成要向 <code>Nacos</code> 注册中心注册，以便被其它微服务查找和访问。</p>
+
+       <p>3、微服务与微服务之间使用 <code>OpenFeign</code> 来调用。</p>
+
+       <p>4、前端访问微服务需要通过网关Gateway，转发服务到具体的微服务，还可以判断用户是否携带令牌。</p>
+    </p>
+  </div>
+
+
+   <div class="section" id="section29">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>Redis使用场景</h2>
+    <p>
+
+       <ul><li>存储用户的点赞阅读不喜欢</li><li>限流算法</li><li>文章热度计算</li></ul>
+    </p>
+  </div>
+
+
+   <div class="section" id="section30">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>文章查询</h2>
+    <p>
+       <p><strong>查询主要是通过全文索引实现的。</strong></p>
+
+       <p>考虑到<strong>校园这种业务场景</strong>，<strong>搜索的频率相对较低</strong>，并且<strong>搜索条件不是非常复杂</strong>，所以<strong>没有使用ES来实现</strong>。</p>
+
+       <p>对<strong>文章标题和内容添加全文索引</strong>：</p>
+
+       <ul><li><code>FULLTEXT</code> 全文索引。</li></ul>
+
+       <p><strong>执行全文搜索：</strong></p>
+
+       <ul><li>通过使用 <code>MATCH AGAINST</code> 语句来全文搜索，返回查询到的内容。</li></ul>
+
+       <p><code>
+           sqlCopy codeSELECT * FROM articles
+           WHERE MATCH(title, content) AGAINST(&#39;Elasticsearch&#39;);
+       </code></p>
+
+       <p><strong>对于分页，使用到了MyBatis-Plus的分页插件paginationInterceptor</strong>，<strong>：</strong></p>
+
+       <ol><li><p><strong>通过@Bean:注解向 Spring 容器注册一个 <code>paginationInterceptor</code>  Bean，来开启分页插件。</strong></p></li><li><p><strong>会涉及到一个和分页功能有关的Page&lt;T&gt;`类</strong>，构造分页参数的方法：</p><p><code>java
+           Page&lt;UserEntity&gt; page = new Page&lt;&gt;(1, 1);
+       </code></p><ul><li><p>在构造参数中添加页码 和 分页大小。</p><p>&gt; 使用的时候只需要将创建的<code>Page</code>对象作为第一个参数传入即可。</p></li></ul></li></ol>
+
+       <p><code></code>`</p>
+
+       <p><code></code>`</p>
+
+       <p><strong>写一个基本请求封装类</strong>，封装请求所需要的<strong>页码 和 要多少条数据</strong>，在这个类中还包含一个方法可以获取Page对象。</p>
+
+       <p><strong>其它请求封装类继承这个类</strong>来<strong>实现分页</strong>，在查询时<strong>将Page对象作为第一个参数</strong>，<strong>MyBatis-Plus就会自动</strong>的<strong>在查询语句中添加limit</strong>。<strong>查询结果还是用Page对象封装</strong>，<strong>会包含分页信息</strong>。</p>
+
+       <p><strong>分页插件原理：</strong>分页插件通过拦截器实现，通过动态代理，为目标对象生成代理对象，在SQL语句执行前，根据Page类的参数，为SQL语句 添加 limit。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section31">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>文章发布</h2>
+    <p>
+       <p><strong>文章内容修改</strong>和<strong>新文章发布</strong>使用<strong>同一个方法实现</strong>。</p>
+
+       <p><strong>发布流程：</strong></p>
+
+       <ol><li>通过检查文章ID是否为空，确定是进行文章的新增还是修改。</li><li>如果是新增，就把文章对象，插入到数据库中；</li><li>如果是修改，查询数据库获取到对应的文章数据，然后更新文章内容和修改时间。最后再保存到数据库中。</li><li>对于文章有公开和非公开属性，如果是非公开其他人不会看到用户发布的这条文章。</li></ol>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section32">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>评论查询</h2>
+    <p>
+       <p><strong>通过MongoDB的管道聚合查询来查询文章的评论</strong>，每个阶段都<strong>将处理后的数据传递给下一个阶段作为输入，数据形成一条流水线。</strong>   评论文档中包含：评论id，文章id，用户昵称，评论时间，归属地，评论内容，子评论，使用内嵌的形式。</p>
+
+       <ol><li><strong>Match Stage（匹配阶段）：</strong><ul><li>首先使用 <code>$match</code> 操作来筛选出文章的评论。就类似于 SQL 中的 WHERE 。</li></ul></li><li><strong>Sort Stage（排序阶段）：</strong><ul><li>然后 使用 <code>$sort</code> 操作进行排序。按照时间降序。</li></ul></li><li>Unwind Stage（展开阶段）：<ul><li>如果你的文档包含数组字段，而你希望每个数组元素都成为一个独立的文档，可以使用 <code>$unwind</code> 操作符。在评论系统中，你可能会使用 <code>$unwind</code> 展开嵌套的评论，使每个评论成为独立的文档。</li></ul></li><li><strong>Skip 和 Limit 阶段（跳过和限制阶段）：</strong><ul><li>使用 <code>$skip</code> 和 <code>$limit</code> 操作符可以<strong>实现分页的效果</strong>。通过跳过一定数量的文档并限制返回的文档数量，你可以实现分页查询。</li></ul></li><li><strong>其他阶段：</strong><ul><li>除了上述常用的阶段外，还有许多其他阶段可以用于数据处理，如 <code>$group</code>（分组）、<code>$project</code>（投影）、<code>$unwind</code>（展开数组）等。这些阶段可以根据实际需求灵活组合使用。</li></ul></li></ol>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section33">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>消息通知</h2>
+    <p>
+       <p>后端保存好评论后，就会触发消息通知事件，通过WebSocket发送给被回复人</p>
+
+       <ol><li><strong>触发消息通知事件：</strong><ul><li>在评论被成功保存到数据库后，触发消息通知事件。这可以通过使用事件机制，例如 Spring 的事件机制。</li></ul></li></ol>
+
+       <p><code></code>`java
+           public class CommentAddedEvent extends ApplicationEvent {</p>
+
+       <pre><code>private final Comment comment;
+
+public CommentAddedEvent(Comment comment) {
+    super(comment);
+    this.comment = comment;
+}
+
+public Comment getComment() {
+    return comment;
+}</code></pre>
+
+       <p>}
+           <code></code>`</p>
+
+       <ol><li><strong>WebSocket 发送通知：</strong><ul><li>在评论服务中，使用 WebSocket 向被回复人发送通知。使用被回复人的用户名（或其他标识）找到其订阅通道，然后向该通道发送通知。</li></ul></li></ol>
+
+       <p><code></code>`java
+           @Service
+           public class CommentService {</p>
+
+       <pre><code>@Autowired
+private SimpMessagingTemplate messagingTemplate;
+
+public void addComment(String articleId, Comment comment) {
+    // 保存评论到数据库
+    commentRepository.save(comment);
+
+    // 发布评论添加事件
+    CommentAddedEvent commentAddedEvent = new CommentAddedEvent(comment);
+
+    // 获取被回复人的用户ID（示例，实际应用中需要根据业务获取）
+    String repliedUserId = comment.getRepliedUserId();
+
+    // 使用 WebSocket 向被回复人发送通知
+    messagingTemplate.convertAndSendToUser(repliedUserId, &quot;/queue/comments&quot;, commentAddedEvent);
+}</code></pre>
+
+       <p>}
+           <code></code>`</p>
+
+       <p>在上述代码中，<code>/queue/comments</code> 是被回复人的订阅通道。通过 WebSocket，被回复人将收到通知。</p>
+
+       <ol><li><strong>前端接收通知：</strong><ul><li>在前端，使用 WebSocket 客户端库（例如 SockJS + Stomp）订阅 <code>/queue/comments</code> 地址，以便接收被回复人的通知。</li></ul></li></ol>
+
+       <p><code></code>`javascript
+           // 使用 SockJS + Stomp 连接 WebSocket
+           var socket = new SockJS(&#39;/websocket-endpoint&#39;);
+           var stompClient = Stomp.over(socket);</p>
+
+       <p>// 连接 WebSocket
+           stompClient.connect({}, function (frame) {
+           console.log(&#39;Connected: &#39; + frame);</p>
+
+       <pre><code>// 订阅评论通知
+stompClient.subscribe(&#39;/user/queue/comments&#39;, function (commentAddedEvent) {
+    // 处理评论通知，更新前端界面
+    var comment = JSON.parse(commentAddedEvent.body);
+    // 更新界面的逻辑...
+});</code></pre>
+
+       <p>});
+           <code></code>`</p>
+
+       <p>通过上述步骤，用户在评论或回复时，被回复人将收到消息通知。这种实现方式通过 WebSocket 提供实时通信，确保了通知的即时性。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section34">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>添加评论</h2>
+    <p>
+       <p>大体思路是一级评论直接插入</p>
+
+       <p>二级评论，前端传入一级评论的id然后根据id插入，同时计算发布这条评论的用户的归属地，一同插入到文档中。</p>
+
+       <p>我们要监听插入评论事件，给对应的用户发送消息。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section35">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>网关作用</h2>
+    <p>
+       <p>网关Gateway 是微服务与客户端 之间的桥梁，避免客户端与服务之间直接通信 增加复杂度。</p>
+
+       <p>在网关中判断是否是登录请求，如果是就转发请求到Auth服务，进行登录认证。</p>
+
+       <p>如果不是登录请求，就从请求头中获取token</p>
+
+       <p>判断token是否存在，是否有效。</p>
+
+       <p>token不存在或者无效，还要转发请求到Auth认证授权服务。</p>
+
+       <p>token有效，转发请求到具体的微服务，进行处理。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section36">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>信息扩展</h2>
+    <p>
+       <p>没有扩展前 JWT payload中只包含用户的账号信息，不够用，还需要用户的昵称，手机号</p>
+
+       <p>一个字段不仅仅放账号，把需要的信息都放到账号信息这个字段中。把用户的信息通过FastJSON转成JSON串</p>
+
+       <p>转JSON前要把用户的密码置空，因为这是敏感信息。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section37">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>令牌加密</h2>
+    <p>
+       <p>加密分为对称加密和非对称加密，</p>
+
+       <h3>对称加密：</h3>
+
+       <p><strong>对称加密使用相同的密钥</strong>进行<strong>加密和解密</strong>。这种方式<strong>速度快，效率高</strong>。</p>
+
+       <ol><li><p><strong>生成 JWT：</strong> 生成 JWT 时，将头部和载荷进行 Base64 编码，然后使用共享密钥进行 HMAC（Hash-based Message Authentication Code）签名生成签名部分。</p><p><code>plaintext
+           HMACSHA256(
+           base64UrlEncode(header) + &quot;.&quot; +
+           base64UrlEncode(payload),
+           secret
+           )
+       </code></p></li><li><p><strong>验证 JWT：</strong> 接收到 JWT 后，通过相同的共享密钥进行解码和验证签名。如果签名验证通过，可以信任 JWT 的内容。</p></li></ol>
+
+       <h3>非对称加密：</h3>
+
+       <p><strong>非对称加密使用两个密钥</strong>，分别是<strong>公钥和私钥</strong>。<strong>加密使用公钥，解密使用私钥</strong>。<strong>非对称加密</strong>相比于对称加密<strong>更安全。</strong></p>
+
+       <ol><li><p><strong>生成 JWT：</strong> 生成 JWT 时，将头部和载荷进行 Base64 编码，然后使用私钥进行数字签名。</p><p><code>plaintext
+           RS256(
+           base64UrlEncode(header) + &quot;.&quot; +
+           base64UrlEncode(payload),
+           private_key
+           )
+       </code></p></li><li><p><strong>验证 JWT：</strong> 接收到 JWT 后，通过相应的公钥进行解码和验证签名。只有持有相应私钥的实体才能够成功签名。</p></li></ol>
+
+       <p>使用对称加密的 JWT 更容易实施，但要确保密钥的安全性。非对称加密提供了更强的安全性，因为私钥不必在不同服务之间共享，但它通常比对称加密慢一些。</p>
+
+       <p>选择使用对称还是非对称加密通常取决于具体的安全需求和系统设计。非对称加密常用于在不同服务之间进行身份验仙姑中证和信息传递，而对称加密则适用于对单一服务内的通信进行加密。</p>
+
+       <h3>项目中使用对称加密：</h3>
+
+       <p>因为是我们项目自己微服务之间 颁发令牌 、校验，所以使用更快速的对称加密。</p>
+
+       <p>如果是我们的项目需要公开，有第三方来验证我们的令牌，那么就需要使用更安全的非对称加密</p>
+
+       <p>JWT（JSON Web Token）可以使用对称加密和非对称加密来保护其内容的完整性和安全性。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section38">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>令牌安全</h2>
+    <p>
+       <p>JWT令牌是安全的。</p>
+
+       <p>它由三部分组成，第三部分对前两部分进行签名加密，如果别人修改了前两部分，再对前两部分进行加密得到的结果与原来第三部分的加密内容不一致，就可以判断出JWT被算改。</p>
+
+       <p>JWT可以采用对称加密和非对称加密，对称加密是认证服务和资源服务使用相同的密钥，对称加密效率高，如果密钥泄露可以伪造iwt令牌。</p>
+
+       <p>非对称加密是认证服务自己保留私钥，将公钥下发给受信任的客户端、资源服务，公和私钥是配对的，成对的公钥和私钥才可以正常加密和解密，非对称加密效率低但相比对称加密非对称加密更安全一些。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section39">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>使用</h2>
+    <p>
+       <p>服务器认证成功后会返回给客户端JWT信息</p>
+
+       <p>客户端收到服务器返回的 JWT储存在 localStorage。</p>
+
+       <p>此后，客户端每次与服务器通信，都要带上这个 JWT。放在 HTTP 请求的头信息Authorization字段里面。（POST 请求的数据体也可）</p>
+
+       <p>这样我们服务器就不用存储用户的信息，减少内存消耗，提升可扩展性。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section40">
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+     <br>
+    <h2>介绍</h2>
+    <p>
+       <p>JWT ，服务器认证以后，生成一个 JSON 对象，发回给用户。</p>
+
+       <p>javascript { &quot;姓名&quot;: &quot;张三&quot;, &quot;角色&quot;: &quot;管理员&quot;, &quot;到期时间&quot;: &quot;2018年7月1日0点0分&quot; }</p>
+
+       <p>以后，用户与服务端通信的时候，都要发回这个 JSON 对象。服务器完全只靠这个对象认定用户身份。</p>
+
+       <p>这个JSON对象包含：</p>
+
+       <ul><li>Header（头部）</li><li>Payload（负载）</li><li>Signature（签名）</li></ul>
+
+       <p>为了防止用户篡改数据，服务器在生成这个对象的时候，会加上签名（详见后文）。</p>
+
+       <p>服务器就不保存 session 数据了，变成无状态了（扩展性更高）。</p>
+
+       <p><strong>3.1 Header</strong>
+           Header 描述 JWT 的元数据：使用的签名算法（HMAC SHA256）、令牌的类型（JWT）</p>
+
+       <p>最后，将上面的 JSON 对象使用 Base64URL 算法转成字符串。</p>
+
+       <p><strong>3.2 Payload</strong>
+           Payload 用来存放实际需要传递的数据。JWT 规定了7个官方字段，供选用。</p>
+
+       <p>iss (issuer)：签发人
+           <strong>exp (expiration time)：过期时间</strong>
+           sub (subject)：主题
+           aud (audience)：受众
+           nbf (Not Before)：生效时间
+           iat (Issued At)：签发时间
+           jti (JWT ID)：编号</p>
+
+       <p>除了官方字段，你还可以在这个部分定义私有字段，下面就是一个例子。</p>
+
+       <p>javascript { &quot;sub&quot;: &quot;1234567890&quot;, &quot;name&quot;: &quot;John Doe&quot;, &quot;admin&quot;: true }
+           注意，JWT 默认是不加密的，任何人都可以读到，所以不要把秘密信息放在这个部分。</p>
+
+       <p>这个 JSON 对象也要使用 Base64URL 算法转成字符串。</p>
+
+       <p><strong>3.3 Signature</strong>
+           Signature 部分是对前两部分的签名，防止数据篡改。</p>
+
+       <p>首先，需要指定一个密钥（secret）。这个密钥只有服务器才知道，不能泄露给用户。然后，使用 Header 里面指定的签名算法（默认是 HMAC SHA256），按照下面的公式产生签名。</p>
+
+       <p>javascript HMACSHA256( base64UrlEncode(header) + &quot;.&quot; + base64UrlEncode(payload), secret)
+           算出签名以后，把 Header、Payload、Signature 三个部分拼成一个字符串，每个部分之间用&quot;点&quot;（.）分隔，就可以返回给用户。</p>
+
+       <p><strong>3.4 Base64URL</strong>
+           前面提到，Header 和 Payload 串型化的算法是 Base64URL。这个算法跟 Base64 算法基本类似，但有一些小的不同。</p>
+
+    </p>
+  </div>
+
+
+   <div class="section" id="section41">
      <br>
      <br>
      <br>

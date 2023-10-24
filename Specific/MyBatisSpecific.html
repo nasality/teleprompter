@@ -80,8 +80,48 @@
     <br>
     <br>
     <br>
-    <h2>HashMap添加元素</h2>
-    <p></p>
+    <h2>结果映射</h2>
+    <p>
+    <p>在 MyBatis 中，<code>ResultType</code> 和 <code>ResultMap</code> 是用于映射查询结果的两个重要配置。</p>
+
+    <h3>1. <strong>ResultType:</strong></h3>
+
+    <p><code>ResultType</code> 用于指定单一的结果类型，通常用于简单查询或者返回单一值的查询。示例：</p>
+
+    <p><code>xml
+      &lt;select id=&quot;selectUserNameById&quot; resultType=&quot;java.lang.String&quot;&gt;
+      SELECT user_name FROM users WHERE user_id = #{userId}
+      &lt;/select&gt;
+    </code></p>
+
+    <p>在上面的例子中，<code>resultType</code> 指定了查询结果的类型为 <code>java.lang.String</code>，因为我们查询的是 <code>user_name</code> 字段，只返回一个字符串。</p>
+
+    <h3>2. <strong>ResultMap:</strong></h3>
+
+    <p><code>ResultMap</code> 用于更复杂的结果映射，允许你定义对象之间的映射关系。通常用于返回复杂的对象或者关联的对象。示例：</p>
+
+    <p><code></code>`xml
+      &lt;resultMap id=&quot;userResultMap&quot; type=&quot;User&quot;&gt;
+      &lt;id property=&quot;userId&quot; column=&quot;user<em>id&quot;/&gt;
+        &lt;result property=&quot;userName&quot; column=&quot;user</em>name&quot;/&gt;
+      &lt;result property=&quot;email&quot; column=&quot;user_email&quot;/&gt;
+      &lt;!-- 其他属性映射... --&gt;
+      &lt;/resultMap&gt;</p>
+
+    <p>&lt;select id=&quot;selectUserById&quot; resultMap=&quot;userResultMap&quot;&gt;
+      SELECT * FROM users WHERE user_id = #{userId}
+      &lt;/select&gt;
+      <code></code>`</p>
+
+    <p>在上面的例子中，<code>resultMap</code> 指定了查询结果的映射关系。<code>User</code> 对象的属性通过 <code>&lt;result&gt;</code> 元素指定与数据库表的字段的映射。</p>
+
+    <h3>区别：</h3>
+
+    <ul><li><p><strong>ResultType：</strong></p><ul><li>适用于简单查询，返回单一值或简单对象。</li><li><p>无需额外配置映射关系，MyBatis 会根据数据库列名和 Java 对象属性名进行自动映射。</p></li></ul></li><li><p><strong>ResultMap：</strong></p><ul><li>适用于复杂查询，返回复杂对象或关联对象。</li><li>需要额外配置映射关系，可以精确控制对象属性与数据库列的映射关系。</li></ul></li></ul>
+
+    <p>简单查询可以使用 <code>ResultType</code>，而复杂查询可以使用 <code>ResultMap</code> 进行更灵活的映射。</p>
+
+    </p>
   </div>
 
   <div class="section" id="section3">

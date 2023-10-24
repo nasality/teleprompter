@@ -40,9 +40,11 @@
     <br>
     <br>
     <br>
-    <h2>JMM介绍</h2>
+    <h2>死锁介绍</h2>
     <p>
+    <p>两个或两个以上的进程在执行过程中，因为资源竞争而造成的一种阻塞的现象，在没有外力作用的情况下，不能推继续进行下去。产生死锁的原因，主要包括：</p>
 
+    <ul><li>系统资源不足。狼多肉少，需求得不到满足，就会竞争有限的资源</li><li>程序执行的顺序有问题。多个线程需要执行任务，有的线程需要的资源多，如果他先执行就有可能死锁；</li></ul>
 
     </p>
   </div>
@@ -56,8 +58,13 @@
     <br>
     <br>
     <br>
-    <h2>HashMap添加元素</h2>
-    <p></p>
+    <h2>必要条件</h2>
+    <p>
+    <p>产生死锁有四个必要条件，只要系统发生死锁，这些条件必然成立，有一个不满足就不会发生死锁：</p>
+
+    <ul><li>互斥条件：一个资源同时只能被一个进程使用。</li><li>请求与保持条件：进程获取不到所需的资源，也不释放已经获得的资源。</li><li>不剥夺条件：在进程没有使用完之前，不能强行剥夺进程已经获得的资源。</li><li>循环等待条件：对资源的需求成了一个环，A需求B，B需求C，C需求A。</li></ul>
+
+    </p>
   </div>
 
   <div class="section" id="section3">
@@ -69,11 +76,36 @@
     <br>
     <br>
     <br>
-    <h2>HashMap添加元素</h2>
-    <p></p>
+    <h2>死锁解决</h2>
+    <p>
+    <p>死锁的解决可以从以下几个方向着手：</p>
+
+    <ol><li><strong>预防死锁：</strong> 产生死锁有四个必要条件，只要破坏这四个必要条件中的一个条件，死锁就会解决。例如，可以设计系统确保不会出现环路等待，或者允许进程共享资源而不是互斥访问。</li><li><strong>避免死锁：</strong> 在资源分配时，可以通过银行家算法来检查资源分配策略是否可行，确保资源分配之后不会导致死锁。</li><li><strong>检测与解除死锁：</strong> 系统周期性地检测死锁的发生，一旦检测（JStack分析）到死锁，就采取一些手段来解除死锁。解除死锁的方法包括<strong>终止某些进程</strong>、回退进程到安全状态、或者通过动态地<strong>剥夺进程资源</strong>来解除死锁。</li></ol>
+
+    </p>
   </div>
 
   <div class="section" id="section4">
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <h2>通信方式总览</h2>
+    <p>
+    <p><strong>进程间通信：在不同的进程间进行信息交换。</strong>在操作系统中，进程可能在同一台计算机上运行，也可能分布在不同的计算机上。以下是几种常见的进程间通信方式：</p>
+
+    <ol><li><p><strong>管道（Pipe）：</strong></p><ul><li><strong>描述：</strong> 管道是一种单向通信机制，通常用于父子进程之间或者兄弟进程之间。</li><li><p><strong>特点：</strong> 数据在一个方向上流动，有两种类型，分别是无名管道和有名管道。</p></li></ul></li><li><p><strong>消息队列（Message Queue）：</strong></p><ul><li><strong>描述：</strong> 消息队列是一种进程间通信的方式，通过在进程之间传递消息实现通信。</li><li><p><strong>特点：</strong> 消息队列通常是先进先出（FIFO）的，支持多对多通信。</p></li></ul></li><li><p><strong>共享内存（Shared Memory）：</strong></p><ul><li><strong>描述：</strong> 进程通过映射一块共享内存来实现通信，多个进程可以访问同一块内存。</li><li><p><strong>特点：</strong> 高效，但需要处理同步和互斥问题。</p></li></ul></li><li><p><strong>信号（Signal）：</strong></p><ul><li><strong>描述：</strong> 信号是一种比较简单的通信机制，用于通知接收进程发生了某个事件。</li><li><p><strong>特点：</strong> 主要用于异步通信，比如处理外部事件，不适合传递大量数据。</p></li></ul></li><li><p><strong>套接字（Socket）：</strong></p><ul><li><strong>描述：</strong> 套接字是一种网络通信方式，但也可以用于本地进程通信。</li><li><p><strong>特点：</strong> 提供了一种通用的通信机制，可以在本地或网络上进行通信，支持多种通信模式。</p></li></ul></li><li><p><strong>信号量（Semaphore）：</strong></p><ul><li><strong>描述：</strong> 信号量是一种用于控制对共享资源访问的机制，可以用于进程同步。</li><li><p><strong>特点：</strong> 通过信号量可以实现进程的同步和互斥。</p></li></ul></li><li><p><strong>文件映射（Memory-mapped Files）：</strong></p><ul><li><strong>描述：</strong> 将文件映射到内存，实现不同进程间的通信，也是一种共享内存的方式。</li><li><p><strong>特点：</strong> 数据在文件中存储，映射到内存后可以直接读写，是一种高效的通信方式。</p></li></ul></li><li><p><strong>RPC（Remote Procedure Call）：</strong></p><ul><li><strong>描述：</strong> 远程过程调用是一种进程间通信的方式，允许程序调用另一台计算机上的过程（函数）。</li><li><strong>特点：</strong> 可以在网络上进行通信，使得远程计算机上的过程就像本地过程一样被调用。</li></ul></li></ol>
+
+    <p>不同的进程间通信方式适用于不同的场景，选择合适的方式取决于具体的需求和应用场景。</p>
+
+    </p>
+  </div>
+
+  <div class="section" id="section5">
     <br>
     <br>
     <br>

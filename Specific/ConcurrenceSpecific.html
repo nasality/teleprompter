@@ -19,6 +19,9 @@
             padding: 20px;
             background-color: #f1f1f1;
         }
+        .image {
+            max-width: 800px;
+        }
 
         h1 {
             margin-top: 0;
@@ -928,6 +931,355 @@ public void run() {
     </div>
 
     <div class="section" id="section25">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>创建线程池</h2>
+        <p>
+        <p>虽然<strong>Executors</strong>提供了<strong>一些</strong>便捷的<strong>方法来创建线程池</strong>，但在某些情况下，<strong>直接使用这些方法</strong>可能导致一些问题。 </p>
+
+        <p>因为通过Executors创建的线程池使用的都是无界队列，最大线程数是Integer.MAX_VALUE，有大量请求时很容易就OOM</p>
+
+        <p>因此，<strong>推荐使用</strong><code>ThreadPoolExecutor</code>类进行更灵活和定制化的线程池配置。通过直接创建<code>ThreadPoolExecutor</code>的实例，你可以<strong>精确地设置</strong>核心线程数、最大线程数、任务队列、拒绝策略等参数，以满足特定场景的需求。</p>
+
+        <p><code>java
+            ThreadPoolExecutor customThreadPool = new ThreadPoolExecutor(
+            corePoolSize,        // 核心线程数
+            maximumPoolSize,     // 最大线程数
+            keepAliveTime,       // 线程空闲时间
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue&lt;&gt;(),  // 任务队列
+            new CustomRejectedExecutionHandler()  // 自定义拒绝策略
+            );
+        </code></p>
+
+        <p>通过直接使用<code>ThreadPoolExecutor</code>，你可以更好地控制线程池的行为，防止一些潜在的问题。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section26">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>AQS公平锁非公平锁</h2>
+        <p>
+        <p>在AbstractQueuedSynchronizer (AQS)中，锁可以分为公平锁和非公平锁。</p>
+
+        <ol><li><p><strong>公平锁（Fair Lock）：</strong></p><ul><li><strong>特点：</strong> <strong>公平锁</strong>是一种保证<strong>线程获取锁的顺序与线程请求锁的顺序一致</strong>的锁。当<strong>一个线程释放锁后</strong>，<strong>等待时间最长</strong>的那个等待线程将获得锁。</li><li><p><strong>实现：</strong> 公平锁的实现通常依赖于一个<strong>先进先出（FIFO）的等待队列</strong>，等待队列中的线程按照请求锁的顺序排队。<code>ReentrantLock</code>中的默认构造函数创建的就是一个公平锁。</p></li></ul></li><li><p><strong>非公平锁（Non-fair Lock）：</strong></p><ul><li><strong>特点：</strong> 非公平锁是一种<strong>允许插队</strong>的锁，非公平锁允许新线程插队，直接尝试获取锁，而不管其他等待时间更长的线程。</li><li><strong>实现：</strong> 非公平锁的实现相对简单，不需要严格按照请求顺序进行排队。<code>ReentrantLock</code>的构造函数可以传入<code>false</code>参数来创建一个非公平锁，例如：<code>ReentrantLock(false)</code>。</li></ul></li></ol>
+
+        <p>在实际应用中，选择使用公平锁还是非公平锁要根据具体的场景和需求。公平锁保证了等待时间较长的线程不会一直被插队，可以避免线程饥饿，但会导致一些性能上的开销。可能导致某些线程一直获取不到锁，但性能上更高效。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section27">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>RS对比</h2>
+        <p>
+        <div>
+            <img src="Img/RS.png" alt="" class="image">
+        </div>
+
+        <p><strong>可打断：</strong>ReentrantLock相比于synchronized加锁一大优势是可打断，ReentrantLock通过<code>lockInterruptibly()</code>加锁，如果一直获取不到锁，可以通过调用线程的<code>interrupt()</code>提前终止线程。</p>
+
+        <p><strong>尝试获取锁：</strong></p>
+
+        <ul><li>在某些场景下，如果一个线程希望尝试获取锁但不希望等待，可以使用 <code>tryLock</code> 方法。</li></ul>
+
+        </p>
+    </div>
+
+    <div class="section" id="section28">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>中断锁 不可中断锁</h2>
+        <p>
+        <p><strong>可中断锁</strong>：获取锁的过程中可以被中断，不需要一直等到获取锁之后 才能进行其他逻辑处理。<code>ReentrantLock</code> 就属于是可中断锁。</p>
+
+        <p><strong>不可中断锁</strong>：一旦线程申请了锁，就只能等到拿到锁以后才能进行其他的逻辑处理。 <code>synchronized</code> 就属于是不可中断锁。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section29">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>ReentrantLock结构</h2>
+        <p>
+        <p><code>ReentrantLock</code> 是Java中提供的一种可重入的独占锁，它的内部结构主要依赖于<code>AbstractQueuedSynchronizer</code>（AQS）。</p>
+
+        <ol><li><strong>Sync：</strong><ul><li><strong>#起始#</strong>ReentrantLock有以个抽象内部类Sync，和两个Sync的实现类，分别是<code>NonfairSync</code>（非公平锁）和<code>FairSync</code>（公平锁），默认是非公平锁。</li><li><code>Sync</code> 继承了 <code>AbstractQueuedSynchronizer</code>（AQS）类，通过AQS来进行状态管理、实现等待队列。</li></ul></li><li><strong>AQS（AbstractQueuedSynchronizer）：</strong><ul><li>AQS 是一个同步器框架。</li><li>AQS 中维护一个状态变量，表示锁的状态，当 <code>state</code> 为0时，表示锁是释放状态；当 <code>state</code> 大于0时，表示锁被某个线程持有。允许同一个线程多次获取锁，每次获取锁 <code>state</code> 会递增，每次释放锁 <code>state</code> 递减，直到 <code>state</code> 为0时，锁被完全释放。</li><li>通过<code>exclusiveOwnerThread</code>来记录持有锁的线程， 是在 <code>AbstractQueuedSynchronizer</code> (AQS) 类中定义的一个字段。</li></ul></li><li><strong>等待队列：</strong><ul><li>AQS 还维护了一个等待队列，当一个线程尝试获取锁而失败时，它会被加入到等待队列，并在队列中等待获取锁的机会。</li></ul></li></ol>
+
+        <p><code>ReentrantLock</code> 的内部结构和操作主要依赖于AQS的状态管理和等待队列的机制。通过AQS，<code>ReentrantLock</code> 实现了锁的可重入性、公平性等特性，并且提供了底层的操作接口供<code>Lock</code>接口中的方法调用。在使用 <code>ReentrantLock</code> 时，了解其内部结构可以帮助理解锁的实现原理和特性。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section30">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>非公平lock</h2>
+        <p>
+        <p><strong>#开始#</strong>通过CAS设置变量State（同步状态）从0 改变为1 （0代表没有线程获取锁资源），如果成功，就代表获取锁成功，将exclusiveOwnerThread变量（AQS的父类AOS提供）设置为当前线程。</p>
+
+        <p>若通过CAS设置变量State（同步状态）失败，也就是获取锁失败，则进入Acquire方法进行<strong>后续</strong>处理。</p>
+
+        <p><code>java
+            public final void acquire(int arg) {
+            // 尝试直接获取锁
+            if (!tryAcquire(arg) &amp;&amp;
+            // 将当前线程加入等待队列，并尝试获取锁
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))
+            // 获取锁失败时，中断当前线程
+            selfInterrupt();
+            }
+        </code></p>
+
+        <p><strong>#开始#</strong>这个<code>acquire</code>方法，首先通过tryAcquire方法尝试直接获取锁，如果失败则加入等待队列，然后通过等待队列获取锁。在获取锁的过程中，如果线程被中断，会在获取锁失败后立即中断当前线程。</p>
+
+        <p><strong>tryAcquire()：</strong>首先会判断锁的状态，如果状态为0会再次获取锁。如果大于零，会判断占有锁资源的线程是否是当前的线程，如果是就执行锁重入的策略（state + 1）。</p>
+
+        <p>解释各部分：</p>
+
+        <ol><li><p><strong><code>tryAcquire</code>方法：</strong></p><ul><li><p>这个方法再次尝试直接获取锁。如果返回 <code>true</code>，表示获取锁成功，不需要进入等待队列。如果返回 <code>false</code>，表示获取锁失败，需要继续后续处理。</p></li></ul></li><li><p><strong><code>addWaiter(Node.EXCLUSIVE)</code>：</strong></p><ul><li><p><code>addWaiter</code>方法用于将当前线程加入到等待队列中，返回值是表示当前线程的<code>Node</code>节点。<code>Node.EXCLUSIVE</code>表示这是一个独占锁的节点。</p></li></ul></li><li><p><strong><code>acquireQueued</code>方法：</strong></p><ul><li><p><code>acquireQueued</code>方法用于将当前线程在等待队列中等待，并尝试获取锁。如果获取锁成功，返回 <code>true</code>；如果获取锁失败，返回 <code>false</code>。</p></li></ul></li><li><p><strong><code>selfInterrupt</code>方法：</strong></p><ul><li>如果获取锁失败，即<code>acquireQueued</code>返回 <code>true</code>，则调用<code>selfInterrupt</code>方法中断当前线程。这是为了确保在获取锁失败时，当前<strong>线程不会一直阻塞</strong>，而有机会响应中断。</li></ul></li></ol>
+
+        </p>
+    </div>
+
+    <div class="section" id="section31">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>加入队列</h2>
+        <p>
+        <p><code>ReentrantLock</code>使用<code>AbstractQueuedSynchronizer</code>（AQS）实现了线程的等待队列。以下是<code>ReentrantLock</code>将线程加入等待队列的主要过程：</p>
+
+        <ol><li><p><strong>创建节点：</strong></p><ul><li><p>当一个线程调用<code>lock</code>方法时，它<strong>#开始#</strong>  <strong>首先会创建一个<code>Node</code>节点</strong>，表示当前线程在等待队列中等待获取锁。</p><p><code>java
+            Node node = new Node(Thread.currentThread(), mode);
+        </code></p></li></ul></li><li><p><strong>尝试使用快速路径（fast path of enq）加入队列：</strong></p><ul><li><p><code>ReentrantLock</code>首先尝试使用快速路径将节点加入队列。</p></li><li><p>获取当前队尾节点：</p><p><code>java
+            Node pred = tail;
+        </code></p></li><li><p><strong>如果队尾节点不为空，将新节点加入队尾</strong>，然后尝试以原子方式将<strong>队尾更新为新节点</strong>：</p><p><code>java
+            node.prev = pred;
+            if (compareAndSetTail(pred, node)) {
+            pred.next = node;
+            return node; // 返回新节点
+            }
+        </code></p></li></ul></li><li><p><strong>如果队列没人排队或者CAS失败（代表有并发）：</strong></p><ul><li><p>调用<code>enq(node)</code>方法，使用完整路径将节点加入队列。</p><p><code>java
+            enq(node);
+        </code></p></li><li><p><code>enq</code>方法会在队列尾部添加节点，处理完整的加入队列过程。</p><p><code>java
+            final Node enq(final Node node) {
+            死循环，直到成功为止
+            for (;;) {
+            Node t = tail;
+            if (t == null) { // 如果队列为空，创建一个哑结点作为头结点
+            if (compareAndSetHead(new Node()))
+            tail = head;
+            } else {
+            node.prev = t;
+            //如果队列不为空，就把尾结点设置为当前节点
+            if (compareAndSetTail(t, node)) {
+            t.next = node; // 将队尾的后一个节点设置为新节点
+            return t; // 返回原来的队尾节点
+            }
+            }
+            }
+            }
+        </code></p></li></ul></li></ol>
+
+        <p>这样，线程就被成功加入等待队列，等待获取锁。整个过程涉及了快速路径和完整路径（处理队列为空的情况）的策略，以及使用CAS（Compare and Swap）来确保原子性操作。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section32">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>CLH</h2>
+        <p>
+        <p>AQS实现了一种基于CLH（Craig, Landin, and Hagersten）锁队列算法的等待队列机制，用于管理多线程对共享资源的访问。CLH是一种自旋锁的变种，它通过显示地维护一个队列，使得线程按照FIFO（先进先出）的顺序等待获取锁，从而避免了传统的自旋锁可能存在的饥饿问题。</p>
+
+        <p>下面简要解释AQS如何基于CLH实现等待队列：</p>
+
+        <ol><li><p><strong>Node节点：</strong></p><ul><li><p><strong>#开始#</strong>AQS中的等待队列是由<code>Node</code>节点组成的。每个线程对应一个<code>Node</code>节点。<code>Node</code>节点内部存在一些状态信息，例如<code>prev</code>（前一个节点）、<code>next</code>（后一个节点）、<code>waitStatus</code>（等待状态）CANCELLED（是否失效）等。</p></li></ul></li><li><p><strong><code>addWaiter</code>方法：</strong></p><ul><li><p>当一个线程需要等待锁时，会通过<code>addWaiter</code>方法将自己加入到等待队列中。这个方法会创建一个新的<code>Node</code>节点，并将其加入到队列的尾部。</p></li></ul></li><li><p><strong><code>acquireQueued</code>方法：</strong></p><ul><li><p>当一个线程无法直接获取锁（<code>tryAcquire</code>返回<code>false</code>）时，它会调用<code>acquireQueued</code>方法。这个方法会将当前线程封装成一个<code>Node</code>节点，并将其加入到等待队列的尾部。然后，它会进入<strong>通过for循环，自旋等待</strong>状态，<strong>不断检查前一个节点是否为头节点，并尝试获取锁</strong>（tryAcquire）。</p></li></ul></li><li><p><strong>头节点与尾节点：</strong></p><ul><li><p>等待队列的头节点表示当前持有锁的线程，而尾节点是等待队列的末尾。新的等待线程会被加入到尾部，而等待线程获取锁时，会通过修改头节点来表示锁已被占用。</p></li></ul></li><li><p><strong>自旋与阻塞：</strong></p><ul><li><strong>线程会不断检查前一个节点是否为头节点，如果是，则说明锁已经被释放，当前线程有机会获取锁。如果不是，则继续自旋等待。如果自旋等待一定次数后仍未成功，线程可能会进入阻塞状态</strong></li></ul></li></ol>
+
+        <p>总体而言，AQS基于CLH的等待队列机制，通过显示的队列结构和自旋等待的方式，实现了对共享资源的高效管理，避免了传统自旋锁可能存在的问题。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section33">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>释放锁</h2>
+        <p>
+        <p><code>ReentrantLock</code>中，通过unlock方法来释放锁，unlock方法会调用tryRelease方法来尝试释放锁。释放所得过程非公平锁和公平锁相同，所以在Sync类中实现。</p>
+
+        <ol><li><p><strong>tryRelease方法：</strong></p><ul><li><p>如果当前线程是独占锁的持有者，通过<code>exclusiveOwnerThread == Thread.currentThread()</code>相等判断，就会减小同步状态（<code>state</code>），来表示释放锁。</p><p><code>java
+            protected final boolean tryRelease(int releases) {
+            int c = getState() - releases;
+            if (Thread.currentThread() != getExclusiveOwnerThread())
+            throw new IllegalMonitorStateException();
+            boolean free = false;
+            if (c == 0) {
+            free = true;
+            setExclusiveOwnerThread(null);
+            }
+            setState(c);
+            return free;
+            }
+        </code></p></li></ul></li><li><p><strong>判断是否需要唤醒后继节点</strong>：</p><ul><li><p>如果成功释放锁，需要判断是否有等待的后继节点（即等待获取锁的线程），如果有，需要<strong>唤醒其中的一个后继节点。</strong></p></li><li><p>如果 <code>releases &gt; 0</code>，表示锁被完全释放，需要唤醒后继节点。</p></li></ul></li><li><p><strong>唤醒后继节点：</strong></p><ul><li><p><code>unparkSuccessor</code>方法用于唤醒后继节点。</p></li><li>如果当前节点的状态是负数（表示线程需要被阻塞），将其状态改为0。</li><li>然后，查找后继节点（<code>s</code>）：<ul><li>如果后继节点为空或者其状态为正数，从尾节点开始向前查找一个状态为0的节点作为后继节点。</li></ul></li><li>最后，使用<code>LockSupport.unpark</code>唤醒后继节点的线程。</li></ul></li></ol>
+
+        <p>这样，释放锁的过程就完成了，同时唤醒了一个后继节点，使其有机会获取锁。</p>
+
+        <pre><code>private void setHead(Node node) {
+    head = node;
+    node.thread = null;
+    node.prev = null;
+}
+
+private void unparkSuccessor(Node node) {
+    int ws = node.waitStatus;
+    if (ws &lt; 0)
+        compareAndSetWaitStatus(node, ws, 0);
+Node s = node.next;
+if (s == null || s.waitStatus &gt; 0) {
+    s = null;
+    for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)
+        if (t.waitStatus &lt;= 0)
+            s = t;
+}
+if (s != null)
+    LockSupport.unpark(s.thread);
+} </code></pre>
+
+        </p>
+    </div>
+
+    <div class="section" id="section34">
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <h2>公平lock</h2>
+        <p>
+        <p>公平锁的获取过程主要涉及以下几个关键步骤，这是基于 <code>AbstractQueuedSynchronizer</code>（AQS）框架的实现：</p>
+
+        <ol><li><p><strong>加入等待队列：</strong></p><ul><li><p><strong>当线程尝试获取锁时，如果发现锁已经被其他线程占用，就会将当前线程加入到等待队列</strong>中。</p></li><li><p>加入等待队列的方式是通过 <code>addWaiter</code> 方法。</p><p><code>java
+            private Node addWaiter(Node mode) {
+            Node node = new Node(Thread.currentThread(), mode);
+            // 尝试通过快速路径加入等待队列
+            Node pred = tail;
+            if (pred != null) {
+            node.prev = pred;
+            if (compareAndSetTail(pred, node)) {
+            pred.next = node;
+            return node;
+            }
+            }
+            // 快速路径失败，使用完整的加入等待队列的方法
+            enq(node);
+            return node;
+            }
+        </code></p></li></ul></li><li><p><strong>自旋等待：</strong></p><ul><li><p>线程<strong>加入等待队列后，会自旋等待</strong>状态，<strong>等待获取锁</strong>。</p></li><li><p>自旋等待的方式是通过 <code>acquireQueued</code> 方法，该方法会不断尝试获取锁。</p><p><code>java
+            final boolean acquireQueued(final Node node, int arg) {
+            boolean failed = true;
+            try {
+            boolean interrupted = false;
+            for (;;) {
+            final Node p = node.predecessor();
+            if (p == head &amp;&amp; tryAcquire(arg)) {
+            setHead(node);
+            p.next = null; // help GC
+            failed = false;
+            return interrupted;
+            }
+            if (shouldParkAfterFailedAcquire(p, node) &amp;&amp; parkAndCheckInterrupt())
+            interrupted = true;
+            }
+            } finally {
+            if (failed)
+            cancelAcquire(node);
+            }
+            }
+        </code></p></li></ul></li><li><p><strong>唤醒后继节点：</strong></p><ul><li><p>当获取锁的线程释放锁时，会通过 <code>unparkSuccessor</code> 方法唤醒等待队列中的后继节点，使其有机会获取锁。</p><p><code></code>`java
+            private void unparkSuccessor(Node node) {
+            int ws = node.waitStatus;
+            if (ws &lt; 0)
+            compareAndSetWaitStatus(node, ws, 0);</p><p>Node s = node.next;
+            if (s == null || s.waitStatus &gt; 0) {
+            s = null;
+            for (Node t = tail; t != null &amp;&amp; t != node; t = t.prev)
+            if (t.waitStatus &lt;= 0)
+            s = t;
+            }
+            if (s != null)
+            LockSupport.unpark(s.thread);
+            }
+            <code></code>`</p></li></ul></li></ol>
+
+        <p>总体来说，公平锁的获取过程通过维护一个等待队列，按照线程请求的先后顺序来决定获取锁的优先级，从而实现了锁的公平性。</p>
+
+        </p>
+    </div>
+
+    <div class="section" id="section35">
         <br>
         <br>
         <br>
